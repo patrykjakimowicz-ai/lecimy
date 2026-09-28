@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ── SEO — podstawowe meta ── -->
+  <title>Lecimy po swoje – program transformacji i rozwoju osobistego</title>
+  <meta name="description" content="Program rozwoju osobistego oparty na 4 filarach: dyscyplinie, szczęściu, finansach i duchowości. Zbuduj system, który realnie zmieni Twoje życie." />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="Lecimy po swoje" />
+  <link rel="canonical" href="https://lecimyposwoje.pl/" />
+  <meta name="theme-color" content="#0a0a0a" />
+
+  <!-- ── SEO — Open Graph (Facebook, LinkedIn itp.) ── -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Lecimy po swoje" />
+  <meta property="og:locale" content="pl_PL" />
+  <meta property="og:url" content="https://lecimyposwoje.pl/" />
+  <meta property="og:title" content="Lecimy po swoje – program transformacji i rozwoju osobistego" />
+  <meta property="og:description" content="Program rozwoju osobistego oparty na 4 filarach: dyscyplinie, szczęściu, finansach i duchowości. Zbuduj system, który realnie zmieni Twoje życie." />
+  <meta property="og:image" content="https://lecimyposwoje.pl/hero.jpg" />
+  <meta property="og:image:alt" content="Lecimy po swoje – program transformacji" />
+
+  <!-- ── SEO — Twitter Card ── -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Lecimy po swoje – program transformacji i rozwoju osobistego" />
+  <meta name="twitter:description" content="Program rozwoju osobistego oparty na 4 filarach: dyscyplinie, szczęściu, finansach i duchowości." />
+  <meta name="twitter:image" content="https://lecimyposwoje.pl/hero.jpg" />
+
+  <!-- ── Favicon ── -->
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <link rel="apple-touch-icon" href="brand_assets/favicon.png" />
+
+  <!-- ── Performance / preconnect dla zasobów zewnętrznych ── -->
+  <link rel="preconnect" href="https://img.youtube.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preload" as="image" href="hero.jpg" fetchpriority="high" />
+
+  <style>
+    @font-face {
+      font-family: 'SF Pro Text';
+      src: local('SF Pro Text Medium'), url('/Library/Fonts/SF-Pro-Text-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.3.26/dist/lenis.min.js" defer></script>
+
+  <!-- ── SEO — dane strukturalne (JSON-LD) ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "Lecimy po swoje",
+    "description": "Program rozwoju osobistego oparty na 4 filarach: dyscyplinie, szczęściu, finansach i duchowości.",
+    "provider": {
+      "@type": "Organization",
+      "name": "Lecimy po swoje",
+      "sameAs": "https://lecimyposwoje.pl/"
+    },
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Fundament",
+        "price": "997",
+        "priceCurrency": "PLN",
+        "url": "https://lecimyposwoje.pl/#pricing"
+      },
+      {
+        "@type": "Offer",
+        "name": "Kompletny System",
+        "price": "1597",
+        "priceCurrency": "PLN",
+        "url": "https://lecimyposwoje.pl/#pricing"
+      },
+      {
+        "@type": "Offer",
+        "name": "VIP",
+        "price": "2497",
+        "priceCurrency": "PLN",
+        "url": "https://lecimyposwoje.pl/#pricing"
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+  <!-- =============================================
+       NAV — sticky, przezroczysta → nieprzezroczysta po scrollu
+       JS: dodaje klasę .scrolled po przekroczeniu 80px
+  ============================================= -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner container">
+      <a href="#" class="nav__logo"><img src="brand_assets/logo.png" alt="LECIMY" /></a>
+      <ul class="nav__links">
+        <li><a href="#journey">Filary</a></li>
+        <li><a href="#pricing">Cennik</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="logowanie.html">Zaloguj się</a></li>
+      </ul>
+      <a href="#pricing" class="btn btn--nav nav__cta">Dołącz teraz</a>
+    </div>
+  </nav>
+
+
+  <!-- Cursor follower — desktop only -->
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+
+  <main>
+
+    <!-- =============================================
+         HERO — fullscreen zdjęcie + gradient pomarańczowy od dołu
+         Styl wzorowany na Tony Robbins: tekst overlay na dole, CTA button
+    ============================================= -->
+    <section class="hero" id="hero">
+      <div class="hero__text" data-reveal>
+        <h1 class="hero__headline">
+          Zacznij żyć<br />na swoich<br />zasadach
+        </h1>
+        <p class="hero__sub hero__sub--glow">Odkryj sprawdzoną metodę budowania siebie od podstaw. Zbuduj żelazną dyscyplinę, znajdź prawdziwe szczęście, uwolnij się od finansowego stresu i wejdź głębiej w siebie zgłębiając filary duchowości.</p>
+        <a href="#pricing" class="btn btn--hero">ODBLOKUJ DOSTĘP</a>
+      </div>
+      <div class="hero__card">
+        <img class="hero__photo" src="hero.jpg" width="906" height="1600" alt="Twórca programu Lecimy po swoje" fetchpriority="high" decoding="async" />
+        <div class="hero__gradient"></div>
+        <div class="hero__overlay-content">
+          <h1 class="hero__headline">
+            Zacznij żyć<br />na swoich<br />zasadach
+          </h1>
+          <p class="hero__sub hero__sub--glow">Odkryj sprawdzoną metodę budowania siebie od podstaw. Zbuduj żelazną dyscyplinę, znajdź prawdziwe szczęście, uwolnij się od finansowego stresu i wejdź głębiej w siebie zgłębiając filary duchowości.</p>
+          <a href="#pricing" class="btn btn--hero">ODBLOKUJ DOSTĘP</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         ABOUT — nagłówek + wideo
+    ============================================= -->
+    <section class="about" id="about">
+      <div class="container container--narrow">
+        <div class="about__badge" data-reveal>
+          <span class="about__badge-dot" aria-hidden="true"></span>
+          Obejrzyj krótkie wideo
+        </div>
+        <div class="section-header" data-reveal data-delay="60">
+          <h2>Zobacz, na czym dokładnie polega transformacja</h2>
+        </div>
+        <div class="about__video" data-reveal data-delay="150" id="aboutVideo" data-video-id="Ib6mamWQEME">
+          <img src="https://img.youtube.com/vi/Ib6mamWQEME/maxresdefault.jpg" alt="Wideo: na czym polega transformacja w programie Lecimy po swoje" class="about__video-thumb" loading="lazy" decoding="async" />
+          <button class="about__video-play" aria-label="Odtwórz wideo">
+            <svg viewBox="0 0 68 48" width="68" height="48">
+              <path d="M66.5 7.7s-.7-4.7-2.8-6.8C60.7-2 57.2-2 55.6-2.2 46.5-3 34-3 34-3s-12.5 0-21.6.8C10.8-2 7.3-2 4.3.9 2.2 3 1.5 7.7 1.5 7.7S.8 13.3.8 18.8v5.2c0 5.5.7 11.1.7 11.1s.7 4.7 2.8 6.8c3 3.1 6.9 3 8.7 3.3 6.3.6 26.8.9 26.8.9s12.5 0 21.6-.8c1.6-.2 5.1-.2 8.1-3.1 2.1-2.1 2.8-6.8 2.8-6.8s.7-5.5.7-11.1v-5.2c0-5.5-.7-11.2-.7-11.2z" fill="red"/>
+              <path d="M27 33V13l18 10-18 10z" fill="#fff"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         ALLACCESS — Twój paszport do transformacji
+         6 kart w gridzie 3×2 + CTA
+    ============================================= -->
+    <section class="allaccess" id="allaccess">
+      <div class="allaccess__glow" aria-hidden="true"></div>
+      <div class="container">
+        <div class="allaccess__header" data-reveal>
+          <div class="allaccess__symbol" aria-hidden="true">
+            <span class="allaccess__symbol-glow"></span>
+            <svg class="allaccess__symbol-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" width="38" height="38">
+              <path d="M8 21h8"/>
+              <path d="M12 17v4"/>
+              <path d="M7 4h10"/>
+              <path d="M17 4v6a5 5 0 0 1-5 5 5 5 0 0 1-5-5V4"/>
+              <path d="M17 5h3a2 2 0 0 1 0 4h-2.5"/>
+              <path d="M7 5H4a2 2 0 0 0 0 4h2.5"/>
+            </svg>
+          </div>
+          <h2 class="allaccess__title">Stwórz nowego siebie</h2>
+          <p class="allaccess__sub">Ile jeszcze będziesz czekać na idealny moment?</p>
+        </div>
+
+        <div class="allaccess__grid">
+          <div class="allaccess__card" data-reveal data-stagger>
+            <div class="allaccess__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <h3>Zbuduj niezatapialną dyscyplinę</h3>
+            <p>Przestań polegać na motywacji i stwórz system, który dowozi wyniki nawet w najgorsze dni.</p>
+          </div>
+
+          <div class="allaccess__card" data-reveal data-stagger>
+            <div class="allaccess__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </div>
+            <h3>Odnajdź prawdziwe szczęście</h3>
+            <p>Odkryj co tak naprawdę daje ci energię i zacznij żyć pełną piersią.</p>
+          </div>
+
+          <div class="allaccess__card" data-reveal data-stagger>
+            <div class="allaccess__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h3>Pokonaj wewnętrzne blokady</h3>
+            <p>Zidentyfikuj lęki, niepewność i przekonania, które Cię sabotują i uwolnij się od nich raz na zawsze.</p>
+          </div>
+
+          <div class="allaccess__card" data-reveal data-stagger>
+            <div class="allaccess__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <h3>Poukładaj swoje finanse</h3>
+            <p>Zrozum jak działa pieniądz i zacznij podejmować decyzje finansowe z głową.</p>
+          </div>
+
+          <div class="allaccess__card" data-reveal data-stagger>
+            <div class="allaccess__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h3>Wejdź w głąb siebie</h3>
+            <p>Poznaj techniki medytacji, wizualizacji i pracy z podświadomością. Zanurz się w świat duchowy.</p>
+          </div>
+
+          <div class="allaccess__card" data-reveal data-stagger>
+            <div class="allaccess__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="26" height="26"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <h3>Otocz się właściwymi ludźmi</h3>
+            <p>Dołącz do środowiska, które cię napędza, a nie hamuje.</p>
+          </div>
+        </div>
+
+        <div class="allaccess__cta" data-reveal>
+          <a href="#pricing" class="btn btn--primary btn--lg">Odblokuj dostęp</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         JOURNEY — scroll-based timeline z 4 filarami
+         JS: linia wypełnia się przy scrollu + karty wjeżdżają naprzemiennie
+    ============================================= -->
+    <section class="journey" id="journey">
+      <div class="container">
+        <div class="section-header" data-reveal>
+          <p class="eyebrow">Twoja droga</p>
+          <h2>4 filary Twojej przemiany</h2>
+        </div>
+
+        <div class="journey__timeline" id="journeyTimeline">
+          <div class="journey__track"></div>
+          <div class="journey__line" id="journeyLine"></div>
+
+          <div class="journey__step journey__step--right">
+            <div class="journey__marker">
+              <div class="journey__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+            </div>
+            <div class="journey__card">
+              <span class="journey__label">Filar 1</span>
+              <h3>Dyscyplina</h3>
+              <p>Przestań polegać na motywacji. Zbudujesz system i nawyki, które dowożą wyniki nawet w najgorsze dni — bez wymówek, bez wykrętów.</p>
+            </div>
+          </div>
+
+          <div class="journey__step journey__step--left">
+            <div class="journey__marker">
+              <div class="journey__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+              </div>
+            </div>
+            <div class="journey__card">
+              <span class="journey__label">Filar 2</span>
+              <h3>Szczęście</h3>
+              <p>Odkryj co naprawdę daje Ci energię i radość. Nauczysz się żyć pełną piersią i przestaniesz gonić za tym, co szczęściem nie jest.</p>
+            </div>
+          </div>
+
+          <div class="journey__step journey__step--right">
+            <div class="journey__marker">
+              <div class="journey__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+            </div>
+            <div class="journey__card">
+              <span class="journey__label">Filar 3</span>
+              <h3>Finanse</h3>
+              <p>Psychologia pieniądza, zysk, sprzedaż i negocjacje. Zrozumiesz jak działa pieniądz, zaczniesz podejmować świadome decyzje finansowe i uwolnisz się od stresu.</p>
+            </div>
+          </div>
+
+          <div class="journey__step journey__step--left">
+            <div class="journey__marker">
+              <div class="journey__dot">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="22" height="22"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+            </div>
+            <div class="journey__card">
+              <span class="journey__label">Filar 4</span>
+              <h3>Duchowość</h3>
+              <p>Wejdziesz głębiej w siebie. Praca z podświadomością, medytacje i hipnozy — odkryjesz wymiar, który zmienia wszystko.</p>
+            </div>
+          </div>
+
+          <div class="journey__finale">
+            <div class="journey__dot journey__dot--final">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <h3>Nowy Ty</h3>
+            <p>Po przejściu wszystkich 4 filarów budzisz się jako nowa wersja siebie — silniejsza, świadoma i gotowa na wszystko, co przyniesie życie.</p>
+            <a href="#pricing" class="btn btn--primary btn--lg" style="margin-top: var(--sp-md);">Wchodzę w to</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         DLA KOGO — hub layout z logo na środku
+    ============================================= -->
+    <section class="for-who">
+      <div class="container">
+        <div class="section-header" data-reveal>
+          <p class="eyebrow">Sprawdź</p>
+          <h2>Dla kogo jest ten program?</h2>
+        </div>
+
+        <div class="for-who__map">
+          <div class="for-who__col for-who__col--left">
+            <div class="for-who__card" data-reveal>
+              <div class="for-who__check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h3>Osoby początkujące</h3>
+              <p>Stoisz w miejscu i czujesz, że tracisz kontrolę nad kolejnym dniem. Masz dość walki z prokrastynacją i odkładania wszystkiego na mityczne „jutro". Ten program da Ci narzędzia, by wyjść z chaosu i zbudować solidne fundamenty pod realną zmianę.</p>
+            </div>
+            <div class="for-who__card" data-reveal>
+              <div class="for-who__check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h3>Osoby zaawansowane</h3>
+              <p>Masz już wyniki i stabilną bazę, ale utknąłeś pod szklanym sufitem. Wkładasz mnóstwo energii, a efekty przestały rosnąć. Przebijemy te ograniczenia, zoptymalizujemy Twoje procesy i wejdziemy na poziom realnej efektywności.</p>
+            </div>
+          </div>
+
+          <div class="for-who__hub" data-reveal>
+            <span class="for-who__line"></span>
+            <span class="for-who__line"></span>
+            <span class="for-who__line"></span>
+            <span class="for-who__line"></span>
+            <div class="for-who__logo">
+              <img src="brand_assets/logo.png" alt="Lecimy" loading="lazy" decoding="async" />
+            </div>
+          </div>
+
+          <div class="for-who__col for-who__col--right">
+            <div class="for-who__card" data-reveal>
+              <div class="for-who__check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h3>Przedsiębiorcy</h3>
+              <p>Prowadzisz biznes, który zamiast dawać wolność, pochłania każdą Twoją godzinę. Masz dość gaszenia pożarów. Poukładamy Twój czas, uporządkujemy procesy i odzyskasz kontrolę nad własnym biznesem.</p>
+            </div>
+            <div class="for-who__card" data-reveal>
+              <div class="for-who__check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <h3>Osoby na etacie</h3>
+              <p>Pracujesz u kogoś, ale szukasz większej niezależności i balansu. Chcesz poukładać życie tak, aby to praca była dla Ciebie, a nie Ty dla pracy. Ten program da Ci konkretne rozwiązania, jak zmienić sytuację na lepszą.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="for-who__not" data-reveal>
+          <h3>Dla kogo ten program <span class="for-who__not-accent">NIE</span> jest?</h3>
+          <div class="for-who__not-grid">
+            <div class="for-who__not-item">
+              <div class="for-who__x">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <h4>Liczysz na magię zakupu</h4>
+              <p>Jeśli masz zamiar kliknąć „kup teraz", odłożyć program na wirtualną półkę i czekać na cud — szkoda Twoich pieniędzy. Program nie odwali roboty za Ciebie.</p>
+            </div>
+            <div class="for-who__not-item">
+              <div class="for-who__x">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <h4>Wiesz wszystko najlepiej</h4>
+              <p>Masz pozamykane klapki i każdą nową perspektywę kwitujesz prychnięciem. Jeśli nie masz w sobie pokory, by przyjąć gotowe rozwiązania — zostań tam, gdzie jesteś.</p>
+            </div>
+            <div class="for-who__not-item">
+              <div class="for-who__x">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </div>
+              <h4>Szkoda Ci czasu na rozwój</h4>
+              <p>Wolisz tkwić w tym samym bagnie i narzekać na cały świat, zamiast wziąć odpowiedzialność i wdrożyć procesy, które wyciągną Cię w górę.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =============================================
+         PRICING — 3 pakiety: Fundament / Kompletny System (bestseller) / VIP (fioletowy)
+    ============================================= -->
+    <section class="pricing" id="pricing">
+      <div class="pricing__dots" aria-hidden="true"></div>
+      <div class="pricing__spotlight" aria-hidden="true"></div>
+
+      <div class="container">
+        <div class="section-header" data-reveal>
+          <p class="eyebrow">Dołącz teraz</p>
+          <h2>Zainwestuj w siebie</h2>
+          <p class="pricing__sub">Wybierz pakiet dopasowany do tego, jak daleko chcesz zajść.</p>
+        </div>
+
+        <div class="pricing__grid">
+          <div class="pricing-card pricing-card--base" data-reveal data-stagger>
+
+            <div class="pricing-card__head">
+              <div class="pricing-card__glass" aria-hidden="true"></div>
+              <div class="pricing-card__head-glow" aria-hidden="true"></div>
+
+              <h3 class="pricing-card__title">Fundament</h3>
+
+              <div class="pricing-card__price-wrap">
+                <div class="pricing-card__price-glow" aria-hidden="true"></div>
+                <div class="pricing-card__price">
+                  <span class="price-amount">997</span>
+                  <span class="price-currency">zł</span>
+                </div>
+              </div>
+              <p class="pricing-card__period">dostęp na 3&nbsp;miesiące</p>
+
+              <a href="zamowienie.html?pakiet=Fundament" class="btn btn--pricing">Dołączam</a>
+            </div>
+
+            <div class="pricing-card__body">
+              <div class="pricing-card__separator">
+                <span></span>
+                <span class="pricing-card__separator-text">Co dostajesz</span>
+                <span></span>
+              </div>
+
+              <ul class="pricing-card__features">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Filar 1: Dyscyplina</strong></span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span>Podstawowe karty pracy i ćwiczenia wdrożeniowe</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span>Samodzielny dostęp do platformy (3&nbsp;miesiące)</span>
+                </li>
+                <li class="is-off">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  <span>Brak dostępu do Filarów 2–4 (Szczęście, Finanse, Duchowość)</span>
+                </li>
+                <li class="is-off">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  <span>Brak dostępu do Społeczności „Lecimy”</span>
+                </li>
+              </ul>
+
+            </div>
+
+          </div>
+
+          <div class="pricing-card pricing-card--featured" data-reveal data-stagger>
+
+            <div class="pricing-card__head">
+              <div class="pricing-card__glass" aria-hidden="true"></div>
+              <div class="pricing-card__head-glow" aria-hidden="true"></div>
+
+              <span class="pricing-card__badge">Bestseller</span>
+
+              <h3 class="pricing-card__title">Kompletny System</h3>
+
+              <div class="pricing-card__price-wrap">
+                <div class="pricing-card__price-glow" aria-hidden="true"></div>
+                <div class="pricing-card__price">
+                  <span class="price-amount">1&nbsp;597</span>
+                  <span class="price-currency">zł</span>
+                </div>
+              </div>
+              <p class="pricing-card__period">dostęp na 3&nbsp;miesiące</p>
+
+              <a href="zamowienie.html?pakiet=Kompletny%20System" class="btn btn--pricing">Dołączam</a>
+            </div>
+
+            <div class="pricing-card__body">
+              <div class="pricing-card__separator">
+                <span></span>
+                <span class="pricing-card__separator-text">Co dostajesz</span>
+                <span></span>
+              </div>
+
+              <ul class="pricing-card__features">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Wszystkie 4 Filary:</strong> Dyscyplina, Szczęście, Finanse, Duchowość</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Dostęp do Społeczności „Lecimy”</strong> (3&nbsp;miesiące)</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Comiesięczne spotkania na żywo z Bartem</strong></span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Gotowy Zestaw Narzędzi Wdrożeniowych</strong></span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Narzędzia Pracy z Podświadomością</strong> - sesje hipnozy, medytacje prowadzone i afirmacje</span>
+                </li>
+              </ul>
+
+            </div>
+
+          </div>
+
+          <div class="pricing-card pricing-card--vip" data-reveal data-stagger>
+
+            <div class="pricing-card__head">
+              <div class="pricing-card__glass" aria-hidden="true"></div>
+              <div class="pricing-card__head-glow" aria-hidden="true"></div>
+
+              <span class="pricing-card__limit">Tylko 25 miejsc</span>
+
+              <h3 class="pricing-card__title">VIP</h3>
+
+              <div class="pricing-card__price-wrap">
+                <div class="pricing-card__price-glow" aria-hidden="true"></div>
+                <div class="pricing-card__price">
+                  <span class="price-amount">2&nbsp;497</span>
+                  <span class="price-currency">zł</span>
+                </div>
+              </div>
+              <p class="pricing-card__period">dostęp na 3&nbsp;miesiące</p>
+
+              <a href="zamowienie.html?pakiet=VIP" class="btn btn--pricing">Dołączam do VIP</a>
+            </div>
+
+            <div class="pricing-card__body">
+              <div class="pricing-card__separator">
+                <span></span>
+                <span class="pricing-card__separator-text">Co dostajesz</span>
+                <span></span>
+              </div>
+
+              <ul class="pricing-card__features">
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Wszystko, co zawiera pakiet Kompletny System</strong></span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Zakazane Lekcje</strong> - tajniki moich wyników, strategii i decyzji, o których nie mówię publicznie</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Osobisty feedback od Barta</strong> - dedykowana strefa pytań z bezpośrednią odpowiedzią Barta</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Ekskluzywne Materiały VIP</strong> - zaawansowane narzędzia wdrożeniowe tylko dla wąskiego grona</span>
+                </li>
+                <li>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span><strong>Indywidualny audyt od Barta</strong> - personalna analiza Twojego problemu i sytuacji w dedykowanej wiadomości głosowej</span>
+                </li>
+              </ul>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         FAQ — accordion
+         JS: klik → rozwinięcie/zwinięcie z smooth height transition
+         ANIMACJA: chevron obraca się 180° przy otwarciu
+    ============================================= -->
+    <section class="faq" id="faq">
+      <div class="container container--narrow">
+        <div class="section-header" data-reveal>
+          <p class="eyebrow">Masz pytania?</p>
+          <h2>Często zadawane pytania</h2>
+        </div>
+        <div class="faq__list" data-reveal data-delay="100">
+
+          <details class="faq-item">
+            <summary class="faq-item__question">
+              Jak długo trwa dostęp?
+              <svg class="faq-item__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <div class="faq-item__answer"><div class="faq-item__answer-inner">
+              <p>We wszystkich pakietach dostęp jest aktywny przez 3 miesiące od daty zakupu.</p>
+            </div></div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-item__question">
+              Jaka jest polityka zwrotów?
+              <svg class="faq-item__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <div class="faq-item__answer"><div class="faq-item__answer-inner">
+              <p>Kupując kurs, wyrażasz zgodę na natychmiastowe udostępnienie treści cyfrowych jeszcze przed upływem 14-dniowego terminu na odstąpienie od umowy. Zgodnie z ustawą o prawach konsumenta (art. 38 pkt 13) oznacza to utratę prawa do zwrotu po rozpoczęciu korzystania z materiałów. Zależy nam na tym, żebyś wchodził w ten program z pełną świadomością i zaangażowaniem — bo to właśnie jest fundament prawdziwej zmiany. Szczegóły znajdziesz w <a href="regulamin.html">Regulaminie</a>.</p>
+            </div></div>
+          </details>
+
+          <details class="faq-item">
+            <summary class="faq-item__question">
+              Czym różnią się pakiety?
+              <svg class="faq-item__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <div class="faq-item__answer"><div class="faq-item__answer-inner">
+              <p><strong>Fundament</strong> to Filar 1: Dyscyplina wraz z kartami pracy i ćwiczeniami wdrożeniowymi. <strong>Kompletny System</strong> daje Ci wszystkie 4 filary — Dyscyplinę, Szczęście, Finanse i Duchowość — ekosystem narzędzi, pakiet audio oraz dostęp do Społeczności „Lecimy”. <strong>VIP</strong> to wszystko z Kompletnego Systemu plus Zakazane Lekcje, osobisty feedback od Barta i zamknięte sesje Q&amp;A na żywo.</p>
+            </div></div>
+          </details>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         FINAL CTA — fullwidth, ciemne tło, jeden przycisk
+         JS: subtle particle/glow effect w tle (opcjonalnie)
+    ============================================= -->
+    <section class="cta-final">
+      <div class="container container--narrow">
+        <div class="cta-final__content" data-reveal>
+          <h2>Gotowy, żeby zmienić trajektorię swojego życia?</h2>
+          <p>Stwórz nową, lepszą wersję siebie — świadomą, silną i żyjącą dokładnie tak, jak chcesz.</p>
+          <a href="#pricing" class="btn btn--primary btn--lg">Zacznij teraz</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- =============================================
+         LOGIN BANNER — dla osób, które mają już konto
+    ============================================= -->
+    <section class="login-banner">
+      <div class="container container--narrow">
+        <div class="login-banner__box" data-reveal>
+          <h3>Masz już konto?</h3>
+          <p>Wróć do panelu programu i kontynuuj naukę tam, gdzie skończyłeś/-aś.</p>
+          <a href="logowanie.html" class="btn btn--outline btn--lg">Zaloguj się do platformy</a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =============================================
+       FOOTER
+  ============================================= -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="#" class="nav__logo"><img src="brand_assets/logo.png" alt="LECIMY" loading="lazy" decoding="async" /></a>
+          <p>Transformacja. Odpowiedzialność. Wyniki.</p>
+        </div>
+        <nav class="footer__nav">
+          <ul>
+            <li><a href="polityka-prywatnosci.html">Polityka prywatności</a></li>
+            <li><a href="regulamin.html">Regulamin</a></li>
+            <li><a href="mailto:kontakt@weskaacademy.pl">Kontakt</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer__bottom">
+        <p>Weska Academy Sp. z o.o. · ul. Złota 7/28, 00-019 Warszawa · NIP 5253083214 · REGON 544279185 · KRS 0001229728</p>
+        <p>&copy; 2026 Lecimy po swoje. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

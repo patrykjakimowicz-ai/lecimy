@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dziękujemy – Lecimy po swoje</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <style>
+    @font-face {
+      font-family: 'SF Pro Text';
+      src: local('SF Pro Text Medium'), url('/Library/Fonts/SF-Pro-Text-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .thankyou {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--sp-lg);
+      text-align: center;
+    }
+    .thankyou__card { max-width: 480px; }
+    .thankyou__icon {
+      width: 64px; height: 64px; margin: 0 auto var(--sp-md);
+      border-radius: 50%;
+      background: rgba(232,120,12,0.1);
+      border: 1.5px solid rgba(232,120,12,0.35);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--clr-gold);
+    }
+    .thankyou h1 { margin-bottom: var(--sp-sm); }
+    .thankyou p { color: var(--clr-text-muted); margin-bottom: var(--sp-md); line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+  <main class="thankyou">
+    <div class="thankyou__card">
+      <div class="thankyou__icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="30" height="30"><path d="M20 6 9 17l-5-5"/></svg>
+      </div>
+      <h1>Dziękujemy za zamówienie!</h1>
+      <p id="thankyouMessage">
+        Twoja płatność jest przetwarzana. W ciągu kilku minut dostaniesz e-mail z potwierdzeniem
+        i dostępem do materiałów — sprawdź też folder spam.
+      </p>
+      <a href="index.html" class="btn btn--primary btn--lg">Wróć na stronę główną</a>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      // Musi wskazywać na to samo co API_BASE w zamowienie.html — patrz komentarz tam.
+      var API_BASE = '';
+
+      var sid = new URLSearchParams(window.location.search).get('sid');
+      var msgEl = document.getElementById('thankyouMessage');
+      if (!sid) return;
+
+      // Krótkie odpytanie statusu — webhook P24 zwykle dociera w kilka–kilkanaście sekund.
+      var attempts = 0;
+      var poll = setInterval(function () {
+        attempts++;
+        fetch(API_BASE + '/api/order/' + encodeURIComponent(sid))
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (data && data.status === 'paid') {
+              msgEl.textContent = 'Płatność potwierdzona! Dostęp do kursu wysłaliśmy na Twój e-mail.';
+              clearInterval(poll);
+            } else if (attempts >= 10) {
+              clearInterval(poll);
+            }
+          })
+          .catch(function () { clearInterval(poll); });
+      }, 3000);
+    })();
+  </script>
+
+</body>
+</html>

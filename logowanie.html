@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zaloguj się – Lecimy po swoje</title>
+  <meta name="description" content="Zaloguj się do platformy programu Lecimy po swoje." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <style>
+    @font-face {
+      font-family: 'SF Pro Text';
+      src: local('SF Pro Text Medium'), url('/Library/Fonts/SF-Pro-Text-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" id="nav">
+    <div class="nav__inner container">
+      <a href="index.html" class="nav__logo"><img src="brand_assets/logo.png" alt="LECIMY" /></a>
+      <ul class="nav__links">
+        <li><a href="index.html#journey">Filary</a></li>
+        <li><a href="index.html#pricing">Cennik</a></li>
+        <li><a href="index.html#faq">FAQ</a></li>
+      </ul>
+      <a href="index.html#pricing" class="btn btn--nav nav__cta">Dołącz teraz</a>
+    </div>
+  </nav>
+
+  <main class="auth">
+    <div class="auth__card">
+      <div class="auth__logo"><img src="brand_assets/logo.png" alt="LECIMY" /></div>
+
+      <!-- Logowanie -->
+      <form class="auth__form" id="loginForm" novalidate>
+        <h1>Zaloguj się</h1>
+        <p class="auth__sub">Wejdź do panelu programu i wróć do nauki.</p>
+
+        <div class="auth__row">
+          <label for="loginEmail">E-mail</label>
+          <input type="email" id="loginEmail" name="email" autocomplete="email" required />
+        </div>
+
+        <div class="auth__row">
+          <label for="loginPassword">Hasło</label>
+          <input type="password" id="loginPassword" name="password" autocomplete="current-password" required />
+        </div>
+
+        <a href="#" class="auth__forgot" id="showResetLink">Nie pamiętasz hasła?</a>
+
+        <button type="submit" class="btn btn--primary btn--lg btn--full" id="loginSubmit">
+          <span id="loginSubmitLabel">Zaloguj się</span>
+        </button>
+
+        <div class="auth__status" id="loginStatus"></div>
+      </form>
+
+      <!-- Reset hasła — krok 1: wysyłka linku -->
+      <form class="auth__form is-hidden" id="resetForm" novalidate>
+        <h1>Reset hasła</h1>
+        <p class="auth__sub">Podaj e-mail, na który wyślemy link do ustawienia nowego hasła.</p>
+
+        <div class="auth__row">
+          <label for="resetEmail">E-mail</label>
+          <input type="email" id="resetEmail" name="email" autocomplete="email" required />
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--lg btn--full" id="resetSubmit">
+          <span id="resetSubmitLabel">Wyślij link resetujący</span>
+        </button>
+
+        <a href="#" class="auth__forgot" id="backToLoginLink" style="align-self: center;">&larr; Wróć do logowania</a>
+
+        <div class="auth__status" id="resetStatus"></div>
+      </form>
+
+      <!-- Reset hasła — krok 2: ustawienie nowego hasła (po kliknięciu w link z maila) -->
+      <form class="auth__form is-hidden" id="newPasswordForm" novalidate>
+        <h1>Ustaw nowe hasło</h1>
+        <p class="auth__sub">Wpisz nowe hasło do swojego konta.</p>
+
+        <div class="auth__row">
+          <label for="newPassword">Nowe hasło</label>
+          <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" minlength="6" required />
+        </div>
+
+        <div class="auth__row">
+          <label for="newPasswordConfirm">Powtórz nowe hasło</label>
+          <input type="password" id="newPasswordConfirm" name="newPasswordConfirm" autocomplete="new-password" minlength="6" required />
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--lg btn--full" id="newPasswordSubmit">
+          <span id="newPasswordSubmitLabel">Zapisz nowe hasło</span>
+        </button>
+
+        <div class="auth__status" id="newPasswordStatus"></div>
+      </form>
+
+      <a href="index.html" class="auth__back">&larr; Wróć na stronę główną</a>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    (function () {
+      var client = window.supabaseClient;
+      if (!client) return;
+
+      var forms = {
+        login: document.getElementById('loginForm'),
+        reset: document.getElementById('resetForm'),
+        newPassword: document.getElementById('newPasswordForm'),
+      };
+
+      function showForm(name) {
+        Object.keys(forms).forEach(function (key) {
+          forms[key].classList.toggle('is-hidden', key !== name);
+        });
+      }
+
+      function setStatus(el, message, type) {
+        el.textContent = message;
+        el.classList.remove('is-error', 'is-success');
+        if (type) el.classList.add(type);
+        el.classList.toggle('is-visible', !!message);
+      }
+
+      function translateError(message) {
+        var map = {
+          'Invalid login credentials': 'Nieprawidłowy e-mail lub hasło.',
+          'Email not confirmed': 'Potwierdź swój adres e-mail — sprawdź skrzynkę odbiorczą.',
+          'User not found': 'Nie znaleziono konta z tym adresem e-mail.',
+          'Password should be at least 6 characters.': 'Hasło musi mieć co najmniej 6 znaków.',
+        };
+        return map[message] || message || 'Coś poszło nie tak. Spróbuj ponownie.';
+      }
+
+      // ── Logowanie ──────────────────────────────
+      var loginStatus = document.getElementById('loginStatus');
+      var loginSubmit = document.getElementById('loginSubmit');
+      var loginSubmitLabel = document.getElementById('loginSubmitLabel');
+
+      forms.login.addEventListener('submit', function (e) {
+        e.preventDefault();
+        setStatus(loginStatus, '');
+
+        var email = document.getElementById('loginEmail').value.trim();
+        var password = document.getElementById('loginPassword').value;
+
+        loginSubmit.disabled = true;
+        loginSubmitLabel.textContent = 'Logowanie…';
+
+        client.auth.signInWithPassword({ email: email, password: password })
+          .then(function (result) {
+            if (result.error) throw result.error;
+            window.location.href = 'panel.html';
+          })
+          .catch(function (err) {
+            setStatus(loginStatus, translateError(err.message), 'is-error');
+          })
+          .finally(function () {
+            loginSubmit.disabled = false;
+            loginSubmitLabel.textContent = 'Zaloguj się';
+          });
+      });
+
+      // ── Przełączanie logowanie ↔ reset hasła ──
+      document.getElementById('showResetLink').addEventListener('click', function (e) {
+        e.preventDefault();
+        setStatus(loginStatus, '');
+        showForm('reset');
+      });
+      document.getElementById('backToLoginLink').addEventListener('click', function (e) {
+        e.preventDefault();
+        setStatus(document.getElementById('resetStatus'), '');
+        showForm('login');
+      });
+
+      // ── Reset hasła — krok 1: wysyłka linku ────
+      var resetStatus = document.getElementById('resetStatus');
+      var resetSubmit = document.getElementById('resetSubmit');
+      var resetSubmitLabel = document.getElementById('resetSubmitLabel');
+
+      forms.reset.addEventListener('submit', function (e) {
+        e.preventDefault();
+        setStatus(resetStatus, '');
+
+        var email = document.getElementById('resetEmail').value.trim();
+        resetSubmit.disabled = true;
+        resetSubmitLabel.textContent = 'Wysyłanie…';
+
+        client.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin + window.location.pathname,
+        })
+          .then(function (result) {
+            if (result.error) throw result.error;
+            setStatus(resetStatus, 'Jeśli konto istnieje, wysłaliśmy link do resetu hasła na podany adres e-mail.', 'is-success');
+          })
+          .catch(function (err) {
+            setStatus(resetStatus, translateError(err.message), 'is-error');
+          })
+          .finally(function () {
+            resetSubmit.disabled = false;
+            resetSubmitLabel.textContent = 'Wyślij link resetujący';
+          });
+      });
+
+      // ── Reset hasła — krok 2: ustawienie nowego hasła ──
+      var newPasswordStatus = document.getElementById('newPasswordStatus');
+      var newPasswordSubmit = document.getElementById('newPasswordSubmit');
+      var newPasswordSubmitLabel = document.getElementById('newPasswordSubmitLabel');
+
+      forms.newPassword.addEventListener('submit', function (e) {
+        e.preventDefault();
+        setStatus(newPasswordStatus, '');
+
+        var pass1 = document.getElementById('newPassword').value;
+        var pass2 = document.getElementById('newPasswordConfirm').value;
+
+        if (pass1.length < 6) {
+          setStatus(newPasswordStatus, 'Hasło musi mieć co najmniej 6 znaków.', 'is-error');
+          return;
+        }
+        if (pass1 !== pass2) {
+          setStatus(newPasswordStatus, 'Hasła nie są identyczne.', 'is-error');
+          return;
+        }
+
+        newPasswordSubmit.disabled = true;
+        newPasswordSubmitLabel.textContent = 'Zapisywanie…';
+
+        client.auth.updateUser({ password: pass1 })
+          .then(function (result) {
+            if (result.error) throw result.error;
+            setStatus(newPasswordStatus, 'Hasło zostało zmienione. Przenoszę do panelu…', 'is-success');
+            setTimeout(function () { window.location.href = 'panel.html'; }, 1200);
+          })
+          .catch(function (err) {
+            setStatus(newPasswordStatus, translateError(err.message), 'is-error');
+          })
+          .finally(function () {
+            newPasswordSubmit.disabled = false;
+            newPasswordSubmitLabel.textContent = 'Zapisz nowe hasło';
+          });
+      });
+
+      // ── Supabase dodaje token odzyskiwania hasła do URL i emituje ten event ──
+      client.auth.onAuthStateChange(function (event) {
+        if (event === 'PASSWORD_RECOVERY') {
+          showForm('newPassword');
+        }
+      });
+
+      // ── Jeśli użytkownik jest już zalogowany (i to nie jest link do resetu hasła) ──
+      if (window.location.hash.indexOf('type=recovery') === -1) {
+        client.auth.getSession().then(function (result) {
+          if (result.data && result.data.session) {
+            window.location.href = 'panel.html';
+          }
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>

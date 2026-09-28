@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel programu – Lecimy po swoje</title>
+  <meta name="description" content="Panel programu Lecimy po swoje." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <style>
+    @font-face {
+      font-family: 'SF Pro Text';
+      src: local('SF Pro Text Medium'), url('/Library/Fonts/SF-Pro-Text-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+    /* Panel jest osobną aplikacją — nie chcemy globalnego tła strony głównej */
+    body { background: var(--clr-bg); }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="lms" id="lmsRoot" style="display:none;">
+
+    <header class="lms__topbar">
+      <button class="lms__menu-toggle" id="menuToggle" aria-label="Menu programu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="index.html" class="nav__logo lms__logo"><img src="brand_assets/logo.png" alt="LECIMY" /></a>
+
+      <div class="lms__progress">
+        <div class="lms__progress-track"><div class="lms__progress-fill" id="progressFill"></div></div>
+        <span class="lms__progress-label" id="progressLabel">0%</span>
+      </div>
+
+      <button class="btn btn--ghost lms__logout" id="logoutBtn" type="button">Wyloguj</button>
+    </header>
+
+    <div class="lms__sidebar-backdrop" id="sidebarBackdrop"></div>
+
+    <div class="lms__body">
+      <aside class="lms__sidebar" id="sidebar">
+        <div id="sidebarModules"></div>
+      </aside>
+
+      <section class="lms__main" id="lessonMain">
+        <!-- Wypełniane dynamicznie przez JS -->
+      </section>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    (function () {
+      var client = window.supabaseClient;
+      if (!client) return;
+
+      // ── Treść programu ─────────────────────────────────────────────
+      // Podmień videoId / video na własne (YouTube: sam identyfikator wideo;
+      // Bunny Stream: pełny adres iframe, np. https://iframe.mediadelivery.net/embed/{library}/{videoId}).
+      // Podmień materials na prawdziwe linki do plików / notatek.
+      var COURSE = [
+        {
+          id: 'dyscyplina',
+          title: 'Filar 1: Dyscyplina',
+          lessons: [
+            {
+              id: 'd1',
+              title: 'Wprowadzenie do filaru Dyscyplina',
+              description: 'Dlaczego motywacja zawodzi i jak zbudować system, który dowozi wyniki nawet w najgorsze dni.',
+              video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME',
+              materials: [
+                { label: 'Karta pracy — Fundament dyscypliny (PDF)', url: '#' },
+              ],
+            },
+            { id: 'd2', title: 'System nawyków krok po kroku', description: 'Budowa nawyków, które utrzymują się same — bez polegania na sile woli.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+            { id: 'd3', title: 'Radzenie sobie z oporem', description: 'Co robić w dni, kiedy nic się nie chce — konkretny protokół awaryjny.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+          ],
+        },
+        {
+          id: 'szczescie',
+          title: 'Filar 2: Szczęście',
+          lessons: [
+            { id: 's1', title: 'Czym naprawdę jest szczęście', description: 'Odkryj, co realnie daje Ci energię i radość — bez pogoni za iluzją.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+            { id: 's2', title: 'Praca z emocjami na co dzień', description: 'Proste narzędzia do regulacji emocji w codziennym życiu.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+          ],
+        },
+        {
+          id: 'finanse',
+          title: 'Filar 3: Finanse',
+          lessons: [
+            { id: 'f1', title: 'Psychologia pieniądza', description: 'Jak Twoje przekonania o pieniądzach kształtują Twoje decyzje finansowe.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+            { id: 'f2', title: 'Budowanie systemu finansowego', description: 'Konkretne kroki do uporządkowania budżetu i budowania zysku.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+          ],
+        },
+        {
+          id: 'duchowosc',
+          title: 'Filar 4: Duchowość',
+          lessons: [
+            { id: 'du1', title: 'Wejście w głąb siebie', description: 'Wprowadzenie do pracy z podświadomością, medytacji i wizualizacji.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+            { id: 'du2', title: 'Medytacja prowadzona', description: 'Sesja medytacji prowadzonej do samodzielnej praktyki.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+          ],
+        },
+      ];
+
+      var ALL_LESSONS = COURSE.reduce(function (acc, mod) { return acc.concat(mod.lessons); }, []);
+
+      var els = {
+        root: document.getElementById('lmsRoot'),
+        sidebarModules: document.getElementById('sidebarModules'),
+        lessonMain: document.getElementById('lessonMain'),
+        progressFill: document.getElementById('progressFill'),
+        progressLabel: document.getElementById('progressLabel'),
+        sidebar: document.getElementById('sidebar'),
+        sidebarBackdrop: document.getElementById('sidebarBackdrop'),
+        menuToggle: document.getElementById('menuToggle'),
+        logoutBtn: document.getElementById('logoutBtn'),
+      };
+
+      var currentUserId = null;
+      var progressKey = null;
+      var completed = {};
+      var activeLessonId = ALL_LESSONS.length ? ALL_LESSONS[0].id : null;
+
+      function loadProgress() {
+        try {
+          var raw = window.localStorage.getItem(progressKey);
+          completed = raw ? JSON.parse(raw) : {};
+        } catch (e) {
+          completed = {};
+        }
+      }
+
+      function saveProgress() {
+        try {
+          window.localStorage.setItem(progressKey, JSON.stringify(completed));
+        } catch (e) { /* localStorage niedostępny — postęp nie zostanie zapamiętany */ }
+      }
+
+      function updateProgressBar() {
+        var doneCount = ALL_LESSONS.filter(function (l) { return completed[l.id]; }).length;
+        var pct = ALL_LESSONS.length ? Math.round((doneCount / ALL_LESSONS.length) * 100) : 0;
+        els.progressFill.style.width = pct + '%';
+        els.progressLabel.textContent = pct + '%';
+      }
+
+      function findLesson(lessonId) {
+        return ALL_LESSONS.filter(function (l) { return l.id === lessonId; })[0] || null;
+      }
+
+      function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+
+      function renderSidebar() {
+        els.sidebarModules.innerHTML = COURSE.map(function (mod, modIndex) {
+          var lessonsHtml = mod.lessons.map(function (lesson, i) {
+            var isActive = lesson.id === activeLessonId;
+            var isDone = !!completed[lesson.id];
+            return (
+              '<div class="lms__lesson' + (isActive ? ' is-active' : '') + (isDone ? ' is-done' : '') + '" data-lesson-id="' + lesson.id + '">' +
+                '<input type="checkbox" class="lms__lesson-check" data-lesson-id="' + lesson.id + '"' + (isDone ? ' checked' : '') + ' aria-label="Oznacz jako ukończone" />' +
+                '<button type="button" class="lms__lesson-btn" data-lesson-id="' + lesson.id + '">' +
+                  '<span class="lms__lesson-title">' + (i + 1) + '. ' + escapeHtml(lesson.title) + '</span>' +
+                '</button>' +
+              '</div>'
+            );
+          }).join('');
+
+          var doneInModule = mod.lessons.filter(function (l) { return completed[l.id]; }).length;
+          var isOpen = mod.lessons.some(function (l) { return l.id === activeLessonId; }) || modIndex === 0;
+
+          return (
+            '<details class="lms__module"' + (isOpen ? ' open' : '') + '>' +
+              '<summary class="lms__module-summary">' +
+                '<span>' + escapeHtml(mod.title) + '</span>' +
+                '<span style="display:flex; align-items:center; gap:8px;">' +
+                  '<span class="lms__module-count">' + doneInModule + '/' + mod.lessons.length + '</span>' +
+                  '<svg class="lms__module-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="6 9 12 15 18 9"/></svg>' +
+                '</span>' +
+              '</summary>' +
+              '<div class="lms__lesson-list">' + lessonsHtml + '</div>' +
+            '</details>'
+          );
+        }).join('');
+
+        // Kliknięcie w tytuł lekcji → otwórz ją
+        els.sidebarModules.querySelectorAll('.lms__lesson-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            selectLesson(btn.dataset.lessonId);
+            closeSidebarOnMobile();
+          });
+        });
+
+        // Checkbox → oznacz jako ukończone/nieukończone, bez otwierania lekcji
+        els.sidebarModules.querySelectorAll('.lms__lesson-check').forEach(function (checkbox) {
+          checkbox.addEventListener('click', function (e) { e.stopPropagation(); });
+          checkbox.addEventListener('change', function () {
+            toggleCompleted(checkbox.dataset.lessonId, checkbox.checked);
+          });
+        });
+      }
+
+      function renderLesson() {
+        var lesson = findLesson(activeLessonId);
+        if (!lesson) {
+          els.lessonMain.innerHTML = '<p>Wybierz lekcję z menu po lewej.</p>';
+          return;
+        }
+
+        var isDone = !!completed[lesson.id];
+        var materialsHtml = lesson.materials && lesson.materials.length
+          ? '<div class="lms__material-list">' + lesson.materials.map(function (m) {
+              return (
+                '<a class="lms__material-item" href="' + m.url + '" target="_blank" rel="noopener">' +
+                  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="18" height="18"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>' +
+                  '<span>' + escapeHtml(m.label) + '</span>' +
+                '</a>'
+              );
+            }).join('') + '</div>'
+          : '<p class="lms__materials-empty">Brak materiałów do pobrania dla tej lekcji.</p>';
+
+        els.lessonMain.innerHTML =
+          '<div class="lms__video-wrap"><iframe src="' + lesson.video + '" title="' + escapeHtml(lesson.title) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>' +
+          '<h2 class="lms__lesson-title-main">' + escapeHtml(lesson.title) + '</h2>' +
+          '<p class="lms__lesson-desc">' + escapeHtml(lesson.description) + '</p>' +
+          '<label class="btn btn--outline lms__mark-done">' +
+            '<input type="checkbox" id="mainDoneCheckbox" style="accent-color: var(--clr-gold); margin-inline-end: 8px;"' + (isDone ? ' checked' : '') + ' />' +
+            '<span>' + (isDone ? 'Lekcja ukończona' : 'Oznacz jako ukończoną') + '</span>' +
+          '</label>' +
+          '<div class="lms__materials">' +
+            '<h3>Materiały do pobrania</h3>' +
+            materialsHtml +
+          '</div>';
+
+        var mainDoneCheckbox = document.getElementById('mainDoneCheckbox');
+        if (mainDoneCheckbox) {
+          mainDoneCheckbox.addEventListener('change', function () {
+            toggleCompleted(lesson.id, mainDoneCheckbox.checked);
+          });
+        }
+      }
+
+      function selectLesson(lessonId) {
+        activeLessonId = lessonId;
+        renderSidebar();
+        renderLesson();
+      }
+
+      function toggleCompleted(lessonId, isDone) {
+        if (isDone) completed[lessonId] = true;
+        else delete completed[lessonId];
+        saveProgress();
+        updateProgressBar();
+        renderSidebar();
+        if (lessonId === activeLessonId) renderLesson();
+      }
+
+      function openSidebar() {
+        els.sidebar.classList.add('is-open');
+        els.sidebarBackdrop.classList.add('is-open');
+      }
+      function closeSidebar() {
+        els.sidebar.classList.remove('is-open');
+        els.sidebarBackdrop.classList.remove('is-open');
+      }
+      function closeSidebarOnMobile() {
+        if (window.matchMedia('(max-width: 860px)').matches) closeSidebar();
+      }
+
+      els.menuToggle.addEventListener('click', function () {
+        if (els.sidebar.classList.contains('is-open')) closeSidebar();
+        else openSidebar();
+      });
+      els.sidebarBackdrop.addEventListener('click', closeSidebar);
+
+      els.logoutBtn.addEventListener('click', function () {
+        els.logoutBtn.disabled = true;
+        client.auth.signOut().finally(function () {
+          window.location.href = 'logowanie.html';
+        });
+      });
+
+      function initCourse() {
+        loadProgress();
+        renderSidebar();
+        renderLesson();
+        updateProgressBar();
+        els.root.style.display = '';
+      }
+
+      // ── Zabezpieczenie strony: sprawdź sesję zanim cokolwiek pokażemy ──
+      client.auth.getSession().then(function (result) {
+        var session = result.data && result.data.session;
+        if (!session) {
+          window.location.replace('logowanie.html');
+          return;
+        }
+        currentUserId = session.user.id;
+        progressKey = 'lecimy_progress_' + currentUserId;
+        initCourse();
+      }).catch(function () {
+        window.location.replace('logowanie.html');
+      });
+
+      // Jeśli sesja wygaśnie / użytkownik wyloguje się w innej karcie — wyrzuć z panelu
+      client.auth.onAuthStateChange(function (event) {
+        if (event === 'SIGNED_OUT') {
+          window.location.replace('logowanie.html');
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

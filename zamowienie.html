@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zamówienie – Lecimy po swoje</title>
+  <meta name="description" content="Dokończ zamówienie wybranego pakietu programu Lecimy po swoje." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <style>
+    @font-face {
+      font-family: 'SF Pro Text';
+      src: local('SF Pro Text Medium'), url('/Library/Fonts/SF-Pro-Text-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <nav class="nav scrolled" id="nav">
+    <div class="nav__inner container">
+      <a href="index.html" class="nav__logo"><img src="brand_assets/logo.png" alt="LECIMY" /></a>
+      <ul class="nav__links">
+        <li><a href="index.html#journey">Filary</a></li>
+        <li><a href="index.html#pricing">Cennik</a></li>
+        <li><a href="index.html#faq">FAQ</a></li>
+      </ul>
+      <a href="index.html#pricing" class="btn btn--nav nav__cta">Dołącz teraz</a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="order">
+      <div class="container">
+
+        <a href="index.html#pricing" class="legal__back">&larr; Wróć do cennika</a>
+
+        <div class="legal__header order__header">
+          <h1>Dokończ zamówienie</h1>
+          <p class="legal__updated">Wypełnij dane poniżej, aby przejść do bezpiecznej płatności.</p>
+        </div>
+
+        <div class="order__layout">
+          <div class="order__main">
+
+            <div class="order-step">
+              <h2 class="order-step__title">1. Wybierz pakiet</h2>
+              <div class="order-packages" id="orderPackages">
+                <label class="order-package" data-package="Fundament" data-price="997">
+                  <input type="radio" name="pakiet" value="Fundament" />
+                  <span class="order-package__name">Fundament</span>
+                  <span class="order-package__price">997 zł</span>
+                </label>
+                <label class="order-package" data-package="Kompletny System" data-price="1597">
+                  <input type="radio" name="pakiet" value="Kompletny System" checked />
+                  <span class="order-package__name">Kompletny System</span>
+                  <span class="order-package__price">1&nbsp;597 zł</span>
+                </label>
+                <label class="order-package" data-package="VIP" data-price="2497">
+                  <input type="radio" name="pakiet" value="VIP" />
+                  <span class="order-package__name">VIP</span>
+                  <span class="order-package__price">2&nbsp;497 zł</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="order-step order-bump" id="orderBump">
+              <label class="order-bump__row">
+                <input type="checkbox" id="addonMasterclass" data-price="157" />
+                <div>
+                  <span class="order-bump__badge">Dodaj do zamówienia</span>
+                  <div class="order-bump__title"><strong>Masterclass Wdrożeniowy</strong> <span class="order-bump__price">+157 zł</span></div>
+                  <p>Zdobądź 14-dniowy protokół startowy od Barta. Krok po kroku przeprowadzi Cię przez pierwsze dwa tygodnie, żebyś od razu wdrożył nawyki i nie utknął na teorii.</p>
+                </div>
+              </label>
+            </div>
+
+            <div class="order-step">
+              <h2 class="order-step__title">2. Twoje dane</h2>
+              <form class="order-form" id="orderForm" novalidate>
+
+                <div class="order-form__row">
+                  <label for="imie">Imię *</label>
+                  <input type="text" id="imie" name="imie" required autocomplete="given-name" />
+                </div>
+
+                <div class="order-form__row">
+                  <label for="nazwisko">Nazwisko *</label>
+                  <input type="text" id="nazwisko" name="nazwisko" required autocomplete="family-name" />
+                </div>
+
+                <div class="order-form__row">
+                  <label for="email">E-mail *</label>
+                  <input type="email" id="email" name="email" required autocomplete="email" />
+                </div>
+
+                <div class="order-form__row">
+                  <label for="telefon">Numer telefonu</label>
+                  <input type="tel" id="telefon" name="telefon" autocomplete="tel" placeholder="np. 600 123 456" />
+                </div>
+
+                <div class="order-form__check order-form__check--offer" id="marketingCheck">
+                  <input type="checkbox" id="zgodaMarketing" name="zgodaMarketing" />
+                  <label for="zgodaMarketing">
+                    <strong class="order-form__discount-tag">Odbierz rabat -50 zł:</strong>
+                    Zaznacz, aby natychmiast obniżyć cenę tego zamówienia o 50 zł oraz otrzymywać wiadomości
+                    o nowościach i aktualizacjach od Barta na e-mail i telefon.
+                  </label>
+                </div>
+
+                <div class="order-form__check">
+                  <input type="checkbox" id="zgodaRegulamin" name="zgodaRegulamin" required />
+                  <label for="zgodaRegulamin">
+                    Zapoznałem/-am się i akceptuję <a href="regulamin.html" target="_blank" rel="noopener">Regulamin</a>
+                    oraz <a href="polityka-prywatnosci.html" target="_blank" rel="noopener">Politykę Prywatności</a>. *
+                  </label>
+                </div>
+
+                <div class="order-form__check">
+                  <input type="checkbox" id="zgodaCyfrowa" name="zgodaCyfrowa" required />
+                  <label for="zgodaCyfrowa">
+                    Wyrażam zgodę na dostarczenie mi treści cyfrowych (dostępu do kursu) przed upływem 14 dni od
+                    zawarcia umowy i przyjmuję do wiadomości, że powoduje to utratę prawa odstąpienia od umowy. *
+                  </label>
+                </div>
+
+                <button type="submit" class="btn btn--primary btn--lg btn--full order-form__submit" id="orderSubmit">
+                  <span id="orderSubmitLabel">Kupuję i płacę</span>
+                </button>
+
+                <div class="order-form__status" id="orderStatus"></div>
+
+              </form>
+            </div>
+
+          </div>
+
+          <aside class="order__aside">
+            <div class="order-summary">
+              <h3>Twoje zamówienie</h3>
+              <div class="order-summary__line">
+                <strong id="sumPackageName">Kompletny System</strong>
+                <strong id="sumPackagePrice">1 597 zł</strong>
+              </div>
+              <div class="order-summary__line order-summary__addon" id="sumAddonLine">
+                <span>Masterclass Wdrożeniowy</span>
+                <span>+157 zł</span>
+              </div>
+              <div class="order-summary__line order-summary__discount" id="sumDiscountLine">
+                <span>Rabat za zgodę marketingową</span>
+                <span>-50 zł</span>
+              </div>
+              <hr class="order-summary__divider" />
+              <div class="order-summary__total">
+                <span>Razem</span>
+                <span id="sumTotal">1 597 zł</span>
+              </div>
+            </div>
+
+            <p class="order__secure">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Bezpieczna płatność obsługiwana przez Przelewy24
+            </p>
+          </aside>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <a href="index.html" class="nav__logo"><img src="brand_assets/logo.png" alt="LECIMY" /></a>
+          <p>Transformacja. Odpowiedzialność. Wyniki.</p>
+        </div>
+        <nav class="footer__nav">
+          <ul>
+            <li><a href="polityka-prywatnosci.html">Polityka prywatności</a></li>
+            <li><a href="regulamin.html">Regulamin</a></li>
+            <li><a href="mailto:kontakt@weskaacademy.pl">Kontakt</a></li>
+          </ul>
+        </nav>
+      </div>
+      <div class="footer__bottom">
+        <p>Weska Academy Sp. z o.o. · ul. Złota 7/28, 00-019 Warszawa · NIP 5253083214 · REGON 544279185 · KRS 0001229728</p>
+        <p>&copy; 2026 Lecimy po swoje. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      // Adres backendu z API Przelewy24. Zostaw pusty string, jeśli backend i ta strona
+      // stoją na tym samym hoście/domenie. Jeśli strona jest hostowana osobno (np. GoDaddy
+      // shared hosting bez Node.js), a backend na innym serwerze (np. Render/Railway) —
+      // wpisz tu pełny adres backendu, np. 'https://lecimyposwoje-api.onrender.com'.
+      var API_BASE = '';
+
+      var fmt = new Intl.NumberFormat('pl-PL');
+
+      var MARKETING_DISCOUNT = 50;
+
+      var packageLabels = document.querySelectorAll('.order-package');
+      var addonCheckbox = document.getElementById('addonMasterclass');
+      var orderBump = document.getElementById('orderBump');
+      var marketingCheckbox = document.getElementById('zgodaMarketing');
+      var marketingCheck = document.getElementById('marketingCheck');
+
+      var sumPackageName = document.getElementById('sumPackageName');
+      var sumPackagePrice = document.getElementById('sumPackagePrice');
+      var sumAddonLine = document.getElementById('sumAddonLine');
+      var sumDiscountLine = document.getElementById('sumDiscountLine');
+      var sumTotal = document.getElementById('sumTotal');
+
+      function selectedPackageEl() {
+        return document.querySelector('.order-package input[name="pakiet"]:checked').closest('.order-package');
+      }
+
+      function refreshSummary() {
+        var pkg = selectedPackageEl();
+        var price = parseInt(pkg.dataset.price, 10);
+        sumPackageName.textContent = pkg.dataset.package;
+        sumPackagePrice.textContent = fmt.format(price) + ' zł';
+
+        var total = price;
+        if (addonCheckbox.checked) {
+          total += parseInt(addonCheckbox.dataset.price, 10);
+          sumAddonLine.classList.add('is-visible');
+          orderBump.classList.add('is-selected');
+        } else {
+          sumAddonLine.classList.remove('is-visible');
+          orderBump.classList.remove('is-selected');
+        }
+
+        if (marketingCheckbox.checked) {
+          total -= MARKETING_DISCOUNT;
+          sumDiscountLine.classList.add('is-visible');
+          marketingCheck.classList.add('is-selected');
+        } else {
+          sumDiscountLine.classList.remove('is-visible');
+          marketingCheck.classList.remove('is-selected');
+        }
+
+        sumTotal.textContent = fmt.format(total) + ' zł';
+
+        packageLabels.forEach(function (label) {
+          label.classList.toggle('is-selected', label === pkg);
+        });
+      }
+
+      // Preselect package from ?pakiet= query string
+      var params = new URLSearchParams(window.location.search);
+      var pakietParam = params.get('pakiet');
+      if (pakietParam) {
+        packageLabels.forEach(function (label) {
+          if (label.dataset.package === pakietParam) {
+            label.querySelector('input').checked = true;
+          }
+        });
+      }
+
+      packageLabels.forEach(function (label) {
+        label.querySelector('input').addEventListener('change', refreshSummary);
+      });
+      addonCheckbox.addEventListener('change', refreshSummary);
+      marketingCheckbox.addEventListener('change', refreshSummary);
+      refreshSummary();
+
+      var form = document.getElementById('orderForm');
+      var status = document.getElementById('orderStatus');
+      var submitBtn = document.getElementById('orderSubmit');
+      var submitLabel = document.getElementById('orderSubmitLabel');
+
+      function showStatus(message, isError) {
+        status.textContent = message;
+        status.classList.add('is-visible');
+        status.classList.toggle('is-error', !!isError);
+      }
+
+      var telefonInput = document.getElementById('telefon');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var pkg = selectedPackageEl();
+        var payload = {
+          pakiet: pkg.dataset.package,
+          addonMasterclass: addonCheckbox.checked,
+          imie: document.getElementById('imie').value.trim(),
+          nazwisko: document.getElementById('nazwisko').value.trim(),
+          email: document.getElementById('email').value.trim(),
+          telefon: telefonInput.value.trim(),
+          zgodaMarketing: marketingCheckbox.checked,
+          zgodaRegulamin: document.getElementById('zgodaRegulamin').checked,
+          zgodaCyfrowa: document.getElementById('zgodaCyfrowa').checked,
+        };
+
+        status.classList.remove('is-visible', 'is-error');
+
+        if (payload.zgodaMarketing && !payload.telefon) {
+          telefonInput.focus();
+          showStatus('Podaj numer telefonu, żeby odebrać rabat -50 zł za zgodę marketingową (albo odznacz tę zgodę).', true);
+          return;
+        }
+
+        submitBtn.disabled = true;
+        submitLabel.textContent = 'Łączenie z Przelewy24…';
+
+        fetch(API_BASE + '/api/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then(function (res) {
+            return res.json().then(function (data) {
+              if (!res.ok) throw new Error(data.error || 'Nie udało się utworzyć zamówienia.');
+              return data;
+            });
+          })
+          .then(function (data) {
+            if (data.redirectUrl) {
+              window.location.href = data.redirectUrl;
+            } else {
+              throw new Error('Brak adresu przekierowania do płatności.');
+            }
+          })
+          .catch(function (err) {
+            submitBtn.disabled = false;
+            submitLabel.textContent = 'Kupuję i płacę';
+            showStatus(err.message || 'Coś poszło nie tak. Spróbuj ponownie.', true);
+          });
+      });
+    })();
+  </script>
+
+</body>
+</html>
