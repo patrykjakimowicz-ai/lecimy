@@ -14,7 +14,7 @@
   'use strict';
 
   var CONFIG = {
-    ga4: '',          // np. 'G-XXXXXXXXXX'   (Google Analytics 4)
+    ga4: 'G-LSLZXXR2BV',          // np. 'G-XXXXXXXXXX'   (Google Analytics 4)
     metaPixel: '',    // np. '1234567890123456' (Meta Pixel — Facebook/Instagram)
     tiktokPixel: '',  // np. 'CXXXXXXXXXXXXXXXXXXX' (TikTok Pixel)
   };
