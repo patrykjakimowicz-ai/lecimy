@@ -85,3 +85,17 @@ Jeśli doszło do wycieku lub nieuprawnionego dostępu: ocena w ciągu 72 godzin
 - [ ] Potwierdzić umowę powierzenia z biurem rachunkowym.
 - [ ] Włączyć 2FA na kontach: Supabase, Render, Netlify, GitHub, Przelewy24, UptimeRobot, poczta.
 - [ ] Opinia prawnika o regulaminie i polityce (wersje: regulamin v3, polityka v4).
+
+## 7. Zmiana regulaminu lub polityki (procedura)
+Regulamin pkt 11 wymaga: ważnej przyczyny, publikacji nowej wersji z datą wejścia w życie oraz **informacji e-mailem do uczestników trwającej Edycji**. Zmiana nie dotyczy umów zawartych wcześniej, a uczestnik ma 14 dni na rozwiązanie umowy o konto.
+
+1. **Zmień treść** w `public/regulamin.html` lub `public/polityka-prywatnosci.html`; zaktualizuj nagłówek „Data ostatniej aktualizacji (wersja N)".
+2. **Zmień wersję** w `server/legalVersions.mjs` (np. `2026-12-01-v4`). Od tej chwili log zgód zapisuje nową wersję.
+3. **Wdróż**: Push origin (Render) + folder `public` na Netlify. Nowa wersja musi być na stronie **przed** wysłaniem maili.
+4. **Podgląd odbiorców** (nic nie wysyła):
+   ```bash
+   node tools/powiadom_uczestnikow.mjs --od "1 grudnia 2026" --zmiany "Doprecyzowano zasady reklamacji (pkt 7)."
+   ```
+5. **Wysyłka** (to samo polecenie z `--wyslij`). Maile idą co ~1 s, z załączonymi nowymi dokumentami. Raport z listą wysłanych i błędów zapisuje się w `.tmp/`: zachowaj go jako dowód powiadomienia.
+6. **Zasady**: data „od" powinna być co najmniej kilka dni po wysyłce; to wiadomość serwisowa, nie marketing (nie dodawaj w niej ofert); poważne zmiany (np. dotyczące praw konsumenta) skonsultuj z prawnikiem.
+7. Nowi klienci po wdrożeniu dostają od razu nową wersję w mailu po zakupie (załączniki).

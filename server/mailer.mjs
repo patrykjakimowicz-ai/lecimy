@@ -222,3 +222,18 @@ function escapeHtml(str) {
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
   }[c]));
 }
+
+/**
+ * Ogólna wiadomość serwisowa do klienta (np. informacja o zmianie regulaminu).
+ * Używana przez tools/powiadom_uczestnikow.mjs. Dołącza wersję tekstową (lepsza dostarczalność).
+ */
+export async function sendServiceEmail({ to, subject, html, attachments = [] }) {
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const t = await getTransporter();
+  await t.sendMail({ from, to, replyTo: from, subject, html, text: htmlToText(html), attachments });
+}
+
+/** Załączniki z aktualną treścią regulaminu i polityki (te same, które dostaje klient po zakupie). */
+export async function currentLegalAttachments() {
+  return legalAttachments();
+}
