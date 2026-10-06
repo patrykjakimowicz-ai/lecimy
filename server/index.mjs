@@ -19,6 +19,7 @@ import { sendOrderConfirmationEmail, sendOwnerNotification } from './mailer.mjs'
 import { ensureCustomerAccount } from './supabaseAuth.mjs';
 import { EDITION } from './edition.mjs';
 import { LEGAL_VERSIONS } from './legalVersions.mjs';
+import { legalFingerprint } from './legalDocs.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Publicznie serwujemy WYŁĄCZNIE folder public/ — nigdy katalog główny projektu (server/, dane, .env itd.).
@@ -99,7 +100,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     if (Date.now() >= Date.parse(EDITION.salesCloseISO)) {
       return res.status(400).json({ error: `Sprzedaż tej edycji została zamknięta (${EDITION.salesCloseLabel}).` });
     }
-    const { pakiet, addonMasterclass, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura } = req.body || {};
+    const { pakiet, addonMasterclass, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura, zgodyTresc } = req.body || {};
     const telefon = MARKETING_ENABLED ? telefonRaw : null;
 
     if (typeof pakiet !== 'string' || !Object.hasOwn(PACKAGES, pakiet)) {
@@ -191,6 +192,9 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     // Archiwizacja faktu i momentu wyrażenia zgód — niezależnie od stanu zamówienia,
     // które może się później zmieniać (status płatności itd.).
     stage = 'zapis-zgod';
+    // Dowód: odciski dokumentów + brzmienie zgód widoczne dla klienta w formularzu (długość ograniczona).
+    const fingerprint = await legalFingerprint().catch((e) => { console.error('[consent] odcisk dokumentów:', e.message); return {}; });
+    const clip = (v) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, 700) : null);
     await appendConsent({
       sessionId,
       email,
@@ -204,6 +208,9 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       userAgent: req.headers['user-agent'] || null,
       regulaminWersja: LEGAL_VERSIONS.regulamin,
       politykaWersja: LEGAL_VERSIONS.polityka,
+      regulaminSha256: fingerprint.regulamin || null,
+      politykaSha256: fingerprint.polityka || null,
+      zgodyTresc: { regulamin: clip(zgodyTresc && zgodyTresc.regulamin), cyfrowa: clip(zgodyTresc && zgodyTresc.cyfrowa) },
       edycja: EDITION.name,
     });
 

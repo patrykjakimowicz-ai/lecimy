@@ -385,6 +385,10 @@
           zgodaRegulamin: document.getElementById('zgodaRegulamin').checked,
           zgodaCyfrowa: document.getElementById('zgodaCyfrowa').checked,
           attribution: window.lecimyAttribution ? window.lecimyAttribution() : {},
+          zgodyTresc: {
+            regulamin: (document.querySelector('label[for="zgodaRegulamin"]') || {}).textContent || '',
+            cyfrowa: (document.querySelector('label[for="zgodaCyfrowa"]') || {}).textContent || '',
+          },
           faktura: fakturaCheckbox.checked ? {
             firma: document.getElementById('fakturaFirma').value.trim(),
             nip: document.getElementById('fakturaNip').value.trim(),

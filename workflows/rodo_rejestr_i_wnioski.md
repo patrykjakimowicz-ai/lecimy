@@ -99,3 +99,49 @@ Regulamin pkt 11 wymaga: ważnej przyczyny, publikacji nowej wersji z datą wej�
 5. **Wysyłka** (to samo polecenie z `--wyslij`). Maile idą co ~1 s, z załączonymi nowymi dokumentami. Raport z listą wysłanych i błędów zapisuje się w `.tmp/`: zachowaj go jako dowód powiadomienia.
 6. **Zasady**: data „od" powinna być co najmniej kilka dni po wysyłce; to wiadomość serwisowa, nie marketing (nie dodawaj w niej ofert); poważne zmiany (np. dotyczące praw konsumenta) skonsultuj z prawnikiem.
 7. Nowi klienci po wdrożeniu dostają od razu nową wersję w mailu po zakupie (załączniki).
+
+## 8. Archiwizacja zgód i dowodów: co zapisujemy i jak to sprawdzić
+Każde zamówienie zapisuje w tabeli `consents` (Supabase) wpis z: datą i godziną serwera (`loggedAt`, UTC), e-mailem, imieniem i nazwiskiem,
+prawdziwym adresem IP klienta, przeglądarką, zaznaczonymi zgodami, **wersją i odciskiem SHA-256 regulaminu i polityki**,
+**dokładnym brzmieniem obu zgód widocznym w formularzu** (`zgodyTresc`) oraz numerem edycji. Wpis łączy się z zamówieniem przez `session_id`.
+
+### Archiwum treści dokumentów
+Numer wersji + odcisk to dowód, ale tylko wtedy, gdy masz **kopię tekstu**, której odcisk się zgadza. Dlatego:
+- `archiwum_dokumentow/` w repozytorium zawiera kopie każdej wersji (`regulamin/<wersja>.html`, `polityka-prywatnosci/<wersja>.html`) i `SHA256SUMS.txt`.
+- Po każdej zmianie dokumentu: zmień wersję w `server/legalVersions.mjs`, uruchom `node tools/archiwizuj_dokumenty.mjs` i **commituj** katalog.
+- Kontrola przed wdrożeniem: `node tools/archiwizuj_dokumenty.mjs --sprawdz`. Jeśli treść zmieniła się bez nowej wersji, narzędzie to wykryje (kod wyjścia 1).
+- Dowód przy sporze: weź wpis z `consents` → odcisk `regulaminSha256` → znajdź go w `SHA256SUMS.txt` → otwórz zarchiwizowany plik tej wersji.
+
+### Zabezpieczenie przed zmianą wpisów
+Po wyczyszczeniu danych testowych uruchom w Supabase (SQL Editor) plik `server/supabase-consents-hardening.sql`: tabela `consents` staje się „tylko do dopisywania".
+
+### Jak zweryfikować, że wszystko jest dobrze (Supabase → SQL Editor)
+1. Każde opłacone zamówienie ma dowód zgody (oczekiwany wynik: 0 wierszy):
+```sql
+select o.session_id, o.data->>'email' as email
+from public.orders o
+left join public.consents c on c.session_id = o.session_id
+where o.data->>'status' = 'paid' and c.id is null;
+```
+2. Wpisy bez odcisku dokumentów, czyli sprzed wprowadzenia odcisków, np. testowe (oczekiwany wynik na produkcji: 0):
+```sql
+select id, session_id, logged_at from public.consents where data->>'regulaminSha256' is null;
+```
+3. Adresy IP z sieci prywatnych (oznaka złego odczytu IP; oczekiwany wynik: 0):
+```sql
+select id, data->>'ip' as ip from public.consents
+where data->>'ip' ~ '^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)';
+```
+4. Które wersje dokumentów zaakceptowali klienci:
+```sql
+select data->>'regulaminWersja' as regulamin, data->>'politykaWersja' as polityka, count(*)
+from public.consents group by 1, 2 order by 3 desc;
+```
+5. Wpisy z niezaznaczoną wymaganą zgodą, oczekiwany wynik: 0 (serwer ich nie przyjmuje):
+```sql
+select id from public.consents
+where (data->>'zgodaRegulamin')::boolean is not true or (data->>'zgodaCyfrowa')::boolean is not true;
+```
+
+### Kopie zapasowe
+Plan Free w Supabase nie robi kopii. Co tydzień: Table Editor → `consents` i `orders` → Export CSV; trzymaj w zaszyfrowanym miejscu (zawierają dane osobowe). Okres przechowywania: min. 2 lata od realizacji usługi (OWU P24).
