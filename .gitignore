@@ -2,3 +2,6 @@ node_modules/
 .env
 server/data/
 .DS_Store
+
+# Pliki tymczasowe (m.in. eksporty danych osobowych)
+.tmp/
