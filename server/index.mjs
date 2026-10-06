@@ -9,7 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 import { PACKAGES, ADDONS, MARKETING_CONSENT_DISCOUNT, toGrosze } from './products.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
@@ -18,6 +18,7 @@ import { appendConsent } from './consentLog.mjs';
 import { sendOrderConfirmationEmail, sendOwnerNotification } from './mailer.mjs';
 import { ensureCustomerAccount } from './supabaseAuth.mjs';
 import { EDITION } from './edition.mjs';
+import { LEGAL_VERSIONS } from './legalVersions.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Publicznie serwujemy WYŁĄCZNIE folder public/ — nigdy katalog główny projektu (server/, dane, .env itd.).
@@ -34,6 +35,16 @@ const API_URL = process.env.API_URL || process.env.PUBLIC_URL || `http://localho
 // Rabat za zgodę marketingową (+ telefon) — wyłączony do czasu zakończenia weryfikacji w P24.
 // Włączenie: MARKETING_ENABLED=true w zmiennych środowiskowych Rendera.
 const MARKETING_ENABLED = process.env.MARKETING_ENABLED === 'true';
+
+// Prawdziwy adres IP klienta. Render przepuszcza ruch przez Cloudflare, więc req.ip to adres serwera
+// pośredniczącego, a nie klienta. Cloudflare dopisuje adres klienta w CF-Connecting-IP (a w X-Forwarded-For jest pierwszy).
+function clientIp(req) {
+  const cf = req.headers['cf-connecting-ip'];
+  if (cf) return String(cf).split(',')[0].trim();
+  const xff = req.headers['x-forwarded-for'];
+  if (xff) return String(xff).split(',')[0].trim();
+  return req.ip;
+}
 
 const app = express();
 app.set('trust proxy', 1); // Render stoi za proxy — potrzebne do poprawnego req.ip i rate limitu
@@ -68,13 +79,14 @@ app.use((req, res, next) => {
 
 // Limit zapytań: tworzenie zamówienia kosztuje (zapis + rejestracja w P24), więc ścisły limit.
 const createOrderLimiter = rateLimit({
+  keyGenerator: (req) => ipKeyGenerator(clientIp(req)),
   windowMs: 15 * 60 * 1000,
   limit: 20,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.' },
 });
-const readLimiter = rateLimit({ windowMs: 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
+const readLimiter = rateLimit({ keyGenerator: (req) => ipKeyGenerator(clientIp(req)), windowMs: 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
 
 // ── STATIC SITE ──────────────────────────────────────────────
 app.use(express.static(ROOT));
@@ -188,8 +200,11 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       zgodaRegulamin: !!zgodaRegulamin,
       zgodaCyfrowa: !!zgodaCyfrowa,
       zgodaMarketing: marketingConsent,
-      ip: req.ip,
+      ip: clientIp(req),
       userAgent: req.headers['user-agent'] || null,
+      regulaminWersja: LEGAL_VERSIONS.regulamin,
+      politykaWersja: LEGAL_VERSIONS.polityka,
+      edycja: EDITION.name,
     });
 
     stage = 'przelewy24';
