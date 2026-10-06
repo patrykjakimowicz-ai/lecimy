@@ -16,6 +16,7 @@ import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from 
 import { saveOrder, updateOrder, getOrder } from './orderStore.mjs';
 import { appendConsent } from './consentLog.mjs';
 import { sendOrderConfirmationEmail } from './mailer.mjs';
+import { ensureCustomerAccount } from './supabaseAuth.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Publicznie serwujemy WYŁĄCZNIE folder public/ — nigdy katalog główny projektu (server/, dane, .env itd.).
@@ -205,8 +206,17 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
 
     await updateOrder(payload.sessionId, { status: 'paid', orderId: payload.orderId });
 
+    // Konto klienta w Supabase (bez hasła) + link do ustawienia hasła. Błąd tutaj nie cofa płatności:
+    // mail i tak wychodzi (z informacją, jak odzyskać dostęp przez "Nie pamiętasz hasła?").
+    let setPasswordUrl = null;
     try {
-      await sendOrderConfirmationEmail({ ...order, sessionId: payload.sessionId });
+      setPasswordUrl = await ensureCustomerAccount(order.email, `${SITE_URL}/logowanie.html`);
+    } catch (accErr) {
+      console.error('[p24-webhook] płatność potwierdzona, ale nie udało się założyć konta klienta:', accErr);
+    }
+
+    try {
+      await sendOrderConfirmationEmail({ ...order, sessionId: payload.sessionId, setPasswordUrl });
     } catch (mailErr) {
       // Płatność jest już potwierdzona i zapisana — błąd maila nie powinien cofać tego faktu,
       // ale trzeba go głośno zalogować, żeby ręcznie dosłać dostęp klientowi.

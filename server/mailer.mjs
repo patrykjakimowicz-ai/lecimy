@@ -51,6 +51,19 @@ export async function sendOrderConfirmationEmail(order) {
     ? '<li>Masterclass Wdrożeniowy (+157 zł)</li>'
     : '';
 
+  const accessBlock = order.setPasswordUrl
+    ? `
+      <p>Utworzyliśmy dla Ciebie konto na platformie (login: <strong>${escapeHtml(order.email)}</strong>). Ustaw hasło, klikając poniższy przycisk:</p>
+      <p style="margin: 24px 0;">
+        <a href="${order.setPasswordUrl}" style="background:#c9a24b;color:#111;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:6px;display:inline-block;">Ustaw hasło i wejdź do programu</a>
+      </p>
+      <p style="font-size:13px;color:#555;">Link jest jednorazowy i ma ograniczoną ważność. Jeśli wygaśnie, wejdź na
+        <a href="${loginUrl}">${loginUrl}</a> i kliknij „Nie pamiętasz hasła?", podając ten adres e-mail — wyślemy nowy link.</p>`
+    : `
+      <p>Twoje konto na platformie jest już przygotowane (login: <strong>${escapeHtml(order.email)}</strong>).
+        Wejdź na <a href="${loginUrl}">${loginUrl}</a>, kliknij „Nie pamiętasz hasła?", podaj ten adres e-mail
+        i ustaw hasło z linku, który do Ciebie wyślemy.</p>`;
+
   const html = `
     <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; color: #111;">
       <h2>Dziękujemy za zakup, ${escapeHtml(order.imie)}! 🎉</h2>
@@ -60,10 +73,7 @@ export async function sendOrderConfirmationEmail(order) {
         ${addonLine}
       </ul>
       <p><strong>Kwota:</strong> ${(order.amount / 100).toFixed(2).replace('.', ',')} zł</p>
-      <p>
-        Zaloguj się do platformy programu, aby uzyskać dostęp do materiałów:
-        <a href="${loginUrl}">${loginUrl}</a>
-      </p>
+      ${accessBlock}
       <p>W razie pytań odpisz po prostu na tego maila.</p>
       <p>— Zespół Lecimy po swoje</p>
     </div>
