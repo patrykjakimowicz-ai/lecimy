@@ -5,6 +5,10 @@
 import nodemailer from 'nodemailer';
 import { resolve4 } from 'node:dns/promises';
 import { EDITION } from './edition.mjs';
+import { LEGAL_VERSIONS } from './legalVersions.mjs';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 let transporter = null;
 
@@ -43,6 +47,15 @@ async function getTransporter() {
   return transporter;
 }
 
+const NAMED_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', larr: '←', rarr: '→', ndash: '–', mdash: '—', hellip: '…', bdquo: '„', ldquo: '“', rdquo: '”', laquo: '«', raquo: '»', copy: '©', middot: '·' };
+function decodeEntity(ent, original) {
+  if (ent[0] === '#') {
+    const code = ent[1].toLowerCase() === 'x' ? parseInt(ent.slice(2), 16) : parseInt(ent.slice(1), 10);
+    return Number.isFinite(code) ? String.fromCodePoint(code) : original;
+  }
+  return Object.prototype.hasOwnProperty.call(NAMED_ENTITIES, ent) ? NAMED_ENTITIES[ent] : original;
+}
+
 // Wersja tekstowa maila (lepsza dostarczalność: filtry antyspamowe wolą wiadomości multipart).
 function htmlToText(html) {
   return String(html)
@@ -50,11 +63,39 @@ function htmlToText(html) {
     .replace(/<(br|\/p|\/li|\/h\d|\/div|\/tr)[^>]*>/gi, '\n')
     .replace(/<li[^>]*>/gi, '- ')
     .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (all, ent) => decodeEntity(ent, all))
     .replace(/[ \t]+/g, ' ')
     .replace(/\n[ \t]+/g, '\n')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
+}
+
+// Treść regulaminu i polityki w załączniku: przekazanie na trwałym nośniku (art. 15 ustawy o prawach konsumenta).
+// Pliki czytamy z public/ (ta sama wersja, którą klient widział na stronie).
+const PUBLIC_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'public');
+
+async function legalAttachment(htmlFile, label, version) {
+  try {
+    const raw = await readFile(path.join(PUBLIC_DIR, htmlFile), 'utf8');
+    const m = raw.match(/<section class="legal">([\s\S]*?)<\/section>/);
+    const body = htmlToText((m ? m[1] : raw).replace(/<a [^>]*class="legal__back"[^>]*>.*?<\/a>/is, ''));
+    return {
+      filename: `${label}-Lecimy-po-swoje-${version}.txt`,
+      content: `${label} — Lecimy po swoje (wersja ${version})\nWeska Academy Sp. z o.o., NIP 5253083214\n\n${body}\n`,
+      contentType: 'text/plain; charset=utf-8',
+    };
+  } catch (err) {
+    console.error('[mailer] nie udało się dołączyć dokumentu', htmlFile, err.message);
+    return null;
+  }
+}
+
+async function legalAttachments() {
+  const list = await Promise.all([
+    legalAttachment('regulamin.html', 'Regulamin', LEGAL_VERSIONS.regulamin),
+    legalAttachment('polityka-prywatnosci.html', 'Polityka-prywatnosci', LEGAL_VERSIONS.polityka),
+  ]);
+  return list.filter(Boolean);
 }
 
 function fmtPln(grosze) {
@@ -115,7 +156,7 @@ export async function sendOrderConfirmationEmail(order) {
       ${fakturaBlock}
       <hr style="border:0;border-top:1px solid #ddd;margin:24px 0;" />
       <p style="font-size:13px;color:#444;"><strong>Potwierdzenie zawarcia umowy.</strong> Zakupiłeś treści cyfrowe niedostarczane na nośniku materialnym. Przed zawarciem umowy wyraziłeś wyraźną zgodę na rozpoczęcie świadczenia przed upływem 14 dni od zawarcia umowy i zostałeś poinformowany, że z chwilą rozpoczęcia świadczenia (udostępnienia materiałów w dniu rozpoczęcia edycji, tj. ${EDITION.startLabel}) tracisz prawo odstąpienia od umowy (art. 38 pkt 13 ustawy o prawach konsumenta). Do tego czasu możesz odstąpić od umowy w terminie 14 dni od jej zawarcia, wysyłając oświadczenie na adres kontakt@weskaacademy.pl.
-        Zapoznałeś się z <a href="${regulaminUrl}">Regulaminem</a> i <a href="${politykaUrl}">Polityką Prywatności</a>, które akceptowałeś w formularzu zamówienia.
+        Zapoznałeś się z <a href="${regulaminUrl}">Regulaminem</a> i <a href="${politykaUrl}">Polityką Prywatności</a>, które akceptowałeś w formularzu zamówienia; ich kopie w obowiązującej wersji znajdziesz w załącznikach do tej wiadomości.
         Wzór formularza odstąpienia (do celów informacyjnych) znajdziesz <a href="${wzorUrl}">w Regulaminie</a>.</p>
       <p>W razie pytań odpisz po prostu na tego maila.</p>
       <p>— Zespół Lecimy po swoje<br/><span style="font-size:12px;color:#666;">Weska Academy Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 5253083214</span></p>
@@ -127,6 +168,7 @@ export async function sendOrderConfirmationEmail(order) {
     from,
     to: order.email,
     replyTo: from,
+    attachments: await legalAttachments(),
     subject: `Twój dostęp do programu „${order.pakiet}” — Lecimy po swoje (zamówienie ${orderNumber(order)})`,
     html,
     text: htmlToText(html),
