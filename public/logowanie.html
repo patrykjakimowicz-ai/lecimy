@@ -93,12 +93,12 @@
 
         <div class="auth__row">
           <label for="newPassword">Nowe hasło</label>
-          <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" minlength="6" required />
+          <input type="password" id="newPassword" name="newPassword" autocomplete="new-password" minlength="8" required />
         </div>
 
         <div class="auth__row">
           <label for="newPasswordConfirm">Powtórz nowe hasło</label>
-          <input type="password" id="newPasswordConfirm" name="newPasswordConfirm" autocomplete="new-password" minlength="6" required />
+          <input type="password" id="newPasswordConfirm" name="newPasswordConfirm" autocomplete="new-password" minlength="8" required />
         </div>
 
         <button type="submit" class="btn btn--primary btn--lg btn--full" id="newPasswordSubmit">
@@ -156,7 +156,7 @@
           'Invalid login credentials': 'Nieprawidłowy e-mail lub hasło.',
           'Email not confirmed': 'Potwierdź swój adres e-mail — sprawdź skrzynkę odbiorczą.',
           'User not found': 'Nie znaleziono konta z tym adresem e-mail.',
-          'Password should be at least 6 characters.': 'Hasło musi mieć co najmniej 6 znaków.',
+          'Password should be at least 6 characters.': 'Hasło musi mieć co najmniej 8 znaków.',
         };
         return map[message] || message || 'Coś poszło nie tak. Spróbuj ponownie.';
       }
@@ -243,8 +243,8 @@
         var pass1 = document.getElementById('newPassword').value;
         var pass2 = document.getElementById('newPasswordConfirm').value;
 
-        if (pass1.length < 6) {
-          setStatus(newPasswordStatus, 'Hasło musi mieć co najmniej 6 znaków.', 'is-error');
+        if (pass1.length < 8) {
+          setStatus(newPasswordStatus, 'Hasło musi mieć co najmniej 8 znaków.', 'is-error');
           return;
         }
         if (pass1 !== pass2) {

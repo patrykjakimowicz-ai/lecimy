@@ -15,7 +15,7 @@ import { PACKAGES, ADDONS, MARKETING_CONSENT_DISCOUNT, toGrosze } from './produc
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
 import { saveOrder, updateOrder, getOrder } from './orderStore.mjs';
 import { appendConsent } from './consentLog.mjs';
-import { sendOrderConfirmationEmail } from './mailer.mjs';
+import { sendOrderConfirmationEmail, sendOwnerNotification } from './mailer.mjs';
 import { ensureCustomerAccount } from './supabaseAuth.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -82,7 +82,7 @@ app.use(express.static(ROOT));
 app.post('/api/create-order', createOrderLimiter, async (req, res) => {
   let stage = 'walidacja';
   try {
-    const { pakiet, addonMasterclass, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution } = req.body || {};
+    const { pakiet, addonMasterclass, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura } = req.body || {};
     const telefon = MARKETING_ENABLED ? telefonRaw : null;
 
     if (typeof pakiet !== 'string' || !Object.hasOwn(PACKAGES, pakiet)) {
@@ -109,6 +109,28 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       return res.status(400).json({
         error: 'Podaj numer telefonu, żeby odebrać rabat -50 zł za zgodę marketingową (albo odznacz tę zgodę).',
       });
+    }
+
+
+    // Dane do faktury (opcjonalne) — walidacja po stronie serwera.
+    function nipValid(raw) {
+      let d = String(raw || '').replace(/[^0-9]/g, '');
+      if (d.length === 12 && d.startsWith('00')) d = d.slice(2);
+      if (d.length !== 10) return null;
+      const w = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+      const sum = w.reduce((acc, wt, i) => acc + wt * Number(d[i]), 0);
+      return sum % 11 === Number(d[9]) ? d : null;
+    }
+    let cleanFaktura = null;
+    if (faktura && typeof faktura === 'object') {
+      const nip = nipValid(faktura.nip);
+      const fields = { firma: 150, ulica: 120, kod: 10, miasto: 80 };
+      const ok = nip && Object.entries(fields).every(([k, max]) => isStr(faktura[k], max));
+      if (!ok) return res.status(400).json({ error: 'Sprawdź dane do faktury (nazwa firmy, NIP, adres).' });
+      cleanFaktura = {
+        firma: faktura.firma.trim(), nip, ulica: faktura.ulica.trim(),
+        kod: faktura.kod.trim(), miasto: faktura.miasto.trim(),
+      };
     }
 
     // Źródło ruchu (UTM / klik-ID) — tylko znane klucze, krótkie stringi.
@@ -141,6 +163,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       zgodaCyfrowa: !!zgodaCyfrowa,
       zgodaMarketing: marketingConsent,
       attribution: cleanAttribution,
+      faktura: cleanFaktura,
       amount: amountGrosze,
       currency: 'PLN',
       status: 'pending', // pending -> paid
@@ -222,20 +245,31 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
     await updateOrder(payload.sessionId, { status: 'paid', orderId: payload.orderId });
 
     // Konto klienta w Supabase (bez hasła) + link do ustawienia hasła. Błąd tutaj nie cofa płatności:
-    // mail i tak wychodzi (z informacją, jak odzyskać dostęp przez "Nie pamiętasz hasła?").
+    // mail i tak wychodzi (z informacją, jak odzyskać dostęp), a Ty dostajesz alert.
     let setPasswordUrl = null;
+    let accountError = null;
     try {
       setPasswordUrl = await ensureCustomerAccount(order.email, `${SITE_URL}/logowanie.html`);
     } catch (accErr) {
+      accountError = accErr;
       console.error('[p24-webhook] płatność potwierdzona, ale nie udało się założyć konta klienta:', accErr);
     }
 
+    let mailError = null;
     try {
       await sendOrderConfirmationEmail({ ...order, sessionId: payload.sessionId, setPasswordUrl });
     } catch (mailErr) {
+      mailError = mailErr;
       // Płatność jest już potwierdzona i zapisana — błąd maila nie powinien cofać tego faktu,
       // ale trzeba go głośno zalogować, żeby ręcznie dosłać dostęp klientowi.
       console.error('[p24-webhook] płatność potwierdzona, ale wysyłka e-maila nie powiodła się:', mailErr);
+    }
+
+    // Powiadomienie dla właściciela: nowa sprzedaż + dane do faktury + ewentualne problemy.
+    try {
+      await sendOwnerNotification({ order: { ...order, sessionId: payload.sessionId }, accountError, mailError });
+    } catch (ownerErr) {
+      console.error('[p24-webhook] nie udało się wysłać powiadomienia do właściciela:', ownerErr.message);
     }
 
     res.status(200).send('OK');

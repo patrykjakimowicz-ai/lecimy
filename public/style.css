@@ -3018,3 +3018,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 
 /* Funkcje wyłączone przełącznikiem (np. rabat marketingowy) — atrybut hidden ma wygrywać ze stylami komponentów */
 [data-marketing-feature][hidden] { display: none !important; }
+
+/* Zamówienie: notatki pod podsumowaniem i dane do faktury */
+.order-summary__note { font-size: var(--fs-xs); color: var(--clr-text-muted); line-height: 1.5; margin-top: var(--sp-xs); }
+#fakturaFields[hidden] { display: none; }

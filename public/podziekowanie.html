@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dziękujemy – Lecimy po swoje</title>
+  <meta name="description" content="Status Twojego zamówienia w Lecimy po swoje." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
   <style>
@@ -52,12 +53,11 @@
       <div class="thankyou__icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="30" height="30"><path d="M20 6 9 17l-5-5"/></svg>
       </div>
-      <h1>Dziękujemy za zamówienie!</h1>
+      <h1 id="thankyouTitle">Sprawdzamy status zamówienia…</h1>
       <p id="thankyouMessage">
-        Twoja płatność jest przetwarzana. W ciągu kilku minut dostaniesz e-mail z potwierdzeniem
-        i dostępem do materiałów — sprawdź też folder spam.
+        Chwileczkę — potwierdzamy Twoją płatność w Przelewy24. To zwykle trwa kilka–kilkanaście sekund.
       </p>
-      <a href="index.html" class="btn btn--primary btn--lg">Wróć na stronę główną</a>
+      <a href="index.html" class="btn btn--primary btn--lg" id="thankyouBack">Wróć na stronę główną</a>
     </div>
   </main>
 
@@ -80,20 +80,34 @@
       var API_BASE = 'https://lecimy-xlxt.onrender.com';
 
       var sid = new URLSearchParams(window.location.search).get('sid');
+      var titleEl = document.getElementById('thankyouTitle');
       var msgEl = document.getElementById('thankyouMessage');
-      if (!sid) return;
+      var backEl = document.getElementById('thankyouBack');
 
-      // Krótkie odpytanie statusu — webhook P24 zwykle dociera w kilka–kilkanaście sekund.
+      function setState(title, message) {
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+      }
+
+      if (!sid) {
+        setState('Nie znaleźliśmy zamówienia',
+          'Jeśli dokonałeś zakupu, potwierdzenie i dostęp wyślemy na Twój e-mail (sprawdź też folder spam). W razie pytań napisz na kontakt@weskaacademy.pl.');
+        return;
+      }
+
+      // Odpytanie statusu — webhook P24 zwykle dociera w kilka–kilkanaście sekund (maks. ok. 90 s).
       var attempts = 0;
+      var MAX_ATTEMPTS = 30;
       var poll = setInterval(function () {
         attempts++;
         fetch(API_BASE + '/api/order/' + encodeURIComponent(sid))
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (data) {
             if (data && data.status === 'paid') {
-              msgEl.textContent = 'Płatność potwierdzona! Dostęp do kursu wysłaliśmy na Twój e-mail.';
               clearInterval(poll);
-              // Pomiar zakupu (tylko za zgodą na cookies); jedno zdarzenie na zamówienie.
+              setState('Dziękujemy za zakup!',
+                'Płatność potwierdzona. Wysłaliśmy na Twój e-mail dostęp do konta i link do ustawienia hasła — sprawdź też folder spam.');
+              // Pomiar zakupu (Plausible, bez cookies); jedno zdarzenie na zamówienie.
               if (window.lecimyTrack && data.amount) {
                 var doneKey = 'lecimy_purchase_' + sid;
                 var already = false;
@@ -107,11 +121,15 @@
                   });
                 }
               }
-            } else if (attempts >= 10) {
+            } else if (attempts >= MAX_ATTEMPTS) {
               clearInterval(poll);
+              setState('Nie widzimy jeszcze potwierdzenia płatności',
+                'Jeśli zapłaciłeś, potwierdzenie i dostęp przyjdą na Twój e-mail po zaksięgowaniu płatności (zwykle do kilku minut) — sprawdź też folder spam. Jeśli zrezygnowałeś z płatności, możesz wrócić do zamówienia.');
+              backEl.textContent = 'Wróć do zamówienia';
+              backEl.setAttribute('href', 'zamowienie.html');
             }
           })
-          .catch(function () { clearInterval(poll); });
+          .catch(function () { /* chwilowy błąd sieci — próbujemy dalej do limitu prób */ });
       }, 3000);
     })();
   </script>

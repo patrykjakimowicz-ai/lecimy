@@ -118,6 +118,34 @@
                   </label>
                 </div>
 
+                <div class="order-form__check" id="fakturaToggle">
+                  <input type="checkbox" id="chceFakture" name="chceFakture" />
+                  <label for="chceFakture">Chcę otrzymać fakturę VAT na firmę</label>
+                </div>
+
+                <div id="fakturaFields" hidden>
+                  <div class="order-form__row">
+                    <label for="fakturaFirma">Nazwa firmy *</label>
+                    <input type="text" id="fakturaFirma" name="fakturaFirma" maxlength="150" autocomplete="organization" />
+                  </div>
+                  <div class="order-form__row">
+                    <label for="fakturaNip">NIP *</label>
+                    <input type="text" id="fakturaNip" name="fakturaNip" inputmode="numeric" maxlength="14" placeholder="10 cyfr" />
+                  </div>
+                  <div class="order-form__row">
+                    <label for="fakturaUlica">Ulica i numer *</label>
+                    <input type="text" id="fakturaUlica" name="fakturaUlica" maxlength="120" autocomplete="street-address" />
+                  </div>
+                  <div class="order-form__row">
+                    <label for="fakturaKod">Kod pocztowy *</label>
+                    <input type="text" id="fakturaKod" name="fakturaKod" maxlength="10" autocomplete="postal-code" placeholder="00-000" />
+                  </div>
+                  <div class="order-form__row">
+                    <label for="fakturaMiasto">Miejscowość *</label>
+                    <input type="text" id="fakturaMiasto" name="fakturaMiasto" maxlength="80" autocomplete="address-level2" />
+                  </div>
+                </div>
+
                 <div class="order-form__check">
                   <input type="checkbox" id="zgodaRegulamin" name="zgodaRegulamin" required />
                   <label for="zgodaRegulamin">
@@ -165,6 +193,8 @@
                 <span>Razem</span>
                 <span id="sumTotal">1 597 zł</span>
               </div>
+              <p class="order-summary__note">Ceny zawierają podatek VAT (brutto) i są podane w złotych polskich. Płatność jednorazowa, bez dodatkowych opłat.</p>
+              <p class="order-summary__note"><strong>Edycja 1:</strong> dostęp od 1&nbsp;listopada 2026 do 31&nbsp;stycznia 2027 dla wszystkich uczestników, niezależnie od daty zakupu.</p>
             </div>
 
             <p class="order__secure">
@@ -312,6 +342,24 @@
 
       var telefonInput = document.getElementById('telefon');
 
+      // Dane do faktury (opcjonalne)
+      var fakturaCheckbox = document.getElementById('chceFakture');
+      var fakturaFields = document.getElementById('fakturaFields');
+      fakturaCheckbox.addEventListener('change', function () {
+        fakturaFields.hidden = !fakturaCheckbox.checked;
+        ['fakturaFirma', 'fakturaNip', 'fakturaUlica', 'fakturaKod', 'fakturaMiasto'].forEach(function (id) {
+          document.getElementById(id).required = fakturaCheckbox.checked;
+        });
+      });
+      function nipValid(raw) {
+        var d = String(raw || '').replace(/[^0-9]/g, '');
+        if (d.length === 12 && d.slice(0, 2) === '00') d = d.slice(2);
+        if (d.length !== 10) return false;
+        var w = [6, 5, 7, 2, 3, 4, 5, 6, 7], sum = 0;
+        for (var i = 0; i < 9; i++) sum += w[i] * parseInt(d.charAt(i), 10);
+        return sum % 11 === parseInt(d.charAt(9), 10);
+      }
+
       form.addEventListener('submit', function (e) {
         e.preventDefault();
 
@@ -327,7 +375,20 @@
           zgodaRegulamin: document.getElementById('zgodaRegulamin').checked,
           zgodaCyfrowa: document.getElementById('zgodaCyfrowa').checked,
           attribution: window.lecimyAttribution ? window.lecimyAttribution() : {},
+          faktura: fakturaCheckbox.checked ? {
+            firma: document.getElementById('fakturaFirma').value.trim(),
+            nip: document.getElementById('fakturaNip').value.trim(),
+            ulica: document.getElementById('fakturaUlica').value.trim(),
+            kod: document.getElementById('fakturaKod').value.trim(),
+            miasto: document.getElementById('fakturaMiasto').value.trim(),
+          } : null,
         };
+
+        if (payload.faktura && !nipValid(payload.faktura.nip)) {
+          document.getElementById('fakturaNip').focus();
+          showStatus('Sprawdź numer NIP do faktury — wygląda na nieprawidłowy.', true);
+          return;
+        }
 
         status.classList.remove('is-visible', 'is-error');
 

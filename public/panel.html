@@ -53,6 +53,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-client.js"></script>
+  <script src="edition.js"></script>
   <script>
     (function () {
       var client = window.supabaseClient;
@@ -294,6 +295,39 @@
         els.root.style.display = '';
       }
 
+      // ── Okno dostępu edycji (daty w edition.js) ──
+      function editionState(email) {
+        var ed = window.LECIMY_EDITION;
+        if (!ed) return 'active';
+        var preview = (ed.previewEmails || []).map(function (e) { return String(e).toLowerCase(); });
+        if (email && preview.indexOf(String(email).toLowerCase()) !== -1) return 'active'; // testy właściciela
+        var now = Date.now();
+        if (now < Date.parse(ed.startISO)) return 'before';
+        if (now > Date.parse(ed.endISO)) return 'after';
+        return 'active';
+      }
+
+      function showEditionGate(state) {
+        var ed = window.LECIMY_EDITION;
+        var title = state === 'before' ? ed.name + ' rusza ' + ed.startLabel : 'Edycja zakończona';
+        var text = state === 'before'
+          ? 'Twoje konto jest gotowe i płatność została zaksięgowana. Materiały programu będą dostępne tutaj od ' + ed.startLabel + ' do ' + ed.endLabel + '. Wróć w dniu startu — czekamy na Ciebie!'
+          : 'Dostęp do programu w ramach tej edycji trwał do ' + ed.endLabel + '. Dziękujemy za wspólną pracę! Jeśli chcesz dołączyć do kolejnej edycji, zobacz ofertę.';
+        var box = document.createElement('div');
+        box.style.cssText = 'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;';
+        box.innerHTML =
+          '<div style="max-width:520px;">' +
+            '<h1 style="margin-bottom:12px;">' + escapeHtml(title) + '</h1>' +
+            '<p style="color:var(--clr-text-muted);line-height:1.6;margin-bottom:24px;">' + escapeHtml(text) + '</p>' +
+            (state === 'after' ? '<p><a class="btn btn--primary" href="index.html#pricing">Zobacz ofertę</a></p>' : '') +
+            '<p style="margin-top:16px;"><button type="button" id="gateLogout" class="btn btn--outline">Wyloguj się</button></p>' +
+          '</div>';
+        document.body.appendChild(box);
+        document.getElementById('gateLogout').addEventListener('click', function () {
+          client.auth.signOut().finally(function () { window.location.href = 'logowanie.html'; });
+        });
+      }
+
       // ── Zabezpieczenie strony: sprawdź sesję zanim cokolwiek pokażemy ──
       client.auth.getSession().then(function (result) {
         var session = result.data && result.data.session;
@@ -303,6 +337,13 @@
         }
         currentUserId = session.user.id;
         progressKey = 'lecimy_progress_' + currentUserId;
+
+        // Okno dostępu edycji: przed startem i po zakończeniu pokazujemy komunikat zamiast kursu.
+        var state = editionState(session.user.email);
+        if (state !== 'active') {
+          showEditionGate(state);
+          return;
+        }
         initCourse();
       }).catch(function () {
         window.location.replace('logowanie.html');
