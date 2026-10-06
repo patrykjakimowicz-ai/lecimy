@@ -8,6 +8,8 @@ import express from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 
 import { PACKAGES, ADDONS, MARKETING_CONSENT_DISCOUNT, toGrosze } from './products.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
@@ -16,7 +18,8 @@ import { appendConsent } from './consentLog.mjs';
 import { sendOrderConfirmationEmail } from './mailer.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.join(__dirname, '..');
+// Publicznie serwujemy WYŁĄCZNIE folder public/ — nigdy katalog główny projektu (server/, dane, .env itd.).
+const ROOT = path.join(__dirname, '..', 'public');
 const PORT = process.env.PORT || 3000;
 
 // SITE_URL — gdzie stoi statyczna strona (np. GoDaddy, jeśli backend jest hostowany osobno,
@@ -27,31 +30,55 @@ const SITE_URL = process.env.SITE_URL || process.env.PUBLIC_URL || `http://local
 const API_URL = process.env.API_URL || process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
 const app = express();
-app.use(express.json());
+app.set('trust proxy', 1); // Render stoi za proxy — potrzebne do poprawnego req.ip i rate limitu
+app.disable('x-powered-by');
+app.use(helmet({ contentSecurityPolicy: false })); // CSP wyłączone: strona ma inline'owe skrypty
+app.use(express.json({ limit: '20kb' }));
 
-// CORS — zabezpieczenie na wypadek, gdy panel podglądu serwuje stronę
-// pod innym originem niż ten serwer (wtedy przeglądarka blokuje fetch
-// już na etapie preflight, co objawia się jako "Load failed").
+// CORS — tylko własne originy (strona na Netlify/domena + lokalny dev).
+const ALLOWED_ORIGINS = new Set(
+  [
+    SITE_URL,
+    API_URL,
+    'https://lecimyposwoje.pl',
+    'https://www.lecimyposwoje.pl',
+    ...(process.env.EXTRA_ALLOWED_ORIGINS || '').split(',').map((o) => o.trim()),
+    ...(process.env.NODE_ENV === 'production' ? [] : [`http://localhost:${PORT}`, 'http://localhost:3000']),
+  ]
+    .filter(Boolean)
+    .map((o) => o.replace(/\/$/, ''))
+);
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (origin) {
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,OPTIONS');
+    res.header('Vary', 'Origin');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
   }
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 
+// Limit zapytań: tworzenie zamówienia kosztuje (zapis + rejestracja w P24), więc ścisły limit.
+const createOrderLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.' },
+});
+const readLimiter = rateLimit({ windowMs: 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
+
 // ── STATIC SITE ──────────────────────────────────────────────
 app.use(express.static(ROOT));
 
 // ── API: utworzenie zamówienia + rejestracja transakcji w P24 ──
-app.post('/api/create-order', async (req, res) => {
+app.post('/api/create-order', createOrderLimiter, async (req, res) => {
   try {
     const { pakiet, addonMasterclass, imie, nazwisko, email, telefon, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa } = req.body || {};
 
-    if (!PACKAGES[pakiet]) {
+    if (typeof pakiet !== 'string' || !Object.hasOwn(PACKAGES, pakiet)) {
       return res.status(400).json({ error: 'Nieznany pakiet.' });
     }
     if (!imie || !nazwisko || !email) {
@@ -59,6 +86,10 @@ app.post('/api/create-order', async (req, res) => {
     }
     if (!zgodaRegulamin || !zgodaCyfrowa) {
       return res.status(400).json({ error: 'Musisz zaakceptować obie wymagane zgody.' });
+    }
+    const isStr = (v, max) => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
+    if (!isStr(imie, 80) || !isStr(nazwisko, 80) || !isStr(email, 254) || (telefon && !isStr(telefon, 30))) {
+      return res.status(400).json({ error: 'Nieprawidłowe dane w formularzu.' });
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Podaj poprawny adres e-mail.' });
@@ -126,7 +157,7 @@ app.post('/api/create-order', async (req, res) => {
     res.json({ redirectUrl });
   } catch (err) {
     console.error('[create-order]', err);
-    res.status(500).json({ error: err.message || 'Wystąpił błąd serwera.' });
+    res.status(500).json({ error: 'Wystąpił błąd serwera. Spróbuj ponownie lub napisz do nas.' });
   }
 });
 
@@ -187,7 +218,8 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
 });
 
 // ── API: status zamówienia (do ewentualnego odpytania ze strony podziękowania) ──
-app.get('/api/order/:sessionId', async (req, res) => {
+app.get('/api/order/:sessionId', readLimiter, async (req, res) => {
+  if (!/^[0-9a-f-]{36}$/i.test(req.params.sessionId)) return res.status(404).json({ error: 'not found' });
   const order = await getOrder(req.params.sessionId);
   if (!order) return res.status(404).json({ error: 'not found' });
   res.json({ status: order.status, pakiet: order.pakiet });

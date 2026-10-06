@@ -4,7 +4,7 @@ import { join, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const PORT = 3000;
-const ROOT = fileURLToPath(new URL(".", import.meta.url));
+const ROOT = fileURLToPath(new URL("./public/", import.meta.url));
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
