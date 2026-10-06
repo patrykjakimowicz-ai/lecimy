@@ -3022,3 +3022,16 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 /* Zamówienie: notatki pod podsumowaniem i dane do faktury */
 .order-summary__note { font-size: var(--fs-xs); color: var(--clr-text-muted); line-height: 1.5; margin-top: var(--sp-xs); }
 #fakturaFields[hidden] { display: none; }
+
+/* ── Pasek z odliczaniem do zamknięcia sprzedaży ── */
+body.has-countdown { --bar-h: 38px; padding-top: var(--bar-h); }
+.countdown-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 110; height: var(--bar-h, 38px); display: flex; align-items: center; justify-content: center; gap: 0.6rem; padding-inline: 0.75rem; background: var(--clr-gold); color: #111; font-size: 0.8rem; line-height: 1; text-align: center; white-space: nowrap; }
+.countdown-bar__label { font-weight: 600; }
+.countdown-bar__time { font-variant-numeric: tabular-nums; }
+.countdown-bar__time b { font-weight: 800; font-size: 0.95rem; }
+.countdown-bar__time i { font-style: normal; font-size: 0.7rem; margin-right: 0.35rem; opacity: 0.8; }
+body.has-countdown .nav { top: var(--bar-h); }
+@media (max-width: 400px) { .countdown-bar { gap: 0.4rem; font-size: 0.7rem; } .countdown-bar__time b { font-size: 0.85rem; } }
+@media (max-width: 768px) {
+  body.has-countdown .hero__photo { height: calc(100svh - var(--nav-h) - var(--bar-h) - 2 * var(--sp-md)); }
+}

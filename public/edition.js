@@ -41,3 +41,46 @@ window.LECIMY_applySalesState = function () {
 };
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.LECIMY_applySalesState);
 else window.LECIMY_applySalesState();
+
+// ── Licznik do zamknięcia sprzedaży (pasek na górze strony) ──
+(function () {
+  var ed = window.LECIMY_EDITION;
+  var timer = null;
+
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+  function render(bar) {
+    var left = Date.parse(ed.salesCloseISO) - Date.now();
+    if (left <= 0) {
+      clearInterval(timer);
+      bar.remove();
+      document.documentElement.style.removeProperty('--bar-h');
+      document.body.classList.remove('has-countdown');
+      window.LECIMY_applySalesState();
+      return;
+    }
+    var s = Math.floor(left / 1000);
+    var d = Math.floor(s / 86400); s -= d * 86400;
+    var h = Math.floor(s / 3600); s -= h * 3600;
+    var m = Math.floor(s / 60); s -= m * 60;
+    bar.querySelector('[data-cd]').innerHTML =
+      (d > 0 ? '<b>' + d + '</b><i>d</i> ' : '') +
+      '<b>' + pad(h) + '</b><i>g</i> <b>' + pad(m) + '</b><i>min</i> <b>' + pad(s) + '</b><i>s</i>';
+  }
+
+  function init() {
+    if (Date.now() >= Date.parse(ed.salesCloseISO)) return;
+    if (!document.getElementById('nav') && !document.getElementById('orderForm')) return; // tylko index i zamówienie
+    var bar = document.createElement('div');
+    bar.className = 'countdown-bar';
+    bar.setAttribute('role', 'timer');
+    bar.innerHTML = '<span class="countdown-bar__label">Zapisy zamykamy za:</span> <span class="countdown-bar__time" data-cd></span>';
+    document.body.insertBefore(bar, document.body.firstChild);
+    document.body.classList.add('has-countdown');
+    render(bar);
+    timer = setInterval(function () { render(bar); }, 1000);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
