@@ -17,6 +17,7 @@ import { saveOrder, updateOrder, getOrder } from './orderStore.mjs';
 import { appendConsent } from './consentLog.mjs';
 import { sendOrderConfirmationEmail, sendOwnerNotification } from './mailer.mjs';
 import { ensureCustomerAccount } from './supabaseAuth.mjs';
+import { EDITION } from './edition.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Publicznie serwujemy WYŁĄCZNIE folder public/ — nigdy katalog główny projektu (server/, dane, .env itd.).
@@ -82,6 +83,10 @@ app.use(express.static(ROOT));
 app.post('/api/create-order', createOrderLimiter, async (req, res) => {
   let stage = 'walidacja';
   try {
+    // Sprzedaż jest zamykana przed startem edycji — po terminie nie przyjmujemy zamówień.
+    if (Date.now() >= Date.parse(EDITION.salesCloseISO)) {
+      return res.status(400).json({ error: `Sprzedaż tej edycji została zamknięta (${EDITION.salesCloseLabel}).` });
+    }
     const { pakiet, addonMasterclass, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura } = req.body || {};
     const telefon = MARKETING_ENABLED ? telefonRaw : null;
 

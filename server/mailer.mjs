@@ -90,7 +90,7 @@ export async function sendOrderConfirmationEmail(order) {
         ${addonLine}
       </ul>
       <p><strong>Kwota brutto (z VAT):</strong> ${fmtPln(order.amount)}</p>
-      <p><strong>${EDITION.name}:</strong> dostęp do programu od ${EDITION.startLabel} do ${EDITION.endLabel} (wspólny dla wszystkich uczestników, niezależnie od daty zakupu). Po zakończeniu edycji dostęp wygasa.</p>
+      <p><strong>${EDITION.name}:</strong> dostęp do programu od ${EDITION.startLabel} do ${EDITION.endLabel} (wspólny dla wszystkich uczestników). Po zakończeniu edycji dostęp wygasa.</p>
       ${accessBlock}
       ${fakturaBlock}
       <hr style="border:0;border-top:1px solid #ddd;margin:24px 0;" />
