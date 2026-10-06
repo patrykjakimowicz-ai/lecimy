@@ -14,7 +14,7 @@
   'use strict';
 
   var CONFIG = {
-    ga4: 'G-LSLZXXR2BV',          // np. 'G-XXXXXXXXXX'   (Google Analytics 4)
+    ga4: '',          // np. 'G-XXXXXXXXXX'   (Google Analytics 4) — wyłączone; do włączenia przy kampaniach płatnych
     metaPixel: '',    // np. '1234567890123456' (Meta Pixel — Facebook/Instagram)
     tiktokPixel: '',  // np. 'CXXXXXXXXXXXXXXXXXXX' (TikTok Pixel)
   };
@@ -144,8 +144,19 @@
   }
 
   window.lecimyTrack = function (name, params) {
+    params = params || {};
+
+    // Plausible działa bez cookies i bez danych osobowych — nie wymaga zgody.
+    if (window.plausible) {
+      var label = name === 'purchase' ? 'Purchase' : name === 'begin_checkout' ? 'Begin checkout' : name;
+      var opts = { props: { item: params.item || '' } };
+      if (name === 'purchase' && params.value) opts.revenue = { currency: params.currency || 'PLN', amount: params.value };
+      try { window.plausible(label, opts); } catch (e) { /* brak analityki nie może psuć zakupu */ }
+    }
+
+    // GA / piksele reklamowe — wyłącznie za zgodą (i tylko gdy skonfigurowane).
     if (!trackingConfigured) return;
-    queue.push({ name: name, params: params || {}, done: {} });
+    queue.push({ name: name, params: params, done: {} });
     if (queue.length > 20) queue.shift();
     flush();
   };

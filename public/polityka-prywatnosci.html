@@ -19,6 +19,12 @@
   </style>
   <link rel="stylesheet" href="style.css" />
   <script src="tracking.js"></script>
+  <!-- Analityka bez cookies (Plausible) — nie wymaga zgody, więc nie ma banera -->
+  <script async src="https://plausible.io/js/pa-FJmUPwUSueTUbwNQCrnvE.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
 </head>
 <body>
 
@@ -84,22 +90,21 @@
           <p>Dane osobowe mogą być przekazywane następującym kategoriom odbiorców, wyłącznie w zakresie niezbędnym do realizacji wskazanych celów:</p>
           <ul>
             <li><strong>Operator Płatności</strong> – PayPro S.A. (Przelewy24), ul. Kanclerska 15, 60-327 Poznań – w celu obsługi i rozliczenia płatności za Zamówienie,</li>
-            <li>dostawcy usług hostingowych, bazy danych i poczty elektronicznej (m.in. Netlify – hosting strony, Render – serwer obsługujący zamówienia, Supabase – baza danych i konta użytkowników, dostawca poczty e-mail do wysyłki potwierdzeń zakupu) oraz narzędzi wspierających prowadzenie Serwisu i wysyłkę zakupionych materiałów</li>
+            <li>dostawcy usług hostingowych, bazy danych i poczty elektronicznej (m.in. Netlify – hosting strony, Render – serwer obsługujący zamówienia, Supabase – baza danych i konta użytkowników, Plausible – analityka ruchu bez cookies, dostawca poczty e-mail do wysyłki potwierdzeń zakupu) oraz narzędzi wspierających prowadzenie Serwisu i wysyłkę zakupionych materiałów</li>
             <li>biuro rachunkowe / księgowość Administratora – w zakresie niezbędnym do wystawienia dokumentów sprzedaży,</li>
             <li>podmioty uprawnione na podstawie przepisów prawa (np. organy podatkowe).</li>
           </ul>
           <p>Dane osobowe nie są odsprzedawane podmiotom trzecim ani przekazywane poza Europejski Obszar Gospodarczy, chyba że dany odbiorca zapewnia odpowiedni stopień ochrony danych zgodny z wymogami RODO.</p>
 
           <h2 id="cookies">7. Pliki cookies i podobne technologie</h2>
-          <p>Serwis korzysta z plików cookies oraz podobnych technologii (np. pamięci lokalnej przeglądarki – <em>localStorage</em>). Dzielimy je na trzy kategorie:</p>
+          <p>Serwis nie wykorzystuje plików cookies reklamowych ani narzędzi śledzących użytkowników między stronami. Korzystamy wyłącznie z:</p>
           <ul>
-            <li><strong>Niezbędne</strong> – zapewniają działanie Serwisu i nie wymagają zgody. Obejmują m.in. sesję logowania do panelu programu (Supabase), zapamiętanie Twojego postępu w kursie oraz zapis Twojego wyboru dotyczącego cookies. Do czasu wyrażenia zgody nie ładujemy żadnych skryptów analitycznych ani marketingowych.</li>
-            <li><strong>Analityczne</strong> – za Twoją zgodą. Google Analytics 4 (Google Ireland Limited / Google LLC) mierzy ruch w Serwisie, źródła odwiedzin (np. kampanie oznaczone parametrami UTM) oraz zakupy, abyśmy mogli ulepszać Serwis.</li>
-            <li><strong>Marketingowe</strong> – za Twoją zgodą. Piksel Meta (Meta Platforms Ireland Limited) oraz piksel TikTok (TikTok Technology Limited) mierzą skuteczność naszych reklam i pozwalają je optymalizować. Przekazujemy im informacje o zdarzeniach, takich jak wejście do koszyka i zakup (wartość zamówienia), bez Twojego imienia, nazwiska i adresu e-mail.</li>
+            <li><strong>danych niezbędnych do działania Serwisu</strong> (pamięć lokalna przeglądarki – <em>localStorage</em>): sesja logowania do panelu programu (Supabase) oraz zapamiętanie Twojego postępu w kursie. Nie wymagają one Twojej zgody;</li>
+            <li><strong>analityki bez plików cookies</strong> – narzędzie Plausible Analytics (Plausible Insights OÜ, Estonia, serwery w Unii Europejskiej) mierzy zbiorczo liczbę odwiedzin, odwiedzane podstrony oraz źródła ruchu (np. parametry <em>utm_source</em>). Narzędzie nie zapisuje żadnych plików cookies ani innych danych na Twoim urządzeniu, nie tworzy profili użytkowników i nie przetwarza danych umożliwiających Twoją identyfikację.</li>
           </ul>
-          <p>Zgodę możesz w każdej chwili wycofać lub zmienić, klikając „Ustawienia cookies” w stopce strony. Brak zgody nie ogranicza możliwości zakupu ani korzystania z programu. Dodatkowo możesz zarządzać plikami cookies w ustawieniach swojej przeglądarki.</p>
-          <p>Niezależnie od zgód, zapisujemy przy zamówieniu informację o źródle, z którego trafiłeś do sklepu (parametry adresu, np. <em>utm_source</em>), wyłącznie w celu rozliczenia skuteczności działań marketingowych (prawnie uzasadniony interes Administratora). Nie wiąże się to z zapisem plików cookies na Twoim urządzeniu.</p>
+          <p>Przy złożeniu zamówienia zapisujemy informację o źródle, z którego trafiłeś do sklepu (parametry adresu, np. <em>utm_source</em>), wyłącznie w celu rozliczenia skuteczności działań marketingowych (prawnie uzasadniony interes Administratora). Nie wiąże się to z zapisem plików cookies na Twoim urządzeniu.</p>
           <p>Strona korzysta także z zasobów zewnętrznych (biblioteki z sieci CDN jsDelivr oraz miniatura filmu z YouTube), co wiąże się z przekazaniem Twojego adresu IP ich dostawcom. Materiał wideo w panelu programu osadzony z serwisu YouTube (tryb rozszerzonej prywatności) może zapisywać pliki cookies zgodnie z polityką prywatności Google.</p>
+          <p>Jeżeli w przyszłości wprowadzimy cookies analityczne lub marketingowe (np. piksele reklamowe), uzyskamy na to Twoją zgodę przed ich użyciem i zaktualizujemy niniejszą politykę. Pliki cookies możesz zawsze zablokować lub usunąć w ustawieniach swojej przeglądarki.</p>
 
           <h2>8. Prawa Użytkownika</h2>
           <p>Użytkownikowi przysługuje prawo do:</p>
