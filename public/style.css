@@ -3008,7 +3008,9 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 .footer--mini .footer__bottom a { color: var(--clr-text-muted); text-decoration: underline; }
 
 /* ── Baner zgód na cookies ── */
-.cookie-banner { position: fixed; inset: 0 0 auto 0; z-index: 9999; padding: var(--sp-md); display: flex; justify-content: center; pointer-events: none; }
+.cookie-banner { position: fixed; inset: 0 0 auto 0; z-index: 9999; padding: var(--sp-md); display: flex; justify-content: center; pointer-events: none; transform: translateY(-120%); opacity: 0; transition: transform .5s cubic-bezier(.22,1,.36,1), opacity .4s ease; }
+.cookie-banner.is-visible { transform: translateY(0); opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .cookie-banner { transition: none; } }
 .cookie-banner__inner { pointer-events: auto; width: min(760px, 100%); background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 14px; padding: var(--sp-lg); box-shadow: 0 12px 40px rgba(0,0,0,.6); }
 .cookie-banner__title { font-weight: 700; font-size: var(--fs-md); margin-bottom: var(--sp-xs); }
 .cookie-banner__text { font-size: var(--fs-xs); line-height: 1.55; color: var(--clr-text-muted); }

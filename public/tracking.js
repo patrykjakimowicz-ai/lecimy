@@ -165,7 +165,7 @@
     closeBanner();
   }
 
-  function openBanner() {
+  function openBanner(delayMs) {
     if (!trackingConfigured || bannerEl) return;
     var current = readConsent() || { analytics: false, marketing: false };
 
@@ -208,9 +208,15 @@
     });
 
     document.body.appendChild(bannerEl);
+
+    // Wsunięcie z góry po krótkiej chwili (przy ręcznym otwarciu z stopki — od razu).
+    var el = bannerEl;
+    var show = function () { if (el && el.parentNode) el.classList.add('is-visible'); };
+    if (delayMs) setTimeout(show, delayMs);
+    else window.requestAnimationFrame(function () { window.requestAnimationFrame(show); });
   }
 
-  window.lecimyConsent = { open: openBanner };
+  window.lecimyConsent = { open: function () { openBanner(0); } };
 
   function addFooterLink() {
     if (!trackingConfigured) return;
@@ -221,7 +227,7 @@
       btn.type = 'button';
       btn.className = 'cookie-settings-link';
       btn.textContent = 'Ustawienia cookies';
-      btn.addEventListener('click', function () { bannerEl ? closeBanner() : openBanner(); });
+      btn.addEventListener('click', function () { bannerEl ? closeBanner() : openBanner(0); });
       p.appendChild(btn);
       targets[i].appendChild(p);
     }
@@ -231,7 +237,7 @@
     propagateAttribution();
     if (!trackingConfigured) return;
     var c = readConsent();
-    if (c) applyConsent(c); else openBanner();
+    if (c) applyConsent(c); else openBanner(2500);
     addFooterLink();
   }
 
