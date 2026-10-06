@@ -3091,3 +3091,6 @@ body.has-countdown .nav { top: var(--bar-h); transition: top .7s cubic-bezier(.2
   .countdown-bar, body.has-countdown, body.has-countdown .nav { transition: none; }
   .countdown-bar::after, .cd-dot::after, .cd-unit__v.tick, .countdown-bar.is-urgent .cd-unit { animation: none; }
 }
+
+/* Informacja o cenie brutto w cenniku */
+.pricing-card__vat { margin-top: 0.15rem; font-size: var(--fs-xs); color: var(--clr-text-muted); text-align: center; opacity: 0.85; }
