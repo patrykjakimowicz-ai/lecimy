@@ -97,6 +97,8 @@ body {
   .cursor-glow {
     display: block;
     position: fixed;
+    top: 0;
+    left: 0;
     width: 32px;
     height: 32px;
     border-radius: 50%;
