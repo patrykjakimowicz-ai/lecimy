@@ -20,8 +20,8 @@ Administrator: Weska Academy Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 5
 | Dostawca | Rola | Co przetwarza | Siedziba | Umowa powierzenia (DPA) | Transfer poza EOG | Region danych | Status |
 |---|---|---|---|---|---|---|---|
 | Netlify, Inc. | procesor | strona publiczna (brak danych klientów poza logami dostępu) | USA | https://www.netlify.com/pdf/netlify-dpa.pdf | SCC (dec. 2021/914) w DPA | — | OK |
-| Render Services, Inc. | procesor | serwer API: dane zamówień w pamięci/logach, przekazywanie do bazy i P24 | USA | https://render.com/dpa | SCC w DPA (DPA odwołuje się też do EU-US DPF) | **[DO POTWIERDZENIA]** Settings → Region | OK, region do sprawdzenia |
-| Supabase, Inc. | procesor | baza: `orders`, `consents`, konta (Auth) | USA | https://supabase.com/legal/customer-resources/data-processing-addendum (wchodzi z regulaminem usługi) | SCC w DPA | **[DO POTWIERDZENIA]** Project Settings → Region | OK, region do sprawdzenia |
+| Render Services, Inc. | procesor | serwer API: dane zamówień w pamięci/logach, przekazywanie do bazy i P24 | USA | https://render.com/dpa | SCC w DPA (DPA odwołuje się też do EU-US DPF) | Frankfurt (EU Central), sprawdzono 2026-10-06 | OK |
+| Supabase, Inc. | procesor | baza: `orders`, `consents`, konta (Auth) | USA | https://supabase.com/legal/customer-resources/data-processing-addendum (wchodzi z regulaminem usługi) | SCC w DPA | Central EU (Frankfurt), eu-central-1, sprawdzono 2026-10-06 | OK (uwaga: plan Free bez kopii zapasowych) |
 | Plausible Insights OÜ | procesor | anonimowe statystyki | Estonia (serwery w UE) | DPA dostępne u dostawcy | nie dotyczy | UE | OK |
 | GoDaddy (Titan Email) | procesor | poczta: wysyłka potwierdzeń, korespondencja | USA | **[DO POTWIERDZENIA]** link do DPA | **[DO POTWIERDZENIA]** | **[DO POTWIERDZENIA]** | do uzupełnienia po przejściu z Gmaila |
 | PayPro S.A. (Przelewy24) | odrębny administrator | dane płatności | Polska | OWU P24 (bez osobnej umowy powierzenia) | nie dotyczy | PL | OK |
@@ -80,8 +80,8 @@ Jeśli doszło do wycieku lub nieuprawnionego dostępu: ocena w ciągu 72 godzin
 - Przy zmianie treści regulaminu lub polityki: zmień datę w `server/legalVersions.mjs` i nagłówek dokumentu (wersja w logu zgód).
 
 ## 6. Do zrobienia przed startem sprzedaży
-- [ ] Sprawdzić region Supabase i Rendera (punkt 2) i wpisać do tabeli.
+- [x] Region Supabase i Rendera: Frankfurt (sprawdzono 2026-10-06).
 - [ ] Przejść z Gmaila na pocztę firmową i potwierdzić jej DPA; uzupełnić wiersz w tabeli.
 - [ ] Potwierdzić umowę powierzenia z biurem rachunkowym.
 - [ ] Włączyć 2FA na kontach: Supabase, Render, Netlify, GitHub, Przelewy24, UptimeRobot, poczta.
-- [ ] Opinia prawnika o regulaminie i polityce (wersje: regulamin v3, polityka v3).
+- [ ] Opinia prawnika o regulaminie i polityce (wersje: regulamin v3, polityka v4).
