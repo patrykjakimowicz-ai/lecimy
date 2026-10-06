@@ -3001,7 +3001,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 /* ── Metody płatności w stopce (wymóg weryfikacji Przelewy24) ── */
 .footer__payments { padding-block: var(--sp-md); text-align: center; border-top: 1px solid var(--clr-border); }
 /* Oficjalny baner Przelewy24 ma białe tło — dajemy mu jasną, zaokrągloną ramkę. */
-.footer__payments-img { display: block; width: min(760px, 100%); height: auto; margin-inline: auto; background: #fff; border-radius: 12px; }
+.footer__payments-img { display: block; width: min(400px, 100%); height: auto; margin-inline: auto; background: #fff; border-radius: 12px; }
 .footer--mini { margin-top: var(--sp-lg); }
 .footer--mini .footer__bottom a { color: var(--clr-text-muted); text-decoration: underline; }
 
