@@ -44,6 +44,10 @@
     }
     .thankyou h1 { margin-bottom: var(--sp-sm); }
     .thankyou p { color: var(--clr-text-muted); margin-bottom: var(--sp-md); line-height: 1.6; }
+    .thankyou__actions { display: flex; flex-wrap: wrap; gap: var(--sp-sm); justify-content: center; }
+    .thankyou__actions [hidden] { display: none; }
+    .thankyou__icon.is-wait svg { animation: ty-spin 1.6s linear infinite; }
+    @keyframes ty-spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -57,7 +61,10 @@
       <p id="thankyouMessage">
         Chwileczkę — potwierdzamy Twoją płatność w Przelewy24. To zwykle trwa kilka–kilkanaście sekund.
       </p>
-      <a href="index.html" class="btn btn--primary btn--lg" id="thankyouBack">Wróć na stronę główną</a>
+      <div class="thankyou__actions">
+        <button type="button" class="btn btn--primary btn--lg" id="thankyouRetry" hidden>Sprawdź ponownie</button>
+        <a href="index.html" class="btn btn--outline btn--lg" id="thankyouBack">Wróć na stronę główną</a>
+      </div>
     </div>
   </main>
 
@@ -83,10 +90,13 @@
       var titleEl = document.getElementById('thankyouTitle');
       var msgEl = document.getElementById('thankyouMessage');
       var backEl = document.getElementById('thankyouBack');
+      var retryEl = document.getElementById('thankyouRetry');
+      var iconEl = document.querySelector('.thankyou__icon');
 
-      function setState(title, message) {
+      function setState(title, message, waiting) {
         titleEl.textContent = title;
         msgEl.textContent = message;
+        if (iconEl) iconEl.classList.toggle('is-wait', !!waiting);
       }
 
       if (!sid) {
@@ -95,42 +105,87 @@
         return;
       }
 
-      // Odpytanie statusu — webhook P24 zwykle dociera w kilka–kilkanaście sekund (maks. ok. 90 s).
-      var attempts = 0;
-      var MAX_ATTEMPTS = 30;
-      var poll = setInterval(function () {
-        attempts++;
-        fetch(API_BASE + '/api/order/' + encodeURIComponent(sid))
+      // Etapy (webhook P24 przychodzi tylko po UDANEJ płatności — przy błędzie lub braku wpłaty nic nie dostajemy,
+      // więc pokazujemy kolejne komunikaty w miarę upływu czasu i aktualizujemy stronę, gdy płatność dojdzie):
+      //  0–20 s    sprawdzamy status
+      //  20–90 s   czekamy na potwierdzenie z banku
+      //  > 90 s    brak potwierdzenia (błąd / brak wpłaty / opóźniony przelew) + dalsze sprawdzanie w tle
+      var startedAt = Date.now();
+      var finished = false;
+      var timerId = null;
+      var tracked = false;
+
+      function showPaid(data) {
+        finished = true;
+        clearTimeout(timerId);
+        retryEl.hidden = true;
+        backEl.textContent = 'Wróć na stronę główną';
+        backEl.setAttribute('href', 'index.html');
+        setState('Dziękujemy za zakup!',
+          'Płatność potwierdzona. Wysłaliśmy na Twój e-mail dostęp do konta i link do ustawienia hasła — sprawdź też folder spam.');
+        // Pomiar zakupu (Plausible, bez cookies); jedno zdarzenie na zamówienie.
+        if (!tracked && window.lecimyTrack && data && data.amount) {
+          tracked = true;
+          var doneKey = 'lecimy_purchase_' + sid;
+          var already = false;
+          try { already = !!window.sessionStorage.getItem(doneKey); window.sessionStorage.setItem(doneKey, '1'); } catch (e) { /* brak storage */ }
+          if (!already) {
+            window.lecimyTrack('purchase', {
+              transaction_id: sid,
+              value: data.amount / 100,
+              currency: data.currency || 'PLN',
+              item: data.pakiet,
+            });
+          }
+        }
+      }
+
+      function showByElapsed() {
+        var sec = (Date.now() - startedAt) / 1000;
+        if (sec < 20) {
+          setState('Sprawdzamy status zamówienia…',
+            'Chwileczkę — potwierdzamy Twoją płatność w Przelewy24. To zwykle trwa kilka–kilkanaście sekund.', true);
+        } else if (sec < 90) {
+          setState('Czekamy na potwierdzenie płatności',
+            'Płatność jeszcze nie została potwierdzona. Przy przelewie bankowym może to potrwać kilka minut. Nie zamykaj tej strony — odświeży się sama, gdy płatność dojdzie.', true);
+        } else {
+          setState('Nie widzimy jeszcze potwierdzenia płatności',
+            'Jeśli płatność się nie udała lub z niej zrezygnowałeś, wróć do zamówienia i spróbuj ponownie. Jeśli zapłaciłeś (np. przelewem), potwierdzenie przyjdzie na Twój e-mail po zaksięgowaniu, a ta strona zaktualizuje się sama.');
+          retryEl.hidden = false;
+          backEl.textContent = 'Wróć do zamówienia';
+          backEl.setAttribute('href', 'zamowienie.html');
+        }
+      }
+
+      function check() {
+        if (finished) return;
+        return fetch(API_BASE + '/api/order/' + encodeURIComponent(sid))
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (data) {
-            if (data && data.status === 'paid') {
-              clearInterval(poll);
-              setState('Dziękujemy za zakup!',
-                'Płatność potwierdzona. Wysłaliśmy na Twój e-mail dostęp do konta i link do ustawienia hasła — sprawdź też folder spam.');
-              // Pomiar zakupu (Plausible, bez cookies); jedno zdarzenie na zamówienie.
-              if (window.lecimyTrack && data.amount) {
-                var doneKey = 'lecimy_purchase_' + sid;
-                var already = false;
-                try { already = !!window.sessionStorage.getItem(doneKey); window.sessionStorage.setItem(doneKey, '1'); } catch (e) { /* brak storage */ }
-                if (!already) {
-                  window.lecimyTrack('purchase', {
-                    transaction_id: sid,
-                    value: data.amount / 100,
-                    currency: data.currency || 'PLN',
-                    item: data.pakiet,
-                  });
-                }
-              }
-            } else if (attempts >= MAX_ATTEMPTS) {
-              clearInterval(poll);
-              setState('Nie widzimy jeszcze potwierdzenia płatności',
-                'Jeśli zapłaciłeś, potwierdzenie i dostęp przyjdą na Twój e-mail po zaksięgowaniu płatności (zwykle do kilku minut) — sprawdź też folder spam. Jeśli zrezygnowałeś z płatności, możesz wrócić do zamówienia.');
-              backEl.textContent = 'Wróć do zamówienia';
-              backEl.setAttribute('href', 'zamowienie.html');
-            }
+            if (data && data.status === 'paid') { showPaid(data); return; }
+            showByElapsed();
           })
-          .catch(function () { /* chwilowy błąd sieci — próbujemy dalej do limitu prób */ });
-      }, 3000);
+          .catch(function () { showByElapsed(); /* chwilowy błąd sieci — próbujemy dalej */ });
+      }
+
+      function schedule() {
+        if (finished) return;
+        var sec = (Date.now() - startedAt) / 1000;
+        var delay = sec < 90 ? 3000 : (sec < 600 ? 15000 : 60000); // potem coraz rzadziej
+        timerId = setTimeout(function () { check().then(schedule); }, delay);
+      }
+
+      retryEl.addEventListener('click', function () {
+        retryEl.disabled = true;
+        retryEl.textContent = 'Sprawdzam…';
+        check().then(function () {
+          retryEl.disabled = false;
+          retryEl.textContent = 'Sprawdź ponownie';
+        });
+      });
+
+      showByElapsed();
+      check().then(schedule);
     })();
   </script>
 
