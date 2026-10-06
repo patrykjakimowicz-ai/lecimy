@@ -3006,3 +3006,18 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 .pay-badge--brand { border-color: var(--clr-gold); color: var(--clr-gold-light); }
 .footer--mini { margin-top: var(--sp-lg); }
 .footer--mini .footer__bottom a { color: var(--clr-text-muted); text-decoration: underline; }
+
+/* ── Baner zgód na cookies ── */
+.cookie-banner { position: fixed; inset: auto 0 0 0; z-index: 9999; padding: var(--sp-md); display: flex; justify-content: center; pointer-events: none; }
+.cookie-banner__inner { pointer-events: auto; width: min(760px, 100%); background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 14px; padding: var(--sp-lg); box-shadow: 0 12px 40px rgba(0,0,0,.6); }
+.cookie-banner__title { font-weight: 700; font-size: var(--fs-md); margin-bottom: var(--sp-xs); }
+.cookie-banner__text { font-size: var(--fs-xs); line-height: 1.55; color: var(--clr-text-muted); }
+.cookie-banner__text a { color: var(--clr-gold-light); text-decoration: underline; }
+.cookie-banner__details { display: flex; flex-direction: column; gap: var(--sp-xs); margin-top: var(--sp-sm); }
+.cookie-banner__details[hidden] { display: none; }
+.cookie-banner__opt { display: flex; align-items: center; gap: var(--sp-xs); font-size: var(--fs-xs); }
+.cookie-banner__actions { display: flex; flex-wrap: wrap; gap: var(--sp-xs); margin-top: var(--sp-md); }
+/* Odrzucenie i akceptacja mają ten sam wygląd (wymóg równorzędności wyboru). */
+.cookie-btn { flex: 1 1 160px; cursor: pointer; font: inherit; font-size: var(--fs-xs); font-weight: 700; color: var(--clr-text); background: transparent; border: 1px solid var(--clr-gold); border-radius: 999px; padding: 0.7rem 1rem; transition: background var(--dur-fast); }
+.cookie-btn:hover { background: rgba(232,120,12,.15); }
+.cookie-settings-link { cursor: pointer; font: inherit; font-size: var(--fs-xs); color: var(--clr-text-muted); background: none; border: 0; padding: 0; text-decoration: underline; }

@@ -16,6 +16,7 @@
     }
   </style>
   <link rel="stylesheet" href="style.css" />
+  <script src="tracking.js"></script>
   <style>
     .thankyou {
       min-height: 100vh;
@@ -92,6 +93,20 @@
             if (data && data.status === 'paid') {
               msgEl.textContent = 'Płatność potwierdzona! Dostęp do kursu wysłaliśmy na Twój e-mail.';
               clearInterval(poll);
+              // Pomiar zakupu (tylko za zgodą na cookies); jedno zdarzenie na zamówienie.
+              if (window.lecimyTrack && data.amount) {
+                var doneKey = 'lecimy_purchase_' + sid;
+                var already = false;
+                try { already = !!window.sessionStorage.getItem(doneKey); window.sessionStorage.setItem(doneKey, '1'); } catch (e) { /* brak storage */ }
+                if (!already) {
+                  window.lecimyTrack('purchase', {
+                    transaction_id: sid,
+                    value: data.amount / 100,
+                    currency: data.currency || 'PLN',
+                    item: data.pakiet,
+                  });
+                }
+              }
             } else if (attempts >= 10) {
               clearInterval(poll);
             }

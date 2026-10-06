@@ -78,7 +78,7 @@ app.use(express.static(ROOT));
 app.post('/api/create-order', createOrderLimiter, async (req, res) => {
   let stage = 'walidacja';
   try {
-    const { pakiet, addonMasterclass, imie, nazwisko, email, telefon, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa } = req.body || {};
+    const { pakiet, addonMasterclass, imie, nazwisko, email, telefon, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution } = req.body || {};
 
     if (typeof pakiet !== 'string' || !Object.hasOwn(PACKAGES, pakiet)) {
       return res.status(400).json({ error: 'Nieznany pakiet.' });
@@ -106,6 +106,15 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       });
     }
 
+    // Źródło ruchu (UTM / klik-ID) — tylko znane klucze, krótkie stringi.
+    const ATTR_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'ttclid', 'gclid'];
+    const cleanAttribution = {};
+    if (attribution && typeof attribution === 'object') {
+      for (const k of ATTR_KEYS) {
+        if (typeof attribution[k] === 'string' && attribution[k]) cleanAttribution[k] = attribution[k].slice(0, 200);
+      }
+    }
+
     let pricePln = PACKAGES[pakiet] + (addonMasterclass ? ADDONS.masterclass.price : 0);
     if (marketingConsent) pricePln -= MARKETING_CONSENT_DISCOUNT;
     const amountGrosze = toGrosze(pricePln);
@@ -126,6 +135,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       zgodaRegulamin: !!zgodaRegulamin,
       zgodaCyfrowa: !!zgodaCyfrowa,
       zgodaMarketing: marketingConsent,
+      attribution: cleanAttribution,
       amount: amountGrosze,
       currency: 'PLN',
       status: 'pending', // pending -> paid
@@ -236,7 +246,7 @@ app.get('/api/order/:sessionId', readLimiter, async (req, res) => {
   if (!/^[0-9a-f-]{36}$/i.test(req.params.sessionId)) return res.status(404).json({ error: 'not found' });
   const order = await getOrder(req.params.sessionId);
   if (!order) return res.status(404).json({ error: 'not found' });
-  res.json({ status: order.status, pakiet: order.pakiet });
+  res.json({ status: order.status, pakiet: order.pakiet, amount: order.amount, currency: order.currency });
 });
 
 app.listen(PORT, () => {

@@ -17,6 +17,7 @@
     }
   </style>
   <link rel="stylesheet" href="style.css" />
+  <script src="tracking.js"></script>
 </head>
 <body>
 
@@ -280,6 +281,16 @@
       marketingCheckbox.addEventListener('change', refreshSummary);
       refreshSummary();
 
+      // Pomiar: wejście do koszyka (wysyłane tylko za zgodą na cookies)
+      if (window.lecimyTrack) {
+        var startPkg = selectedPackageEl();
+        window.lecimyTrack('begin_checkout', {
+          value: parseInt(startPkg.dataset.price, 10),
+          currency: 'PLN',
+          item: startPkg.dataset.package,
+        });
+      }
+
       var form = document.getElementById('orderForm');
       var status = document.getElementById('orderStatus');
       var submitBtn = document.getElementById('orderSubmit');
@@ -307,6 +318,7 @@
           zgodaMarketing: marketingCheckbox.checked,
           zgodaRegulamin: document.getElementById('zgodaRegulamin').checked,
           zgodaCyfrowa: document.getElementById('zgodaCyfrowa').checked,
+          attribution: window.lecimyAttribution ? window.lecimyAttribution() : {},
         };
 
         status.classList.remove('is-visible', 'is-error');
