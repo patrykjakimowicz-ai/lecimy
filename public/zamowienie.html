@@ -104,12 +104,12 @@
                   <input type="email" id="email" name="email" required autocomplete="email" />
                 </div>
 
-                <div class="order-form__row">
+                <div class="order-form__row" data-marketing-feature hidden>
                   <label for="telefon">Numer telefonu</label>
                   <input type="tel" id="telefon" name="telefon" autocomplete="tel" placeholder="np. 600 123 456" />
                 </div>
 
-                <div class="order-form__check order-form__check--offer" id="marketingCheck">
+                <div class="order-form__check order-form__check--offer" id="marketingCheck" data-marketing-feature hidden>
                   <input type="checkbox" id="zgodaMarketing" name="zgodaMarketing" />
                   <label for="zgodaMarketing">
                     <strong class="order-form__discount-tag">Odbierz rabat -50 zł:</strong>
@@ -215,6 +215,14 @@
 
       var MARKETING_DISCOUNT = 50;
 
+      // Rabat -50 zł za zgodę marketingową (+ pole telefonu) jest WYŁĄCZONY na czas weryfikacji
+      // w Przelewy24. Aby włączyć: ustaw true tutaj ORAZ MARKETING_ENABLED=true w Render,
+      // i najpierw uzupełnij politykę prywatności o cel „marketing" (zgoda, prawo do cofnięcia).
+      var MARKETING_ENABLED = false;
+      if (MARKETING_ENABLED) {
+        document.querySelectorAll('[data-marketing-feature]').forEach(function (el) { el.hidden = false; });
+      }
+
       var packageLabels = document.querySelectorAll('.order-package');
       var addonCheckbox = document.getElementById('addonMasterclass');
       var orderBump = document.getElementById('orderBump');
@@ -314,8 +322,8 @@
           imie: document.getElementById('imie').value.trim(),
           nazwisko: document.getElementById('nazwisko').value.trim(),
           email: document.getElementById('email').value.trim(),
-          telefon: telefonInput.value.trim(),
-          zgodaMarketing: marketingCheckbox.checked,
+          telefon: MARKETING_ENABLED ? telefonInput.value.trim() : '',
+          zgodaMarketing: MARKETING_ENABLED && marketingCheckbox.checked,
           zgodaRegulamin: document.getElementById('zgodaRegulamin').checked,
           zgodaCyfrowa: document.getElementById('zgodaCyfrowa').checked,
           attribution: window.lecimyAttribution ? window.lecimyAttribution() : {},

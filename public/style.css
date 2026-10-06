@@ -3015,3 +3015,6 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   }
   .hero__overlay-content { gap: var(--sp-sm); padding-bottom: var(--sp-md); }
 }
+
+/* Funkcje wyłączone przełącznikiem (np. rabat marketingowy) — atrybut hidden ma wygrywać ze stylami komponentów */
+[data-marketing-feature][hidden] { display: none !important; }

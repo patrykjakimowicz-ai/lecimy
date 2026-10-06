@@ -30,6 +30,10 @@ const PORT = process.env.PORT || 3000;
 const SITE_URL = process.env.SITE_URL || process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 const API_URL = process.env.API_URL || process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
+// Rabat za zgodę marketingową (+ telefon) — wyłączony do czasu zakończenia weryfikacji w P24.
+// Włączenie: MARKETING_ENABLED=true w zmiennych środowiskowych Rendera.
+const MARKETING_ENABLED = process.env.MARKETING_ENABLED === 'true';
+
 const app = express();
 app.set('trust proxy', 1); // Render stoi za proxy — potrzebne do poprawnego req.ip i rate limitu
 app.disable('x-powered-by');
@@ -78,7 +82,8 @@ app.use(express.static(ROOT));
 app.post('/api/create-order', createOrderLimiter, async (req, res) => {
   let stage = 'walidacja';
   try {
-    const { pakiet, addonMasterclass, imie, nazwisko, email, telefon, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution } = req.body || {};
+    const { pakiet, addonMasterclass, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution } = req.body || {};
+    const telefon = MARKETING_ENABLED ? telefonRaw : null;
 
     if (typeof pakiet !== 'string' || !Object.hasOwn(PACKAGES, pakiet)) {
       return res.status(400).json({ error: 'Nieznany pakiet.' });
@@ -99,7 +104,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     // Rabat za zgodę marketingową wymaga telefonu (SMS-y nie polecą donikąd) —
     // jeśli klient zaznaczył zgodę, ale nie podał telefonu, blokujemy całe zamówienie
     // zamiast po cichu policzyć pełną cenę bez rabatu, na który liczył.
-    const marketingConsent = !!zgodaMarketing;
+    const marketingConsent = MARKETING_ENABLED && !!zgodaMarketing;
     if (marketingConsent && !telefon) {
       return res.status(400).json({
         error: 'Podaj numer telefonu, żeby odebrać rabat -50 zł za zgodę marketingową (albo odznacz tę zgodę).',
