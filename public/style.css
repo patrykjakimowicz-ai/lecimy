@@ -3008,7 +3008,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 .footer--mini .footer__bottom a { color: var(--clr-text-muted); text-decoration: underline; }
 
 /* ── Baner zgód na cookies ── */
-.cookie-banner { position: fixed; inset: auto 0 0 0; z-index: 9999; padding: var(--sp-md); display: flex; justify-content: center; pointer-events: none; }
+.cookie-banner { position: fixed; inset: 0 0 auto 0; z-index: 9999; padding: var(--sp-md); display: flex; justify-content: center; pointer-events: none; }
 .cookie-banner__inner { pointer-events: auto; width: min(760px, 100%); background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 14px; padding: var(--sp-lg); box-shadow: 0 12px 40px rgba(0,0,0,.6); }
 .cookie-banner__title { font-weight: 700; font-size: var(--fs-md); margin-bottom: var(--sp-xs); }
 .cookie-banner__text { font-size: var(--fs-xs); line-height: 1.55; color: var(--clr-text-muted); }
@@ -3030,4 +3030,15 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   .cookie-banner__more { display: none; }
   .cookie-banner__actions { flex-wrap: nowrap; gap: 0.35rem; margin-top: 0.6rem; }
   .cookie-btn { flex: 1 1 0; font-size: 0.68rem; padding: 0.55rem 0.3rem; line-height: 1.15; }
+}
+
+/* ── HERO MOBILE: zdjęcie dopasowane do ekranu, żeby przycisk zakupu był od razu widoczny ── */
+@media (max-width: 768px) {
+  .hero__photo {
+    height: calc(100svh - var(--nav-h) - 2 * var(--sp-md));
+    min-height: 500px;
+    max-height: 760px;
+    object-position: center top;
+  }
+  .hero__overlay-content { gap: var(--sp-sm); padding-bottom: var(--sp-md); }
 }
