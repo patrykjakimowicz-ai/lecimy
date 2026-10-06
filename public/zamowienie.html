@@ -194,7 +194,11 @@
                 <span>Razem</span>
                 <span id="sumTotal">1 597 zł</span>
               </div>
-              <p class="order-summary__note">Ceny zawierają podatek VAT (brutto) i są podane w złotych polskich. Płatność jednorazowa, bez dodatkowych opłat.</p>
+              <div class="order-summary__vat">
+                <span>w tym VAT (<span id="sumVatRate">23</span>%)</span>
+                <span id="sumVat">298,63 zł</span>
+              </div>
+              <p class="order-summary__note">Ceny są cenami brutto (zawierają podatek VAT) i są podane w złotych polskich. Płatność jednorazowa, bez dodatkowych opłat.</p>
               <p class="order-summary__note"><strong>Edycja 1:</strong> dostęp od 14&nbsp;listopada 2026 do 13&nbsp;lutego 2027 dla wszystkich uczestników. Sprzedaż trwa do 14&nbsp;listopada 2026.</p>
             </div>
 
@@ -243,6 +247,8 @@
       var API_BASE = 'https://lecimy-xlxt.onrender.com';
 
       var fmt = new Intl.NumberFormat('pl-PL');
+      var fmtMoney = new Intl.NumberFormat('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      var VAT_RATE = 23; // stawka VAT w %, ceny na stronie są brutto
 
       var MARKETING_DISCOUNT = 50;
 
@@ -265,6 +271,8 @@
       var sumAddonLine = document.getElementById('sumAddonLine');
       var sumDiscountLine = document.getElementById('sumDiscountLine');
       var sumTotal = document.getElementById('sumTotal');
+      var sumVat = document.getElementById('sumVat');
+      document.getElementById('sumVatRate').textContent = VAT_RATE;
 
       function selectedPackageEl() {
         return document.querySelector('.order-package input[name="pakiet"]:checked').closest('.order-package');
@@ -296,6 +304,8 @@
         }
 
         sumTotal.textContent = fmt.format(total) + ' zł';
+        // VAT zawarty w cenie brutto: brutto * stawka / (100 + stawka)
+        sumVat.textContent = fmtMoney.format(Math.round(total * VAT_RATE / (100 + VAT_RATE) * 100) / 100) + ' zł';
 
         packageLabels.forEach(function (label) {
           label.classList.toggle('is-selected', label === pkg);

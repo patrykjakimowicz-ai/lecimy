@@ -47,6 +47,12 @@ function fmtPln(grosze) {
   return (grosze / 100).toFixed(2).replace('.', ',') + ' zł';
 }
 
+const VAT_RATE = 23; // stawka VAT w %, kwoty na stronie są brutto
+
+function vatAmount(grosze) {
+  return Math.round((grosze * VAT_RATE) / (100 + VAT_RATE));
+}
+
 function orderNumber(order) {
   return String(order.sessionId || '').slice(0, 8).toUpperCase();
 }
@@ -89,7 +95,7 @@ export async function sendOrderConfirmationEmail(order) {
         <li>${escapeHtml(order.pakiet)}</li>
         ${addonLine}
       </ul>
-      <p><strong>Kwota brutto (z VAT):</strong> ${fmtPln(order.amount)}</p>
+      <p><strong>Kwota brutto:</strong> ${fmtPln(order.amount)} (w tym VAT ${VAT_RATE}%: ${fmtPln(vatAmount(order.amount))})</p>
       <p><strong>${EDITION.name}:</strong> dostęp do programu od ${EDITION.startLabel} do ${EDITION.endLabel} (wspólny dla wszystkich uczestników). Po zakończeniu edycji dostęp wygasa.</p>
       ${accessBlock}
       ${fakturaBlock}
