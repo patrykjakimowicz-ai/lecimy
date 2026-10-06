@@ -75,6 +75,7 @@ app.use(express.static(ROOT));
 
 // ── API: utworzenie zamówienia + rejestracja transakcji w P24 ──
 app.post('/api/create-order', createOrderLimiter, async (req, res) => {
+  let stage = 'walidacja';
   try {
     const { pakiet, addonMasterclass, imie, nazwisko, email, telefon, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa } = req.body || {};
 
@@ -128,10 +129,12 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       currency: 'PLN',
       status: 'pending', // pending -> paid
     };
+    stage = 'zapis-zamowienia';
     await saveOrder(sessionId, order);
 
     // Archiwizacja faktu i momentu wyrażenia zgód — niezależnie od stanu zamówienia,
     // które może się później zmieniać (status płatności itd.).
+    stage = 'zapis-zgod';
     await appendConsent({
       sessionId,
       email,
@@ -145,6 +148,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       userAgent: req.headers['user-agent'] || null,
     });
 
+    stage = 'przelewy24';
     const { redirectUrl } = await registerTransaction({
       sessionId,
       amount: amountGrosze,
@@ -156,8 +160,8 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
 
     res.json({ redirectUrl });
   } catch (err) {
-    console.error('[create-order]', err);
-    res.status(500).json({ error: 'Wystąpił błąd serwera. Spróbuj ponownie lub napisz do nas.' });
+    console.error(`[create-order] etap=${stage}`, err);
+    res.status(500).json({ error: 'Wystąpił błąd serwera. Spróbuj ponownie lub napisz do nas. (kod: ' + stage + ')' });
   }
 });
 

@@ -12,7 +12,9 @@ export async function rest(method, pathAndQuery, { body, prefer } = {}) {
     method,
     headers: {
       apikey: KEY,
-      Authorization: `Bearer ${KEY}`,
+      // Nowe klucze sb_secret_... nie są JWT — wysyłamy je wyłącznie w apikey.
+      // Stary service_role (JWT, zaczyna się od "eyJ") wymaga też nagłówka Authorization.
+      ...(KEY.startsWith('eyJ') ? { Authorization: `Bearer ${KEY}` } : {}),
       'Content-Type': 'application/json',
       ...(prefer ? { Prefer: prefer } : {}),
     },
