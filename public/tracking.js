@@ -176,10 +176,9 @@
     bannerEl.innerHTML =
       '<div class="cookie-banner__inner">' +
         '<p class="cookie-banner__title">Szanujemy Twoją prywatność</p>' +
-        '<p class="cookie-banner__text">Używamy plików cookies i podobnych technologii. Niezbędne zawsze działają (np. logowanie). ' +
-        'Za Twoją zgodą korzystamy też z cookies <strong>analitycznych</strong> (Google Analytics — statystyki odwiedzin) ' +
-        'oraz <strong>marketingowych</strong> (piksele Meta i TikTok — pomiar skuteczności reklam). ' +
-        'Zgodę możesz w każdej chwili zmienić w stopce. <a href="polityka-prywatnosci.html#cookies">Więcej w polityce prywatności</a>.</p>' +
+        '<p class="cookie-banner__text">Za Twoją zgodą używamy cookies do statystyk (Google Analytics) i pomiaru reklam (Meta, TikTok). ' +
+        '<span class="cookie-banner__more">Niezbędne cookies (np. logowanie) działają zawsze. Zgodę możesz w każdej chwili zmienić w stopce. </span>' +
+        '<a href="polityka-prywatnosci.html#cookies">Polityka prywatności</a>.</p>' +
         '<div class="cookie-banner__details" hidden>' +
           '<label class="cookie-banner__opt"><input type="checkbox" checked disabled /> <span>Niezbędne (zawsze włączone)</span></label>' +
           '<label class="cookie-banner__opt"><input type="checkbox" id="cookieAnalytics"' + (current.analytics ? ' checked' : '') + ' /> <span>Analityczne — Google Analytics</span></label>' +
