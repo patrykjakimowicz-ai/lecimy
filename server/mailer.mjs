@@ -3,10 +3,14 @@
 // firmowej, Gmaila (hasło aplikacji) albo usługi transakcyjnej (Resend, SendGrid, Mailgun...).
 
 import nodemailer from 'nodemailer';
+import { resolve4 } from 'node:dns/promises';
 
 let transporter = null;
 
-function getTransporter() {
+// Render nie ma wychodzącego IPv6, a nodemailer potrafi wybrać adres AAAA (błąd ENETUNREACH).
+// Dlatego sami rozwiązujemy nazwę hosta do IPv4 i łączymy się po adresie IP
+// (tls.servername zapewnia poprawną weryfikację certyfikatu).
+async function getTransporter() {
   if (transporter) return transporter;
 
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
@@ -16,13 +20,20 @@ function getTransporter() {
     );
   }
 
+  let host = SMTP_HOST;
+  try {
+    const [ip] = await resolve4(SMTP_HOST);
+    if (ip) host = ip;
+  } catch {
+    // brak rekordu A — spróbujemy połączyć się po nazwie
+  }
+
   transporter = nodemailer.createTransport({
-    host: SMTP_HOST,
+    host,
     port: Number(SMTP_PORT || 587),
     secure: Number(SMTP_PORT) === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
-    // Render nie ma wychodzącego IPv6 (błąd ENETUNREACH) — wymuszamy IPv4.
-    family: 4,
+    tls: { servername: SMTP_HOST },
     connectionTimeout: 15000,
     greetingTimeout: 15000,
     socketTimeout: 20000,
@@ -58,7 +69,7 @@ export async function sendOrderConfirmationEmail(order) {
     </div>
   `;
 
-  await getTransporter().sendMail({
+  await (await getTransporter()).sendMail({
     from,
     to: order.email,
     subject: `Twój dostęp do programu „${order.pakiet}” — Lecimy po swoje`,
