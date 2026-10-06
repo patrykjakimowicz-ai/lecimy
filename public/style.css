@@ -2997,3 +2997,12 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   .hero__scroll span { animation: none; }
   .video-thumb__play::after { animation: none; }
 }
+
+/* ── Metody płatności w stopce (wymóg weryfikacji Przelewy24) ── */
+.footer__payments { padding-block: var(--sp-md); text-align: center; border-top: 1px solid var(--clr-border); }
+.footer__payments-label { font-size: var(--fs-xs); color: var(--clr-text-muted); margin-bottom: var(--sp-sm); }
+.pay-badges { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-xs); list-style: none; margin: 0; padding: 0; }
+.pay-badge { font-size: var(--fs-xs); font-weight: 600; color: var(--clr-text); background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 999px; padding: 0.35rem 0.85rem; }
+.pay-badge--brand { border-color: var(--clr-gold); color: var(--clr-gold-light); }
+.footer--mini { margin-top: var(--sp-lg); }
+.footer--mini .footer__bottom a { color: var(--clr-text-muted); text-decoration: underline; }
