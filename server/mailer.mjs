@@ -114,9 +114,7 @@ export async function sendOrderConfirmationEmail(order) {
       ${accessBlock}
       ${fakturaBlock}
       <hr style="border:0;border-top:1px solid #ddd;margin:24px 0;" />
-      <p style="font-size:13px;color:#444;"><strong>Potwierdzenie zawarcia umowy.</strong> Zakupiłeś treści cyfrowe niedostarczane na nośniku materialnym.
-        Potwierdzamy, że przed zawarciem umowy wyraziłeś wyraźną zgodę na rozpoczęcie ich świadczenia przed upływem 14 dni od zawarcia umowy
-        i zostałeś poinformowany, że w związku z tym tracisz prawo do odstąpienia od umowy (art. 38 pkt 13 ustawy o prawach konsumenta).
+      <p style="font-size:13px;color:#444;"><strong>Potwierdzenie zawarcia umowy.</strong> Zakupiłeś treści cyfrowe niedostarczane na nośniku materialnym. Przed zawarciem umowy wyraziłeś wyraźną zgodę na rozpoczęcie świadczenia przed upływem 14 dni od zawarcia umowy i zostałeś poinformowany, że z chwilą rozpoczęcia świadczenia (udostępnienia materiałów w dniu rozpoczęcia edycji, tj. ${EDITION.startLabel}) tracisz prawo odstąpienia od umowy (art. 38 pkt 13 ustawy o prawach konsumenta). Do tego czasu możesz odstąpić od umowy w terminie 14 dni od jej zawarcia, wysyłając oświadczenie na adres kontakt@weskaacademy.pl.
         Zapoznałeś się z <a href="${regulaminUrl}">Regulaminem</a> i <a href="${politykaUrl}">Polityką Prywatności</a>, które akceptowałeś w formularzu zamówienia.
         Wzór formularza odstąpienia (do celów informacyjnych) znajdziesz <a href="${wzorUrl}">w Regulaminie</a>.</p>
       <p>W razie pytań odpisz po prostu na tego maila.</p>
