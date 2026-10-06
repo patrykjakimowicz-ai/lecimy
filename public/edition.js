@@ -46,38 +46,83 @@ else window.LECIMY_applySalesState();
 (function () {
   var ed = window.LECIMY_EDITION;
   var timer = null;
+  var units = {};
 
   function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+  function plural(n, one, few, many) {
+    if (n === 1) return one;
+    var m10 = n % 10, m100 = n % 100;
+    return (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) ? few : many;
+  }
+
+  function setUnit(key, value, label) {
+    var u = units[key];
+    if (!u) return;
+    var text = key === 'd' ? String(value) : pad(value);
+    if (u.value.textContent !== text) {
+      u.value.textContent = text;
+      u.value.classList.remove('tick');
+      void u.value.offsetWidth; // restart animacji
+      u.value.classList.add('tick');
+    }
+    if (u.label.textContent !== label) u.label.textContent = label;
+  }
 
   function render(bar) {
     var left = Date.parse(ed.salesCloseISO) - Date.now();
     if (left <= 0) {
       clearInterval(timer);
-      bar.remove();
-      document.documentElement.style.removeProperty('--bar-h');
-      document.body.classList.remove('has-countdown');
-      window.LECIMY_applySalesState();
+      bar.classList.add('is-leaving');
+      setTimeout(function () {
+        bar.remove();
+        document.body.classList.remove('has-countdown');
+        window.LECIMY_applySalesState();
+      }, 600);
       return;
     }
     var s = Math.floor(left / 1000);
     var d = Math.floor(s / 86400); s -= d * 86400;
     var h = Math.floor(s / 3600); s -= h * 3600;
     var m = Math.floor(s / 60); s -= m * 60;
-    bar.querySelector('[data-cd]').innerHTML =
-      (d > 0 ? '<b>' + d + '</b><i>d</i> ' : '') +
-      '<b>' + pad(h) + '</b><i>g</i> <b>' + pad(m) + '</b><i>min</i> <b>' + pad(s) + '</b><i>s</i>';
+
+    units.d.root.hidden = d === 0;
+    setUnit('d', d, plural(d, 'dzień', 'dni', 'dni'));
+    setUnit('h', h, 'godz');
+    setUnit('m', m, 'min');
+    setUnit('s', s, 'sek');
+
+    // Im bliżej końca, tym mocniejsze podświetlenie
+    bar.classList.toggle('is-urgent', left < 24 * 3600 * 1000);
+    bar.classList.toggle('is-critical', left < 3600 * 1000);
+  }
+
+  function unitHtml(key) {
+    return '<div class="cd-unit" data-u="' + key + '"><b class="cd-unit__v">00</b><small class="cd-unit__l"></small></div>';
   }
 
   function init() {
     if (Date.now() >= Date.parse(ed.salesCloseISO)) return;
     if (!document.getElementById('nav') && !document.getElementById('orderForm')) return; // tylko index i zamówienie
+
     var bar = document.createElement('div');
     bar.className = 'countdown-bar';
     bar.setAttribute('role', 'timer');
-    bar.innerHTML = '<span class="countdown-bar__label">Zapisy zamykamy za:</span> <span class="countdown-bar__time" data-cd></span>';
+    bar.innerHTML =
+      '<div class="countdown-bar__inner">' +
+        '<span class="cd-label"><span class="cd-dot" aria-hidden="true"></span><span class="cd-label__text">Zapisy zamykamy za</span></span>' +
+        '<div class="cd-units">' + unitHtml('d') + unitHtml('h') + unitHtml('m') + unitHtml('s') + '</div>' +
+      '</div>';
     document.body.insertBefore(bar, document.body.firstChild);
-    document.body.classList.add('has-countdown');
+
+    ['d', 'h', 'm', 's'].forEach(function (k) {
+      var root = bar.querySelector('[data-u="' + k + '"]');
+      units[k] = { root: root, value: root.querySelector('.cd-unit__v'), label: root.querySelector('.cd-unit__l') };
+    });
+
     render(bar);
+    document.body.classList.add('has-countdown');
+    requestAnimationFrame(function () { bar.classList.add('is-in'); });
     timer = setInterval(function () { render(bar); }, 1000);
   }
 
