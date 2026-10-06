@@ -21,6 +21,11 @@ function getTransporter() {
     port: Number(SMTP_PORT || 587),
     secure: Number(SMTP_PORT) === 465,
     auth: { user: SMTP_USER, pass: SMTP_PASS },
+    // Render nie ma wychodzącego IPv6 (błąd ENETUNREACH) — wymuszamy IPv4.
+    family: 4,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
   });
 
   return transporter;
