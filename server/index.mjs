@@ -13,7 +13,7 @@ import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 import { PACKAGES, ADDONS, MARKETING_CONSENT_DISCOUNT, toGrosze } from './products.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
-import { saveOrder, updateOrder, getOrder } from './orderStore.mjs';
+import { saveOrder, updateOrder, getOrder, countOrders } from './orderStore.mjs';
 import { appendConsent } from './consentLog.mjs';
 import { sendOrderConfirmationEmail, sendOwnerNotification } from './mailer.mjs';
 import { ensureCustomerAccount } from './supabaseAuth.mjs';
@@ -297,6 +297,20 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
     console.error('[p24-webhook] błąd przetwarzania', err);
     // Odpowiedź inna niż 200 — P24 spróbuje wysłać powiadomienie ponownie później.
     res.status(500).send('internal error');
+  }
+});
+
+// ── API: kontrola stanu (monitoring + utrzymanie bazy w gotowości) ──
+// Odpytywany co kilka minut przez UptimeRobot: sprawdza, czy serwer i baza żyją, a jednocześnie
+// generuje aktywność w Supabase, dzięki czemu darmowy projekt nie jest usypiany po tygodniu bez ruchu.
+// Nie zwraca żadnych danych — tylko 200/503 i znacznik czasu.
+app.get('/api/health', readLimiter, async (req, res) => {
+  try {
+    await countOrders();
+    res.set('Cache-Control', 'no-store').json({ ok: true, db: true, time: new Date().toISOString() });
+  } catch (err) {
+    console.error('[health] baza niedostępna:', err.message);
+    res.status(503).set('Cache-Control', 'no-store').json({ ok: false, db: false, time: new Date().toISOString() });
   }
 });
 

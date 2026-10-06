@@ -75,3 +75,13 @@ async function sbSave(sessionId, order) {
   });
   return order;
 }
+
+// Lekkie zapytanie kontrolne (health check): sprawdza, czy magazyn zamówień odpowiada.
+export async function countOrders() {
+  if (supabaseEnabled) {
+    await rest('GET', 'orders?select=session_id&limit=1');
+    return true;
+  }
+  await readAll();
+  return true;
+}

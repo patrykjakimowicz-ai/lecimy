@@ -43,6 +43,20 @@ async function getTransporter() {
   return transporter;
 }
 
+// Wersja tekstowa maila (lepsza dostarczalność: filtry antyspamowe wolą wiadomości multipart).
+function htmlToText(html) {
+  return String(html)
+    .replace(/<a [^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gis, (m, href, label) => (label.trim() === href ? href : `${label} (${href})`))
+    .replace(/<(br|\/p|\/li|\/h\d|\/div|\/tr)[^>]*>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '- ')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n[ \t]+/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 function fmtPln(grosze) {
   return (grosze / 100).toFixed(2).replace('.', ',') + ' zł';
 }
@@ -114,8 +128,10 @@ export async function sendOrderConfirmationEmail(order) {
   await t.sendMail({
     from,
     to: order.email,
+    replyTo: from,
     subject: `Twój dostęp do programu „${order.pakiet}” — Lecimy po swoje (zamówienie ${orderNumber(order)})`,
     html,
+    text: htmlToText(html),
   });
 }
 
@@ -157,6 +173,7 @@ export async function sendOwnerNotification({ order, accountError, mailError }) 
     to,
     subject: `${problems.length ? '⚠️ ' : ''}Nowe zamówienie ${orderNumber(order)}: ${order.pakiet} (${fmtPln(order.amount)})`,
     html,
+    text: htmlToText(html),
   });
 }
 
