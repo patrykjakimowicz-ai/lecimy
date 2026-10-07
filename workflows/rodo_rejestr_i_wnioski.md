@@ -145,3 +145,16 @@ where (data->>'zgodaRegulamin')::boolean is not true or (data->>'zgodaCyfrowa'):
 
 ### Kopie zapasowe
 Plan Free w Supabase nie robi kopii. Co tydzień: Table Editor → `consents` i `orders` → Export CSV; trzymaj w zaszyfrowanym miejscu (zawierają dane osobowe). Okres przechowywania: min. 2 lata od realizacji usługi (OWU P24).
+
+## 9. Cykliczne sprzątanie: zamówienia nieopłacone (polityka prywatności pkt 5: „nie dłużej niż 12 miesięcy")
+Raz na kwartał (np. w kalendarzu) uruchom w Supabase → SQL Editor:
+```sql
+-- podgląd: ile zamówień nieopłaconych jest starszych niż 12 miesięcy
+select count(*) from public.orders
+where data->>'status' = 'pending' and updated_at < now() - interval '12 months';
+
+-- usunięcie (dopiero po sprawdzeniu podglądu)
+delete from public.orders
+where data->>'status' = 'pending' and updated_at < now() - interval '12 months';
+```
+Dowodów zgód (`consents`) to nie dotyczy: mają osobny okres (min. 2 lata), a po włączeniu blokady (`consents-hardening.sql`) usuwa się je tylko procedurą z końca tego pliku.
