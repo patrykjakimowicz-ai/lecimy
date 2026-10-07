@@ -19,7 +19,7 @@ Administrator: Weska Academy Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 5
 ## 2. Rejestr dostawców (podmioty przetwarzające i odbiorcy)
 | Dostawca | Rola | Co przetwarza | Siedziba | Umowa powierzenia (DPA) | Transfer poza EOG | Region danych | Status |
 |---|---|---|---|---|---|---|---|
-| Netlify, Inc. | procesor | strona publiczna (brak danych klientów poza logami dostępu) | USA | https://www.netlify.com/pdf/netlify-dpa.pdf | SCC (dec. 2021/914) w DPA | — | OK |
+| Cloudflare, Inc. | procesor | strona publiczna, DNS, CDN (brak danych klientów poza logami dostępu); od 2026-10-07 zamiast Netlify | USA | https://www.cloudflare.com/cloudflare-customer-dpa/ | SCC (dec. 2021/914) w DPA | — | OK |
 | Render Services, Inc. | procesor | serwer API: dane zamówień w pamięci/logach, przekazywanie do bazy i P24 | USA | https://render.com/dpa | SCC w DPA (DPA odwołuje się też do EU-US DPF) | Frankfurt (EU Central), sprawdzono 2026-10-06 | OK |
 | Supabase, Inc. | procesor | baza: `orders`, `consents`, konta (Auth) | USA | https://supabase.com/legal/customer-resources/data-processing-addendum (wchodzi z regulaminem usługi) | SCC w DPA | Central EU (Frankfurt), eu-central-1, sprawdzono 2026-10-06 | OK (uwaga: plan Free bez kopii zapasowych) |
 | Plausible Insights OÜ | procesor | anonimowe statystyki | Estonia (serwery w UE) | DPA dostępne u dostawcy | nie dotyczy | UE | OK |
@@ -83,7 +83,7 @@ Jeśli doszło do wycieku lub nieuprawnionego dostępu: ocena w ciągu 72 godzin
 - [x] Region Supabase i Rendera: Frankfurt (sprawdzono 2026-10-06).
 - [ ] Przejść z Gmaila na pocztę firmową i potwierdzić jej DPA; uzupełnić wiersz w tabeli.
 - [ ] Potwierdzić umowę powierzenia z biurem rachunkowym.
-- [ ] Włączyć 2FA na kontach: Supabase, Render, Netlify, GitHub, Przelewy24, UptimeRobot, poczta.
+- [ ] Włączyć 2FA na kontach: Supabase, Render, Cloudflare, GitHub, Przelewy24, UptimeRobot, poczta.
 - [ ] Opinia prawnika o regulaminie i polityce (wersje: regulamin v3, polityka v4).
 
 ## 7. Zmiana regulaminu lub polityki (procedura)
@@ -91,7 +91,7 @@ Regulamin pkt 11 wymaga: ważnej przyczyny, publikacji nowej wersji z datą wej�
 
 1. **Zmień treść** w `public/regulamin.html` lub `public/polityka-prywatnosci.html`; zaktualizuj nagłówek „Data ostatniej aktualizacji (wersja N)".
 2. **Zmień wersję** w `server/legalVersions.mjs` (np. `2026-12-01-v4`). Od tej chwili log zgód zapisuje nową wersję.
-3. **Wdróż**: Push origin (Render) + folder `public` na Netlify. Nowa wersja musi być na stronie **przed** wysłaniem maili.
+3. **Wdróż**: Push origin (GitHub Desktop): Render wdraża backend, Cloudflare stronę (zakładka Deployments w Workers & Pages). Nowa wersja musi być na stronie **przed** wysłaniem maili.
 4. **Podgląd odbiorców** (nic nie wysyła):
    ```bash
    node tools/powiadom_uczestnikow.mjs --od "1 grudnia 2026" --zmiany "Doprecyzowano zasady reklamacji (pkt 7)."

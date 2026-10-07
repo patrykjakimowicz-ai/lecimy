@@ -7,7 +7,7 @@ i przywrócić działanie. Priorytet: **nigdy nie zostawić klienta, który zap�
 ## Z czego składa się system (gdzie szukać problemu)
 | Część | Gdzie | Co robi | Jak sprawdzić, że żyje |
 |---|---|---|---|
-| Strona (HTML) | Netlify, `lecimyposwoje.pl` | oferta, formularz zamówienia, panel | otwórz stronę; monitor UptimeRobot „strona" |
+| Strona (HTML) | Cloudflare (Worker `super-shape-f71b`), `lecimyposwoje.pl` | oferta, formularz zamówienia, panel | otwórz stronę; monitor UptimeRobot „strona" |
 | Backend (API) | Render, `lecimy-xlxt.onrender.com` | tworzy zamówienie, rejestruje płatność w P24, przyjmuje webhook, zakłada konta, wysyła maile | `https://lecimy-xlxt.onrender.com/api/health` → `{"ok":true,"db":true}` |
 | Baza | Supabase, projekt „Lecimy po swoje" | zamówienia (`orders`), dowody zgód (`consents`), konta klientów (Authentication → Users) | pole `"db":true` w health checku |
 | Płatności | Przelewy24 (sandbox / produkcja) | pobiera pieniądze, po udanej płatności wysyła webhook | panel P24 → Transakcje |
@@ -25,7 +25,7 @@ i przywrócić działanie. Priorytet: **nigdy nie zostawić klienta, który zap�
    - `200` i `"db":true` → backend i baza żyją, problem jest gdzie indziej (mail, P24, strona).
    - `503` lub `"db":false` → baza nie odpowiada → sekcja „Supabase".
    - brak odpowiedzi / błąd 5xx → sekcja „Render".
-2. Sprawdź, czy strona się otwiera (`lecimyposwoje.pl`) → sekcja „Netlify" jeśli nie.
+2. Sprawdź, czy strona się otwiera (`lecimyposwoje.pl`) → sekcja „Cloudflare" jeśli nie.
 3. Zajrzyj w Render → **Logs** i wyszukaj `[p24-webhook]`, `[create-order]`, `[health]` (ostatnie godziny).
 
 ## Scenariusze
@@ -44,9 +44,9 @@ i przywrócić działanie. Priorytet: **nigdy nie zostawić klienta, który zap�
 - Po wznowieniu sprawdź health check ponownie.
 - Skutek: zamówienia nie zapisują się (klient widzi błąd przy „Kupuję i płacę"), a webhooki mogą się nie przetworzyć → jak wyżej.
 
-### Netlify (strona nie działa)
-- Netlify → projekt → **Deploys**: czy ostatni deploy jest „Published". Jeśli nie, wgraj ponownie folder `public` (przeciągnij na pole drop).
-- Sprawdź, czy domena `lecimyposwoje.pl` jest nadal podpięta (Domain management).
+### Cloudflare (strona nie działa)
+- Cloudflare → Workers & Pages → `super-shape-f71b` → **Deployments**: czy ostatni build ma status Success. Jeśli nie, sprawdź log lub użyj **New deployment**.
+- Sprawdź, czy domena `lecimyposwoje.pl` jest nadal podpięta (Settings → Domains & Routes) i czy nameservery w GoDaddy to `pete/virginia.ns.cloudflare.com`.
 
 ### Przelewy24
 - Panel P24 → **Transakcje**: czy płatności się pojawiają.
