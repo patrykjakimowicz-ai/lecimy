@@ -3102,3 +3102,30 @@ body.has-countdown .nav { top: var(--bar-h); transition: top .7s cubic-bezier(.2
 .footer__bottom .footer__contact { margin-bottom: 0.4em; }
 .footer__contact a { color: var(--clr-text-muted); text-decoration: underline; text-underline-offset: 2px; }
 .footer__contact a:hover { color: var(--clr-text); }
+
+/* ── HERO MOBILE: tekst nigdy nie zasłania twarzy ──
+   Zdjęcie jest tłem karty, a tekst zaczyna się poniżej twarzy (górne ~72% szerokości karty).
+   Na niskich ekranach karta po prostu rośnie zamiast nakładać tekst na twarz. */
+@media (max-width: 768px) {
+  .hero__card {
+    display: flex;
+    align-items: flex-end;
+    min-height: calc(100svh - var(--nav-h) - 2 * var(--sp-md));
+  }
+  body.has-countdown .hero__card {
+    min-height: calc(100svh - var(--nav-h) - var(--bar-h) - 2 * var(--sp-md));
+  }
+  .hero__photo {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    min-height: 0;
+    max-height: none;
+    object-position: center top;
+  }
+  .hero__overlay-content {
+    position: relative;
+    width: 100%;
+    padding-top: calc(72vw - var(--sp-md));
+  }
+}
