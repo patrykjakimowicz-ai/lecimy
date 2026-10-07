@@ -68,6 +68,19 @@ export async function getOrder(sessionId) {
   return all[sessionId] || null;
 }
 
+// Zamówienia danego pakietu w danej edycji (do limitu miejsc, np. VIP).
+export async function listOrders({ pakiet, edycja }) {
+  if (supabaseEnabled) {
+    const rows = await rest(
+      'GET',
+      `orders?select=data&data->>pakiet=eq.${encodeURIComponent(pakiet)}&data->>edycja=eq.${encodeURIComponent(edycja)}`
+    );
+    return (rows || []).map((r) => r.data);
+  }
+  const all = await readAll();
+  return Object.values(all).filter((o) => o.pakiet === pakiet && o.edycja === edycja);
+}
+
 async function sbSave(sessionId, order) {
   await rest('POST', 'orders?on_conflict=session_id', {
     body: { session_id: sessionId, data: order, updated_at: order.updatedAt },

@@ -160,7 +160,7 @@ function initVideo() {
   if (!trigger) return;
 
   // URL do podmiany na docelowy
-  const VIDEO_URL = 'https://www.youtube.com/embed/Ib6mamWQEME?autoplay=1&rel=0&modestbranding=1';
+  const VIDEO_URL = 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME?autoplay=1&rel=0&modestbranding=1';
 
   trigger.addEventListener('click', () => {
     // Utwórz overlay
@@ -325,7 +325,7 @@ function initAboutVideo() {
   container.addEventListener('click', () => {
     const videoId = container.dataset.videoId;
     const iframe = document.createElement('iframe');
-    iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0&modestbranding=1';
+    iframe.src = 'https://www.youtube-nocookie.com/embed/' + videoId + '?autoplay=1&rel=0&modestbranding=1';
     iframe.title = 'O programie LECIMY';
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     iframe.allowFullscreen = true;

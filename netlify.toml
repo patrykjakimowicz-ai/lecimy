@@ -11,3 +11,8 @@
   Referrer-Policy = "strict-origin-when-cross-origin"
   Permissions-Policy = "camera=(), microphone=(), geolocation=()"
   Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+
+# Bez przepisywania linków w HTML (regulamin.html → /regulamin): klient dostaje plik bajt w bajt taki sam
+# jak w repozytorium i archiwum_dokumentow/, więc odcisk SHA-256 w logu zgód odpowiada temu, co widział.
+[build.processing]
+  skip_processing = true

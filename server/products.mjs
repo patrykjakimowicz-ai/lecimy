@@ -7,6 +7,11 @@ export const PACKAGES = {
   'VIP': 2497,
 };
 
+// Limit miejsc w pakiecie (na edycję). Musi być zgodny z cennikiem w index.html i regulaminem (pkt 3).
+export const SEAT_LIMITS = {
+  'VIP': 25,
+};
+
 export const ADDONS = {
   masterclass: {
     label: 'Masterclass Wdrożeniowy',

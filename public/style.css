@@ -3097,3 +3097,8 @@ body.has-countdown .nav { top: var(--bar-h); transition: top .7s cubic-bezier(.2
 
 /* Zamówienie: VAT zawarty w cenie */
 .order-summary__vat { display: flex; justify-content: space-between; margin-top: var(--sp-xs); font-size: var(--fs-xs); color: var(--clr-text-muted); }
+
+/* Kontakt w stopce (wymóg P24: e-mail i telefon widoczne na każdej podstronie) */
+.footer__bottom .footer__contact { margin-bottom: 0.4em; }
+.footer__contact a { color: var(--clr-text-muted); text-decoration: underline; text-underline-offset: 2px; }
+.footer__contact a:hover { color: var(--clr-text); }

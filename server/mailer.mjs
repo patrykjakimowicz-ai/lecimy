@@ -179,7 +179,7 @@ export async function sendOrderConfirmationEmail(order) {
  * Powiadomienie dla właściciela: nowe opłacone zamówienie (+ dane do faktury) i ewentualne problemy
  * (nie założono konta / nie wysłano maila do klienta). Wymaga zmiennej OWNER_EMAIL; bez niej nic nie robi.
  */
-export async function sendOwnerNotification({ order, accountError, mailError }) {
+export async function sendOwnerNotification({ order, accountError, mailError, extraProblems = [] }) {
   const to = process.env.OWNER_EMAIL;
   if (!to) return;
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
@@ -187,6 +187,7 @@ export async function sendOwnerNotification({ order, accountError, mailError }) 
   const problems = [];
   if (accountError) problems.push(`⚠️ NIE założono konta klienta: ${escapeHtml(accountError.message)}. Załóż je ręcznie w Supabase (Authentication → Users).`);
   if (mailError) problems.push(`⚠️ NIE wysłano maila do klienta: ${escapeHtml(mailError.message)}. Wyślij dostęp ręcznie.`);
+  for (const p of extraProblems) problems.push(`⚠️ ${escapeHtml(p)}`);
 
   const faktura = order.faktura
     ? `<p><strong>Dane do faktury VAT:</strong><br/>${escapeHtml(order.faktura.firma)}<br/>NIP ${escapeHtml(order.faktura.nip)}<br/>${escapeHtml(order.faktura.ulica)}<br/>${escapeHtml(order.faktura.kod)} ${escapeHtml(order.faktura.miasto)}</p>`

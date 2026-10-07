@@ -11,9 +11,9 @@ import { randomUUID } from 'node:crypto';
 import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
-import { PACKAGES, ADDONS, MARKETING_CONSENT_DISCOUNT, toGrosze } from './products.mjs';
+import { PACKAGES, ADDONS, SEAT_LIMITS, MARKETING_CONSENT_DISCOUNT, toGrosze } from './products.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
-import { saveOrder, updateOrder, getOrder, countOrders } from './orderStore.mjs';
+import { saveOrder, updateOrder, getOrder, countOrders, listOrders } from './orderStore.mjs';
 import { appendConsent } from './consentLog.mjs';
 import { sendOrderConfirmationEmail, sendOwnerNotification } from './mailer.mjs';
 import { ensureCustomerAccount } from './supabaseAuth.mjs';
@@ -87,6 +87,24 @@ const createOrderLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.' },
 });
+// Limit miejsc (VIP): miejsce zajmuje zamówienie opłacone albo nieopłacone złożone w ciągu ostatnich 30 minut
+// (klient jest właśnie na stronie płatności). Porzucone zamówienia zwalniają miejsce po tym czasie.
+const SEAT_HOLD_MS = 30 * 60 * 1000;
+async function seatsTaken(pakiet) {
+  const now = Date.now();
+  const orders = await listOrders({ pakiet, edycja: EDITION.name });
+  return orders.filter(
+    (o) => o.status === 'paid' || (o.status === 'pending' && now - Date.parse(o.createdAt || o.updatedAt) < SEAT_HOLD_MS)
+  ).length;
+}
+// Sprawdzenie limitu i zapis zamówienia muszą iść po kolei — inaczej dwa równoczesne zamówienia zajęłyby ostatnie miejsce.
+let seatLock = Promise.resolve();
+function withSeatLock(fn) {
+  const run = seatLock.then(fn, fn);
+  seatLock = run.catch(() => {});
+  return run;
+}
+
 const readLimiter = rateLimit({ keyGenerator: (req) => ipKeyGenerator(clientIp(req)), windowMs: 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
 
 // ── STATIC SITE ──────────────────────────────────────────────
@@ -184,10 +202,20 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       faktura: cleanFaktura,
       amount: amountGrosze,
       currency: 'PLN',
+      edycja: EDITION.name,
+      createdAt: new Date().toISOString(),
       status: 'pending', // pending -> paid
     };
     stage = 'zapis-zamowienia';
-    await saveOrder(sessionId, order);
+    const seatLimit = SEAT_LIMITS[pakiet];
+    const soldOut = await withSeatLock(async () => {
+      if (seatLimit && (await seatsTaken(pakiet)) >= seatLimit) return true;
+      await saveOrder(sessionId, order);
+      return false;
+    });
+    if (soldOut) {
+      return res.status(409).json({ error: `Wszystkie miejsca w pakiecie ${pakiet} (${seatLimit}) zostały zajęte. Wybierz inny pakiet.` });
+    }
 
     // Archiwizacja faktu i momentu wyrażenia zgód — niezależnie od stanu zamówienia,
     // które może się później zmieniać (status płatności itd.).
@@ -292,9 +320,21 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
       console.error('[p24-webhook] płatność potwierdzona, ale wysyłka e-maila nie powiodła się:', mailErr);
     }
 
+    // Płatność mogła dojść po czasie rezerwacji miejsca (np. przelew tradycyjny) — wtedy limit może zostać przekroczony.
+    const extraProblems = [];
+    const seatLimit = SEAT_LIMITS[order.pakiet];
+    if (seatLimit) {
+      try {
+        const paid = (await listOrders({ pakiet: order.pakiet, edycja: order.edycja || EDITION.name })).filter((o) => o.status === 'paid').length;
+        if (paid > seatLimit) extraProblems.push(`Przekroczony limit miejsc ${order.pakiet}: opłaconych ${paid} z ${seatLimit}. Zdecyduj, czy przyjmujesz uczestnika, czy zwracasz płatność.`);
+      } catch (seatErr) {
+        console.error('[p24-webhook] nie udało się sprawdzić limitu miejsc:', seatErr.message);
+      }
+    }
+
     // Powiadomienie dla właściciela: nowa sprzedaż + dane do faktury + ewentualne problemy.
     try {
-      await sendOwnerNotification({ order: { ...order, sessionId: payload.sessionId }, accountError, mailError });
+      await sendOwnerNotification({ order: { ...order, sessionId: payload.sessionId }, accountError, mailError, extraProblems });
     } catch (ownerErr) {
       console.error('[p24-webhook] nie udało się wysłać powiadomienia do właściciela:', ownerErr.message);
     }
@@ -318,6 +358,20 @@ app.get('/api/health', readLimiter, async (req, res) => {
   } catch (err) {
     console.error('[health] baza niedostępna:', err.message);
     res.status(503).set('Cache-Control', 'no-store').json({ ok: false, db: false, time: new Date().toISOString() });
+  }
+});
+
+// ── API: wolne miejsca w pakietach z limitem (cennik i formularz zamówienia) ──
+app.get('/api/seats', readLimiter, async (req, res) => {
+  try {
+    const out = {};
+    for (const [pakiet, limit] of Object.entries(SEAT_LIMITS)) {
+      out[pakiet] = { limit, left: Math.max(0, limit - (await seatsTaken(pakiet))) };
+    }
+    res.set('Cache-Control', 'no-store').json(out);
+  } catch (err) {
+    console.error('[seats] błąd:', err.message);
+    res.status(503).set('Cache-Control', 'no-store').json({ error: 'unavailable' });
   }
 });
 

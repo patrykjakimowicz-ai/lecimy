@@ -5,7 +5,7 @@ i backend muszą stanąć w dwóch różnych miejscach:
 
 - **Statyczna strona** (`index.html`, `regulamin.html`, `polityka-prywatnosci.html`,
   `zamowienie.html`, `podziekowanie.html`, `style.css`, `script.js`, `brand_assets/`,
-  `hero.jpg`, `images-1.jpeg`, `robots.txt`, `sitemap.xml`) → **GoDaddy**.
+  `hero.jpg`, `images-1.jpeg`, `robots.txt`, `sitemap.xml`, `seats.js`) → **GoDaddy**.
 - **Backend** (`server/`, obsługa Przelewy24 + wysyłka maili) → **osobny hosting
   z Node.js** (polecam [Render.com](https://render.com) — ma darmowy plan, wdrożenie
   z paczki plików lub repo w kilka minut. Railway / Fly.io / VPS też się nadają).
