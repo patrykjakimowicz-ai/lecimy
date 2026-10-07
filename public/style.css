@@ -3104,10 +3104,13 @@ body.has-countdown .nav { top: var(--bar-h); transition: top .7s cubic-bezier(.2
 .footer__contact a:hover { color: var(--clr-text); }
 
 /* ── HERO MOBILE: tekst nigdy nie zasłania twarzy ──
-   Zdjęcie jest tłem karty, a tekst zaczyna się poniżej twarzy (górne ~72% szerokości karty).
-   Na niskich ekranach karta po prostu rośnie zamiast nakładać tekst na twarz. */
+   Zdjęcie (906×1600) jest tłem karty. Przesuwamy je w górę o ~18% szerokości karty, żeby nad głową
+   zostało niewiele miejsca; tekst zaczyna się poniżej brody (~52% szerokości karty od góry).
+   Karta rośnie z treścią, więc na małych ekranach tekst nigdy nie nachodzi na twarz. */
 @media (max-width: 768px) {
   .hero__card {
+    --hero-w: calc(100vw - 2 * var(--sp-md));
+    --hero-shift: calc(var(--hero-w) * 0.18);
     display: flex;
     align-items: flex-end;
     min-height: calc(100svh - var(--nav-h) - 2 * var(--sp-md));
@@ -3117,15 +3120,18 @@ body.has-countdown .nav { top: var(--bar-h); transition: top .7s cubic-bezier(.2
   }
   .hero__photo {
     position: absolute;
-    inset: 0;
-    height: 100%;
+    left: 0;
+    top: calc(-1 * var(--hero-shift));
+    width: 100%;
+    height: calc(100% + var(--hero-shift));
     min-height: 0;
     max-height: none;
+    object-fit: cover;
     object-position: center top;
   }
   .hero__overlay-content {
     position: relative;
     width: 100%;
-    padding-top: calc(72vw - var(--sp-md));
+    padding-top: calc(var(--hero-w) * 0.6);
   }
 }
