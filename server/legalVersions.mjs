@@ -4,5 +4,5 @@
 // (ta sama data jest w nagłówku „Data ostatniej aktualizacji” w tych dokumentach).
 export const LEGAL_VERSIONS = {
   regulamin: '2026-10-16-v8',
-  polityka: '2026-10-16-v10',
+  polityka: '2026-10-16-v11',
 };
