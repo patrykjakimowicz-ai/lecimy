@@ -3000,11 +3000,10 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   .video-thumb__play::after { animation: none; }
 }
 
-/* ── Płatności w stopce: informacja o operatorze + logo Tpay (wymóg OWU Tpay § 6 ust. 3) ── */
+/* ── Metody płatności w stopce (wymóg weryfikacji Przelewy24) ── */
 .footer__payments { padding-block: var(--sp-md); text-align: center; border-top: 1px solid var(--clr-border); }
-.footer__payments-text { margin: 0 0 0.6rem; font-size: 0.85rem; color: var(--clr-text-muted); }
-/* Logo Tpay ma własne białe tło (belka z zaokrągleniem) — nie zmieniamy go, tylko skalujemy z zachowaniem proporcji. */
-.footer__payments-img { display: block; width: min(240px, 100%); height: auto; margin-inline: auto; }
+/* Oficjalny baner Przelewy24 ma białe tło — dajemy mu jasną, zaokrągloną ramkę. */
+.footer__payments-img { display: block; width: min(300px, 100%); height: auto; margin-inline: auto; background: #fff; border-radius: 10px; }
 .footer--mini { margin-top: var(--sp-lg); }
 .footer--mini .footer__bottom a { color: var(--clr-text-muted); text-decoration: underline; }
 

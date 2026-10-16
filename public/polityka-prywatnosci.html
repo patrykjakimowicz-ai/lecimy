@@ -47,7 +47,7 @@
 
         <div class="legal__header">
           <h1>Polityka prywatności</h1>
-          <p class="legal__updated">Data ostatniej aktualizacji: 16.10.2026 (wersja 11)</p>
+          <p class="legal__updated">Data ostatniej aktualizacji: 16.10.2026 (wersja 12)</p>
         </div>
 
         <div class="legal__body">
@@ -76,7 +76,7 @@
           </ul>
           <p>Podanie danych w Formularzu zamówienia (z wyjątkiem danych do faktury) jest dobrowolne, ale niezbędne do zawarcia i wykonania umowy.</p>
           <p>Dane dotyczące samej płatności (np. numer karty, dane logowania do banku) nie są przetwarzane ani przechowywane przez Serwis – ich odbiorcą i administratorem w zakresie realizacji płatności jest bezpośrednio Operator Płatności (patrz pkt 6).</p>
-          <p>Aby zrealizować płatność, przekazujemy Operatorowi Płatności (Tpay lub Stripe) dane niezbędne do jej wykonania: imię i nazwisko, adres e-mail, numer telefonu (jeśli został podany), numer zamówienia oraz opis i kwotę płatności.</p>
+          <p>Aby zrealizować płatność, przekazujemy Operatorowi Płatności (Przelewy24 lub Stripe) dane niezbędne do jej wykonania: imię i nazwisko, adres e-mail, numer telefonu (jeśli został podany), numer zamówienia oraz opis i kwotę płatności.</p>
           <p>Podczas korzystania z Serwisu automatycznie i anonimowo gromadzone mogą być również: typ przeglądarki, przybliżona lokalizacja, rozdzielczość ekranu, system operacyjny, adres strony odsyłającej oraz czas spędzony na poszczególnych podstronach.</p>
           <p>Dostawcy hostingu i sieci dostarczania treści (Cloudflare, Render) przechowują krótkotrwale techniczne logi dostępu (m.in. adres IP i czas żądania) w celach bezpieczeństwa i diagnostyki.</p>
 
@@ -100,7 +100,7 @@
           <p>Dane osobowe mogą być przekazywane następującym odbiorcom, wyłącznie w zakresie niezbędnym do realizacji wskazanych celów:</p>
           <p><strong>Odrębni administratorzy i podmioty uprawnione:</strong></p>
           <ul>
-            <li><strong>Operator Płatności</strong> – Krajowy Integrator Płatności S.A. (Tpay), pl. Władysława Andersa 3, 61-894 Poznań, Polska, KRS 0000412357, NIP 7773061579, albo Stripe Payments Europe, Limited, 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, D02 H210, Irlandia (wraz z podmiotami z grupy Stripe), zależnie od operatora użytego przy danym Zamówieniu – w celu obsługi i rozliczenia płatności za Zamówienie (jako odrębny administrator danych w zakresie realizacji płatności),</li>
+            <li><strong>Operator Płatności</strong> – PayPro S.A. (Przelewy24), ul. Pastelowa 8, 60-198 Poznań, Polska, KRS 0000347935, NIP 7792369887, REGON 301345068, albo Stripe Payments Europe, Limited, 1 Grand Canal Street Lower, Grand Canal Dock, Dublin, D02 H210, Irlandia (wraz z podmiotami z grupy Stripe), zależnie od operatora użytego przy danym Zamówieniu – w celu obsługi i rozliczenia płatności za Zamówienie (jako odrębny administrator danych w zakresie realizacji płatności),</li>
             <li>biuro rachunkowe / księgowość Administratora – w zakresie niezbędnym do wystawienia dokumentów sprzedaży,</li>
             <li>podmioty uprawnione na podstawie przepisów prawa (np. organy podatkowe oraz Krajowy System e-Faktur – w zakresie wystawianych faktur).</li>
           </ul>
@@ -110,7 +110,7 @@
             <li><strong>Render Services, Inc.</strong> (USA) – serwer aplikacji obsługujący zamówienia i płatności,</li>
             <li><strong>Supabase, Inc.</strong> – baza danych zamówień i zgód oraz konta użytkowników w panelu programu (uwierzytelnianie),</li>
             <li><strong>Plausible Insights OÜ</strong> (Estonia) – statystyki ruchu na stronie bez plików cookies (serwery w Unii Europejskiej),</li>
-            <li><strong>dostawca poczty elektronicznej na domenie Serwisu</strong> (GoDaddy – Titan Email) – wysyłka potwierdzeń zakupu i obsługa korespondencji z klientami.</li>
+            <li><strong>dostawca poczty elektronicznej</strong> (GoDaddy – Titan Email) – wysyłka potwierdzeń zakupu i obsługa korespondencji z klientami.</li>
           </ul>
           <p>Baza danych (Supabase) oraz serwer aplikacji obsługujący zamówienia (Render) działają w centrach danych zlokalizowanych w Unii Europejskiej (Frankfurt nad Menem, Niemcy), a statystyki ruchu (Plausible) są przetwarzane na serwerach w Unii Europejskiej.</p>
           <p>Dane osobowe nie są odsprzedawane podmiotom trzecim. Cloudflare, Inc., Render Services, Inc. i Supabase, Inc. mają siedzibę w Stanach Zjednoczonych, dlatego dane mogą być przetwarzane poza Europejskim Obszarem Gospodarczym. Przekazanie danych do tych podmiotów odbywa się na podstawie standardowych klauzul umownych zatwierdzonych decyzją wykonawczą Komisji Europejskiej (UE) 2021/914, stanowiących element ich umów powierzenia przetwarzania danych. Pozostałe podmioty przetwarzające korzystają z analogicznych zabezpieczeń przewidzianych w RODO, jeżeli przetwarzają dane poza EOG. Kopię zabezpieczeń można uzyskać, kontaktując się z Administratorem (pkt 2). Operator Płatności (Stripe) jako odrębny administrator może przekazywać dane dotyczące płatności także do podmiotów z grupy Stripe w państwach spoza EOG (w tym w USA), na zasadach opisanych w jego polityce prywatności (https://stripe.com/pl/privacy).</p>
@@ -177,8 +177,7 @@
         </nav>
       </div>
       <div class="footer__payments">
-        <p class="footer__payments-text">Płatności obsługują Tpay i Stripe.</p>
-        <a href="https://tpay.com" target="_blank" rel="noopener" title="Obsługujemy płatności internetowe przez system płatności online Tpay"><img class="footer__payments-img" src="brand_assets/platnosci/tpay-zaufane-platnosci.svg" width="300" height="100" loading="lazy" decoding="async" alt="Logo Tpay – zaufane płatności" /></a>
+        <img class="footer__payments-img" src="brand_assets/platnosci/p24-metody-platnosci-kompakt.png" width="1180" height="385" loading="lazy" decoding="async" alt="Płatności obsługuje Przelewy24: Apple Pay, Google Pay, BLIK, Visa, Mastercard i przelewy bankowe" />
       </div>
       <div class="footer__bottom">
         <p class="footer__contact">Kontakt: <a href="mailto:kontakt@weskaacademy.pl">kontakt@weskaacademy.pl</a> · tel. <a href="tel:+48606573452">+48 606 573 452</a></p>
