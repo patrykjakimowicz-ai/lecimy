@@ -17,7 +17,8 @@
     "express": "^4.19.2",
     "express-rate-limit": "^8.7.1",
     "helmet": "^8.3.0",
-    "nodemailer": "^10.0.15"
+    "nodemailer": "^10.0.15",
+    "stripe": "^23.0.0"
   },
   "devDependencies": {
     "puppeteer": "^25.1.0"

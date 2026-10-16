@@ -1,4 +1,4 @@
-// Serwer produkcyjny: serwuje statyczną stronę + obsługuje backend Przelewy24.
+// Serwer produkcyjny: serwuje statyczną stronę + obsługuje backend płatności (Stripe / Przelewy24).
 //
 // Uruchomienie:  node server/index.mjs   (albo: npm start)
 // Wymaga pliku .env — patrz .env.example.
@@ -13,10 +13,10 @@ import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 import { PACKAGES, ADDONS, SEAT_LIMITS, MARKETING_CONSENT_DISCOUNT, toGrosze } from './products.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
+import { createCheckoutSession, constructWebhookEvent } from './stripe.mjs';
+import { fulfillPaidOrder } from './fulfillment.mjs';
 import { saveOrder, updateOrder, getOrder, countOrders, listOrders } from './orderStore.mjs';
 import { appendConsent } from './consentLog.mjs';
-import { sendOrderConfirmationEmail, sendOwnerNotification } from './mailer.mjs';
-import { ensureCustomerAccount } from './supabaseAuth.mjs';
 import { EDITION } from './edition.mjs';
 import { LEGAL_VERSIONS } from './legalVersions.mjs';
 import { legalFingerprint } from './legalDocs.mjs';
@@ -37,6 +37,13 @@ const API_URL = process.env.API_URL || process.env.PUBLIC_URL || `http://localho
 // Włączenie: MARKETING_ENABLED=true w zmiennych środowiskowych Rendera.
 const MARKETING_ENABLED = process.env.MARKETING_ENABLED === 'true';
 
+// Aktywny operator płatności: 'stripe' albo 'p24'. Kod obu jest wdrożony naraz (webhooki obu działają),
+// przełączasz tylko to, gdzie trafiają NOWE zamówienia. Domyślnie 'p24' — nic się nie zmienia bez jawnego ustawienia.
+const PAYMENT_PROVIDER = (process.env.PAYMENT_PROVIDER || 'p24').toLowerCase();
+if (!['stripe', 'p24'].includes(PAYMENT_PROVIDER)) {
+  throw new Error(`Nieznany PAYMENT_PROVIDER="${PAYMENT_PROVIDER}" — dozwolone: stripe, p24.`);
+}
+
 // Prawdziwy adres IP klienta. Render przepuszcza ruch przez Cloudflare, więc req.ip to adres serwera
 // pośredniczącego, a nie klienta. Cloudflare dopisuje adres klienta w CF-Connecting-IP (a w X-Forwarded-For jest pierwszy).
 function clientIp(req) {
@@ -51,6 +58,58 @@ const app = express();
 app.set('trust proxy', 1); // Render stoi za proxy — potrzebne do poprawnego req.ip i rate limitu
 app.disable('x-powered-by');
 app.use(helmet({ contentSecurityPolicy: false })); // CSP wyłączone: strona ma inline'owe skrypty
+
+// ── API: webhook Stripe ──────────────────────────────────────
+// MUSI być przed express.json() — podpis Stripe liczony jest z surowego body.
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json', limit: '1mb' }), async (req, res) => {
+  let event;
+  try {
+    event = constructWebhookEvent(req.body, req.headers['stripe-signature']);
+  } catch (err) {
+    console.warn('[stripe-webhook] nieprawidłowy podpis — odrzucam:', err.message);
+    return res.status(400).send('invalid signature');
+  }
+
+  try {
+    const obj = event.data.object;
+    const sessionId = obj.client_reference_id || obj.metadata?.sessionId;
+
+    if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
+      // 'completed' przy płatności opóźnionej (np. przelew) ma payment_status 'unpaid' — czekamy wtedy na async_payment_succeeded.
+      if (obj.payment_status !== 'paid') return res.status(200).send('OK');
+
+      const order = sessionId && (await getOrder(sessionId));
+      if (!order) {
+        console.warn('[stripe-webhook] nieznane zamówienie', sessionId);
+        return res.status(404).send('unknown session');
+      }
+      if (order.amount !== obj.amount_total || String(obj.currency).toUpperCase() !== order.currency) {
+        console.warn('[stripe-webhook] kwota/waluta nie zgadza się z zamówieniem', { order, amount: obj.amount_total, currency: obj.currency });
+        return res.status(400).send('amount mismatch');
+      }
+      // Stripe potrafi dostarczyć to samo zdarzenie kilkukrotnie — drugi raz nic nie robimy.
+      if (order.status === 'paid') return res.status(200).send('OK');
+
+      await fulfillPaidOrder({
+        sessionId,
+        order,
+        siteUrl: SITE_URL,
+        tag: 'stripe-webhook',
+        patch: { provider: 'stripe', stripeCheckoutSessionId: obj.id, stripePaymentIntentId: obj.payment_intent || null },
+      });
+    } else if (event.type === 'checkout.session.expired' || event.type === 'checkout.session.async_payment_failed') {
+      // Klient nie zapłacił — zwalniamy miejsce od razu, bez czekania na koniec rezerwacji.
+      const order = sessionId && (await getOrder(sessionId));
+      if (order && order.status === 'pending') await updateOrder(sessionId, { status: 'expired' });
+    }
+    res.status(200).send('OK');
+  } catch (err) {
+    console.error('[stripe-webhook] błąd przetwarzania', err);
+    // Odpowiedź inna niż 2xx — Stripe ponowi dostarczenie zdarzenia.
+    res.status(500).send('internal error');
+  }
+});
+
 app.use(express.json({ limit: '20kb' }));
 
 // CORS — tylko własne originy (strona na Netlify/domena + lokalny dev).
@@ -242,15 +301,28 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       edycja: EDITION.name,
     });
 
-    stage = 'przelewy24';
-    const { redirectUrl } = await registerTransaction({
-      sessionId,
-      amount: amountGrosze,
-      description,
-      email,
-      urlReturn: `${SITE_URL}/podziekowanie.html?sid=${sessionId}`,
-      urlStatus: `${API_URL}/api/przelewy24/webhook`,
-    });
+    let redirectUrl;
+    if (PAYMENT_PROVIDER === 'stripe') {
+      stage = 'stripe';
+      ({ redirectUrl } = await createCheckoutSession({
+        sessionId,
+        amount: amountGrosze,
+        description,
+        email,
+        urlReturn: `${SITE_URL}/podziekowanie.html?sid=${sessionId}`,
+        urlCancel: `${SITE_URL}/zamowienie.html`,
+      }));
+    } else {
+      stage = 'przelewy24';
+      ({ redirectUrl } = await registerTransaction({
+        sessionId,
+        amount: amountGrosze,
+        description,
+        email,
+        urlReturn: `${SITE_URL}/podziekowanie.html?sid=${sessionId}`,
+        urlStatus: `${API_URL}/api/przelewy24/webhook`,
+      }));
+    }
 
     res.json({ redirectUrl });
   } catch (err) {
@@ -297,47 +369,13 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
       return res.status(502).send('verify failed');
     }
 
-    await updateOrder(payload.sessionId, { status: 'paid', orderId: payload.orderId });
-
-    // Konto klienta w Supabase (bez hasła) + link do ustawienia hasła. Błąd tutaj nie cofa płatności:
-    // mail i tak wychodzi (z informacją, jak odzyskać dostęp), a Ty dostajesz alert.
-    let setPasswordUrl = null;
-    let accountError = null;
-    try {
-      setPasswordUrl = await ensureCustomerAccount(order.email, `${SITE_URL}/logowanie.html`);
-    } catch (accErr) {
-      accountError = accErr;
-      console.error('[p24-webhook] płatność potwierdzona, ale nie udało się założyć konta klienta:', accErr);
-    }
-
-    let mailError = null;
-    try {
-      await sendOrderConfirmationEmail({ ...order, sessionId: payload.sessionId, setPasswordUrl });
-    } catch (mailErr) {
-      mailError = mailErr;
-      // Płatność jest już potwierdzona i zapisana — błąd maila nie powinien cofać tego faktu,
-      // ale trzeba go głośno zalogować, żeby ręcznie dosłać dostęp klientowi.
-      console.error('[p24-webhook] płatność potwierdzona, ale wysyłka e-maila nie powiodła się:', mailErr);
-    }
-
-    // Płatność mogła dojść po czasie rezerwacji miejsca (np. przelew tradycyjny) — wtedy limit może zostać przekroczony.
-    const extraProblems = [];
-    const seatLimit = SEAT_LIMITS[order.pakiet];
-    if (seatLimit) {
-      try {
-        const paid = (await listOrders({ pakiet: order.pakiet, edycja: order.edycja || EDITION.name })).filter((o) => o.status === 'paid').length;
-        if (paid > seatLimit) extraProblems.push(`Przekroczony limit miejsc ${order.pakiet}: opłaconych ${paid} z ${seatLimit}. Zdecyduj, czy przyjmujesz uczestnika, czy zwracasz płatność.`);
-      } catch (seatErr) {
-        console.error('[p24-webhook] nie udało się sprawdzić limitu miejsc:', seatErr.message);
-      }
-    }
-
-    // Powiadomienie dla właściciela: nowa sprzedaż + dane do faktury + ewentualne problemy.
-    try {
-      await sendOwnerNotification({ order: { ...order, sessionId: payload.sessionId }, accountError, mailError, extraProblems });
-    } catch (ownerErr) {
-      console.error('[p24-webhook] nie udało się wysłać powiadomienia do właściciela:', ownerErr.message);
-    }
+    await fulfillPaidOrder({
+      sessionId: payload.sessionId,
+      order,
+      siteUrl: SITE_URL,
+      tag: 'p24-webhook',
+      patch: { orderId: payload.orderId },
+    });
 
     res.status(200).send('OK');
   } catch (err) {
@@ -385,6 +423,7 @@ app.get('/api/order/:sessionId', readLimiter, async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Serwer działa: http://localhost:${PORT}`);
+  console.log(`Operator płatności dla nowych zamówień: ${PAYMENT_PROVIDER}`);
   console.log(`SITE_URL (strona / urlReturn): ${SITE_URL}`);
   console.log(`API_URL  (ten backend / webhook urlStatus): ${API_URL} — musi być publicznie dostępny po HTTPS.`);
 });

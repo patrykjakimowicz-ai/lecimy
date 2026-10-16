@@ -75,3 +75,21 @@ podmień `[UZUPEŁNIJ LINK DO PLATFORMY]` na prawdziwy adres, zanim ktokolwiek z
 
 Gdy powyższe działa end-to-end (prawdziwy zakup na sandboxie przechodzi, mail z dostępem
 przychodzi), zgłoś konto do weryfikacji produkcyjnej w panelu Przelewy24.
+
+---
+
+# Płatności Stripe (zamiast Przelewy24)
+
+Kod obu operatorów jest wdrożony jednocześnie; o tym, gdzie trafiają **nowe** zamówienia,
+decyduje zmienna `PAYMENT_PROVIDER` (`stripe` albo `p24`, domyślnie `p24`). Webhooki obu działają zawsze.
+
+1. Konto na stripe.com, uzupełnij dane firmy (do produkcji). W trybie testowym możesz zacząć od razu.
+2. Panel -> Ustawienia -> Metody płatności: włącz karty, BLIK, Przelewy24, Apple Pay / Google Pay (waluta PLN).
+3. Panel -> Deweloperzy -> Klucze API: skopiuj klucz tajny (`sk_test_...`, później `sk_live_...`).
+4. Panel -> Deweloperzy -> Webhooki -> dodaj endpoint `https://<API_URL>/api/stripe/webhook`
+   ze zdarzeniami: `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
+   `checkout.session.async_payment_failed`, `checkout.session.expired`. Skopiuj sekret podpisu (`whsec_...`).
+5. Na Render ustaw: `PAYMENT_PROVIDER=stripe`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`.
+6. Test: karta `4242 4242 4242 4242` (dowolna przyszła data i CVC) w trybie testowym.
+   Lokalnie: `stripe listen --forward-to localhost:3000/api/stripe/webhook` (poda tymczasowy `whsec_...`).
+7. Produkcja: podmień klucze na `sk_live_...` i utwórz webhook także w trybie live (ma osobny sekret).
