@@ -81,7 +81,7 @@ async function legalAttachment(htmlFile, label, version) {
     const body = htmlToText((m ? m[1] : raw).replace(/<a [^>]*class="legal__back"[^>]*>.*?<\/a>/is, ''));
     return {
       filename: `${label}-Lecimy-po-swoje-${version}.txt`,
-      content: `${label} — Lecimy po swoje (wersja ${version})\nWeska Academy Sp. z o.o., NIP 5253083214\n\n${body}\n`,
+      content: `${label} — Lecimy po swoje (wersja ${version})\nPEEWEE Sp. z o.o., NIP 9452314380\n\n${body}\n`,
       contentType: 'text/plain; charset=utf-8',
     };
   } catch (err) {
@@ -159,7 +159,7 @@ export async function sendOrderConfirmationEmail(order) {
         Zapoznałeś się z <a href="${regulaminUrl}">Regulaminem</a> i <a href="${politykaUrl}">Polityką Prywatności</a>, które akceptowałeś w formularzu zamówienia; ich kopie w obowiązującej wersji znajdziesz w załącznikach do tej wiadomości.
         Wzór formularza odstąpienia (do celów informacyjnych) znajdziesz <a href="${wzorUrl}">w Regulaminie</a>.</p>
       <p>W razie pytań odpisz po prostu na tego maila.</p>
-      <p>— Zespół Lecimy po swoje<br/><span style="font-size:12px;color:#666;">Weska Academy Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 5253083214</span></p>
+      <p>— Zespół Lecimy po swoje<br/><span style="font-size:12px;color:#666;">PEEWEE Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 9452314380</span></p>
     </div>
   `;
 

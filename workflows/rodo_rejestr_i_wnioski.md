@@ -1,10 +1,10 @@
 # RODO: rejestr przetwarzania, dostawcy i obsługa wniosków klientów
 
-> Dokument roboczy dla Administratora (Weska Academy Sp. z o.o.) i dla prawnika/IOD. To nie jest opinia prawna.
+> Dokument roboczy dla Administratora (PEEWEE Sp. z o.o.) i dla prawnika/IOD. To nie jest opinia prawna.
 > Ostatnia weryfikacja dostawców: 2026-10-06. Pozycje oznaczone **[DO POTWIERDZENIA]** wymagają sprawdzenia w panelach.
 
 ## 1. Rejestr czynności przetwarzania (art. 30 RODO, skrót)
-Administrator: Weska Academy Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 5253083214, KRS 0001229728. IOD: nie powołano.
+Administrator: PEEWEE Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 9452314380, KRS 0001184787. IOD: nie powołano.
 
 | Czynność | Cel i podstawa prawna | Kategorie danych | Odbiorcy | Okres przechowywania |
 |---|---|---|---|---|

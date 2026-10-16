@@ -204,7 +204,7 @@
 
             <p class="order__secure">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Bezpieczna płatność obsługiwana przez Przelewy24
+              Bezpieczna płatność obsługiwana przez Stripe
             </p>
           </aside>
         </div>
@@ -233,7 +233,7 @@
       </div>
       <div class="footer__bottom">
         <p class="footer__contact">Kontakt: <a href="mailto:kontakt@weskaacademy.pl">kontakt@weskaacademy.pl</a> · tel. <a href="tel:+48606573452">+48 606 573 452</a></p>
-        <p>Weska Academy Sp. z o.o. · ul. Złota 7/28, 00-019 Warszawa · NIP 5253083214 · REGON 544279185 · KRS 0001229728</p>
+        <p>PEEWEE Sp. z o.o. · ul. Złota 7/28, 00-019 Warszawa · NIP 9452314380 · REGON 542269350 · KRS 0001184787</p>
         <p>&copy; 2026 Lecimy po swoje. Wszelkie prawa zastrzeżone.</p>
       </div>
     </div>
@@ -241,7 +241,7 @@
 
   <script>
     (function () {
-      // Adres backendu z API Przelewy24. Zostaw pusty string, jeśli backend i ta strona
+      // Adres backendu (API płatności). Zostaw pusty string, jeśli backend i ta strona
       // stoją na tym samym hoście/domenie. Jeśli strona jest hostowana osobno (np. GoDaddy
       // shared hosting bez Node.js), a backend na innym serwerze (np. Render/Railway) —
       // wpisz tu pełny adres backendu, np. 'https://lecimyposwoje-api.onrender.com'.
@@ -415,7 +415,7 @@
         }
 
         submitBtn.disabled = true;
-        submitLabel.textContent = 'Łączenie z Przelewy24…';
+        submitLabel.textContent = 'Łączenie z bezpieczną płatnością…';
 
         fetch(API_BASE + '/api/create-order', {
           method: 'POST',

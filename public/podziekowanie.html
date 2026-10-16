@@ -59,7 +59,7 @@
       </div>
       <h1 id="thankyouTitle">Sprawdzamy status zamówienia…</h1>
       <p id="thankyouMessage">
-        Chwileczkę — potwierdzamy Twoją płatność w Przelewy24. To zwykle trwa kilka–kilkanaście sekund.
+        Chwileczkę — potwierdzamy Twoją płatność. To zwykle trwa kilka–kilkanaście sekund.
       </p>
       <div class="thankyou__actions">
         <button type="button" class="btn btn--primary btn--lg" id="thankyouRetry" hidden>Sprawdź ponownie</button>
@@ -76,7 +76,7 @@
       <div class="footer__bottom">
         <p><a href="regulamin.html">Regulamin</a> · <a href="polityka-prywatnosci.html">Polityka prywatności</a></p>
         <p class="footer__contact">Kontakt: <a href="mailto:kontakt@weskaacademy.pl">kontakt@weskaacademy.pl</a> · tel. <a href="tel:+48606573452">+48 606 573 452</a></p>
-        <p>Weska Academy Sp. z o.o. · ul. Złota 7/28, 00-019 Warszawa · NIP 5253083214 · REGON 544279185 · KRS 0001229728</p>
+        <p>PEEWEE Sp. z o.o. · ul. Złota 7/28, 00-019 Warszawa · NIP 9452314380 · REGON 542269350 · KRS 0001184787</p>
       </div>
     </div>
   </footer>
@@ -106,7 +106,7 @@
         return;
       }
 
-      // Etapy (webhook P24 przychodzi tylko po UDANEJ płatności — przy błędzie lub braku wpłaty nic nie dostajemy,
+      // Etapy (webhook operatora płatności przychodzi tylko po UDANEJ płatności — przy błędzie lub braku wpłaty nic nie dostajemy,
       // więc pokazujemy kolejne komunikaty w miarę upływu czasu i aktualizujemy stronę, gdy płatność dojdzie):
       //  0–20 s    sprawdzamy status
       //  20–90 s   czekamy na potwierdzenie z banku
@@ -145,7 +145,7 @@
         var sec = (Date.now() - startedAt) / 1000;
         if (sec < 20) {
           setState('Sprawdzamy status zamówienia…',
-            'Chwileczkę — potwierdzamy Twoją płatność w Przelewy24. To zwykle trwa kilka–kilkanaście sekund.', true);
+            'Chwileczkę — potwierdzamy Twoją płatność. To zwykle trwa kilka–kilkanaście sekund.', true);
         } else if (sec < 90) {
           setState('Czekamy na potwierdzenie płatności',
             'Płatność jeszcze nie została potwierdzona. Przy przelewie bankowym może to potrwać kilka minut. Nie zamykaj tej strony — odświeży się sama, gdy płatność dojdzie.', true);

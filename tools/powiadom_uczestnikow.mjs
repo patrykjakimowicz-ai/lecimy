@@ -70,7 +70,7 @@ function buildHtml(imie) {
       <p>Zmiana nie wpływa na umowy zawarte przed jej wejściem w życie, które są realizowane na dotychczasowych zasadach.
         Jeżeli nie akceptujesz zmiany dotyczącej trwającego świadczenia usług elektronicznych (konto w panelu programu),
         możesz w terminie 14 dni od otrzymania tej wiadomości rozwiązać umowę o prowadzenie konta, pisząc na adres kontakt@weskaacademy.pl.</p>
-      <p>— Zespół Lecimy po swoje<br/><span style="font-size:12px;color:#666;">Weska Academy Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 5253083214</span></p>
+      <p>— Zespół Lecimy po swoje<br/><span style="font-size:12px;color:#666;">PEEWEE Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 9452314380</span></p>
     </div>`;
 }
 
