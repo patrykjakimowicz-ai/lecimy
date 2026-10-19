@@ -126,6 +126,10 @@
          Styl wzorowany na Tony Robbins: tekst overlay na dole, CTA button
     ============================================= -->
     <section class="hero" id="hero">
+      <div class="hero__bg" aria-hidden="true">
+        <video class="hero__video" muted loop playsinline preload="none" data-src="fx/shadow-loop.mp4" data-poster="fx/shadow-baked.jpg"></video>
+        <div class="hero__noise"></div>
+      </div>
       <div class="hero__text" data-reveal>
         <h1 class="hero__headline">
           Zacznij żyć<br />na swoich<br />zasadach
@@ -707,5 +711,6 @@
   </footer>
 
   <script src="script.js"></script>
+  <script src="hero-shadow.js" defer></script>
 </body>
 </html>

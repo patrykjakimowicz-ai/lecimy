@@ -425,7 +425,6 @@ section { padding-block: 2rem; }
     gap: var(--sp-2xl);
     align-items: center;
     padding: calc(var(--nav-h) + var(--sp-xl)) var(--sp-lg) var(--sp-xl);
-    min-height: 100svh;
   }
   .hero__text {
     display: flex;
@@ -448,7 +447,57 @@ section { padding-block: 2rem; }
   .hero__photo {
     width: 100%;
     height: auto;
+    aspect-ratio: 3 / 4;
+    min-height: 0;
+    object-fit: cover;
     object-position: center top;
+  }
+}
+
+/* ── HERO DESKTOP — animowane tło: szary „ethereal shadow” za mgłą ──
+   Efekt filtra SVG nagrany raz jako pętla wideo (fx/shadow-loop.mp4) — dekoduje go karta
+   graficzna, więc jest płynnie także w Safari. Odtwarzanie steruje hero-shadow.js. */
+.hero__bg { display: none; }
+
+@media (min-width: 769px) {
+  .hero { position: relative; isolation: isolate; }
+  .hero__text, .hero__card { position: relative; z-index: 1; }
+  .hero__bg {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 100vw;
+    transform: translateX(-50%);
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill; /* zanikanie góra/dół jest wypalone w wideo — nie może być przycięte */
+    opacity: 0.6;
+  }
+  .hero__noise {
+    position: absolute;
+    inset: 0;
+    background: url("fx/noise.png") repeat;
+    background-size: 240px;
+    opacity: 0.5;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 60%, transparent 95%);
+            mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 60%, transparent 95%);
+  }
+  /* Mgła: przyciemnienie pod tekstem, żeby tło nie utrudniało czytania */
+  .hero__bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: radial-gradient(ellipse 40% 60% at 28% 58%, rgba(0,0,0,0.55) 0%, transparent 70%);
   }
 }
 
