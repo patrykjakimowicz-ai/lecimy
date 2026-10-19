@@ -46,6 +46,11 @@
     .thankyou p { color: var(--clr-text-muted); margin-bottom: var(--sp-md); line-height: 1.6; }
     .thankyou__actions { display: flex; flex-wrap: wrap; gap: var(--sp-sm); justify-content: center; }
     .thankyou__actions [hidden] { display: none; }
+    .thankyou__spam { text-align: left; margin: 0 0 var(--sp-md); padding: 1rem 1.1rem; border-radius: 12px; background: rgba(232,120,12,0.12); border: 2px solid var(--clr-gold); }
+    .thankyou__spam[hidden] { display: none; }
+    .thankyou__spam strong { display: block; color: var(--clr-gold); font-size: 1.05rem; margin-bottom: 0.4rem; letter-spacing: 0.02em; }
+    .thankyou .thankyou__spam p { color: var(--clr-text); margin: 0; font-size: 0.95rem; }
+    .thankyou__spam ol { list-style: decimal; margin: 0.5rem 0 0; padding-left: 1.2rem; color: var(--clr-text); font-size: 0.95rem; line-height: 1.6; }
     .thankyou__icon.is-wait svg { animation: ty-spin 1.6s linear infinite; }
     @keyframes ty-spin { to { transform: rotate(360deg); } }
   </style>
@@ -61,6 +66,15 @@
       <p id="thankyouMessage">
         Chwileczkę — potwierdzamy Twoją płatność. To zwykle trwa kilka–kilkanaście sekund.
       </p>
+      <div class="thankyou__spam" id="thankyouSpam" role="alert" hidden>
+        <strong>⚠️ WAŻNE: sprawdź folder SPAM</strong>
+        <p>Mail z dostępem do programu i linkiem do ustawienia hasła często trafia do folderu <b>Spam</b>, <b>Oferty</b> lub <b>Inne</b>. Bez niego nie zalogujesz się do panelu.</p>
+        <ol>
+          <li>Otwórz skrzynkę e-mail podaną w zamówieniu i poszukaj wiadomości od „Lecimy po swoje”.</li>
+          <li>Jeśli jest w spamie, oznacz ją jako „To nie spam”, żeby kolejne maile trafiały do odebranych.</li>
+          <li>Nie ma maila po 15 minutach? Napisz na <a href="mailto:lecimyposwoje2020@gmail.com">lecimyposwoje2020@gmail.com</a>.</li>
+        </ol>
+      </div>
       <div class="thankyou__actions">
         <button type="button" class="btn btn--primary btn--lg" id="thankyouRetry" hidden>Sprawdź ponownie</button>
         <a href="index.html" class="btn btn--outline btn--lg" id="thankyouBack">Wróć na stronę główną</a>
@@ -93,6 +107,7 @@
       var backEl = document.getElementById('thankyouBack');
       var retryEl = document.getElementById('thankyouRetry');
       var iconEl = document.querySelector('.thankyou__icon');
+      var spamEl = document.getElementById('thankyouSpam');
 
       function setState(title, message, waiting) {
         titleEl.textContent = title;
@@ -123,7 +138,8 @@
         backEl.textContent = 'Wróć na stronę główną';
         backEl.setAttribute('href', 'index.html');
         setState('Dziękujemy za zakup!',
-          'Płatność potwierdzona. Wysłaliśmy na Twój e-mail dostęp do konta i link do ustawienia hasła — sprawdź też folder spam.');
+          'Płatność potwierdzona. Wysłaliśmy na Twój e-mail dostęp do konta i link do ustawienia hasła.');
+        if (spamEl) spamEl.hidden = false;
         // Pomiar zakupu (Plausible, bez cookies); jedno zdarzenie na zamówienie.
         if (!tracked && window.lecimyTrack && data && data.amount) {
           tracked = true;
