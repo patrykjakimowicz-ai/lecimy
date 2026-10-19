@@ -69,7 +69,7 @@ function buildHtml(imie) {
         <a href="${siteUrl}/regulamin.html">${siteUrl}/regulamin.html</a>.</p>
       <p>Zmiana nie wpływa na umowy zawarte przed jej wejściem w życie, które są realizowane na dotychczasowych zasadach.
         Jeżeli nie akceptujesz zmiany dotyczącej trwającego świadczenia usług elektronicznych (konto w panelu programu),
-        możesz w terminie 14 dni od otrzymania tej wiadomości rozwiązać umowę o prowadzenie konta, pisząc na adres kontakt@weskaacademy.pl.</p>
+        możesz w terminie 14 dni od otrzymania tej wiadomości rozwiązać umowę o prowadzenie konta, pisząc na adres lecimyposwoje2020@gmail.com.</p>
       <p>— Zespół Lecimy po swoje<br/><span style="font-size:12px;color:#666;">PEEWEE Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 9452314380</span></p>
     </div>`;
 }

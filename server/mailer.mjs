@@ -10,6 +10,10 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// Adres kontaktowy (ten sam co na stronie i w regulaminie) — na niego trafiają odpowiedzi klientów,
+// niezależnie od skrzynki, z której wysyłamy (SMTP_FROM / SMTP_USER).
+const CONTACT_EMAIL = 'lecimyposwoje2020@gmail.com';
+
 let transporter = null;
 
 // Render nie ma wychodzącego IPv6, a nodemailer potrafi wybrać adres AAAA (błąd ENETUNREACH).
@@ -155,7 +159,7 @@ export async function sendOrderConfirmationEmail(order) {
       ${accessBlock}
       ${fakturaBlock}
       <hr style="border:0;border-top:1px solid #ddd;margin:24px 0;" />
-      <p style="font-size:13px;color:#444;"><strong>Potwierdzenie zawarcia umowy.</strong> Zakupiłeś treści cyfrowe niedostarczane na nośniku materialnym. Przed zawarciem umowy wyraziłeś wyraźną zgodę na rozpoczęcie świadczenia przed upływem 14 dni od zawarcia umowy i zostałeś poinformowany, że z chwilą rozpoczęcia świadczenia (udostępnienia materiałów w dniu rozpoczęcia edycji, tj. ${EDITION.startLabel}) tracisz prawo odstąpienia od umowy (art. 38 pkt 13 ustawy o prawach konsumenta). Do tego czasu możesz odstąpić od umowy w terminie 14 dni od jej zawarcia, wysyłając oświadczenie na adres kontakt@weskaacademy.pl.
+      <p style="font-size:13px;color:#444;"><strong>Potwierdzenie zawarcia umowy.</strong> Zakupiłeś treści cyfrowe niedostarczane na nośniku materialnym. Przed zawarciem umowy wyraziłeś wyraźną zgodę na rozpoczęcie świadczenia przed upływem 14 dni od zawarcia umowy i zostałeś poinformowany, że z chwilą rozpoczęcia świadczenia (udostępnienia materiałów w dniu rozpoczęcia edycji, tj. ${EDITION.startLabel}) tracisz prawo odstąpienia od umowy (art. 38 pkt 13 ustawy o prawach konsumenta). Do tego czasu możesz odstąpić od umowy w terminie 14 dni od jej zawarcia, wysyłając oświadczenie na adres lecimyposwoje2020@gmail.com.
         Zapoznałeś się z <a href="${regulaminUrl}">Regulaminem</a> i <a href="${politykaUrl}">Polityką Prywatności</a>, które akceptowałeś w formularzu zamówienia; ich kopie w obowiązującej wersji znajdziesz w załącznikach do tej wiadomości.
         Wzór formularza odstąpienia (do celów informacyjnych) znajdziesz <a href="${wzorUrl}">w Regulaminie</a>.</p>
       <p>W razie pytań odpisz po prostu na tego maila.</p>
@@ -167,7 +171,7 @@ export async function sendOrderConfirmationEmail(order) {
   await t.sendMail({
     from,
     to: order.email,
-    replyTo: from,
+    replyTo: CONTACT_EMAIL,
     attachments: await legalAttachments(),
     subject: `Twój dostęp do programu „${order.pakiet}” — Lecimy po swoje (zamówienie ${orderNumber(order)})`,
     html,
@@ -231,7 +235,7 @@ function escapeHtml(str) {
 export async function sendServiceEmail({ to, subject, html, attachments = [] }) {
   const from = process.env.SMTP_FROM || process.env.SMTP_USER;
   const t = await getTransporter();
-  await t.sendMail({ from, to, replyTo: from, subject, html, text: htmlToText(html), attachments });
+  await t.sendMail({ from, to, replyTo: CONTACT_EMAIL, subject, html, text: htmlToText(html), attachments });
 }
 
 /** Załączniki z aktualną treścią regulaminu i polityki (te same, które dostaje klient po zakupie). */

@@ -34,7 +34,7 @@ window.LECIMY_applySalesState = function () {
     var box = document.createElement('div');
     box.style.cssText = 'padding:24px;border:1px solid var(--clr-border);border-radius:12px;text-align:center;';
     box.innerHTML = '<h2 style="margin-bottom:8px;">Sprzedaż tej edycji została zamknięta</h2>' +
-      '<p style="color:var(--clr-text-muted);">Zapisy trwały do ' + ed.salesCloseLabel + '. Chcesz dołączyć do kolejnej edycji? Napisz do nas: kontakt@weskaacademy.pl.</p>';
+      '<p style="color:var(--clr-text-muted);">Zapisy trwały do ' + ed.salesCloseLabel + '. Chcesz dołączyć do kolejnej edycji? Napisz do nas: lecimyposwoje2020@gmail.com.</p>';
     form.parentNode.insertBefore(box, form);
     form.style.display = 'none';
   }

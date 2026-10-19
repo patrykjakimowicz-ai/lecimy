@@ -33,7 +33,7 @@ Wyłączone z użycia: Gmail (konto konsumenckie, brak DPA): **usunąć z konfig
 
 ## 3. Obsługa wniosków osób, których dane dotyczą
 Termin odpowiedzi: **1 miesiąc** od otrzymania wniosku (art. 12 ust. 3 RODO; można przedłużyć o 2 miesiące w złożonych sprawach, informując osobę).
-Wnioski przychodzą na `kontakt@weskaacademy.pl` (adres z polityki prywatności).
+Wnioski przychodzą na `lecimyposwoje2020@gmail.com` (adres z polityki prywatności).
 
 ### Krok 1: potwierdź tożsamość
 Odpowiedz na ten sam adres e-mail, z którego złożono zamówienie. Nie ujawniaj danych na adres inny niż użyty przy zakupie.
