@@ -443,12 +443,34 @@ section { padding-block: 2rem; }
   }
   .hero__card {
     border-radius: 24px;
+    /* Ciemna, miękka aura oddziela zdjęcie od animowanego tła */
+    box-shadow:
+      0 0 60px 30px rgba(0,0,0,0.85),
+      0 0 140px 60px rgba(0,0,0,0.6),
+      0 0 40px rgba(232,120,12,0.10);
+    /* Własna warstwa GPU: Chrome rysuje ten duży cień raz, a nie przy każdym scrollu/klatce wideo */
+    will-change: transform;
+    transform: translateZ(0);
+  }
+  /* Bez nakładki z tekstem gradient nie musi być pomarańczowy — dół zdjęcia płynnie gaśnie w czerń */
+  .hero__gradient {
+    inset: -1px; /* przykrywa wygładzoną krawędź zdjęcia w zaokrąglonych rogach */
+    background: linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85) 0%,
+      rgba(20, 8, 0, 0.45) 22%,
+      rgba(60, 25, 0, 0.12) 45%,
+      transparent 65%
+    );
   }
   .hero__photo {
     width: 100%;
     height: auto;
     aspect-ratio: 3 / 4;
     min-height: 0;
+    /* Zaokrąglenie na samym zdjęciu — na warstwie GPU sam overflow karty potrafi zostawić jasny róg */
+    border-radius: inherit;
+    clip-path: inset(0 round 24px);
     object-fit: cover;
     object-position: center top;
   }
