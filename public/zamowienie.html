@@ -288,10 +288,34 @@
         if (offer.imie && !document.getElementById('imie').value) document.getElementById('imie').value = offer.imie;
         if (offer.nazwisko && !document.getElementById('nazwisko').value) document.getElementById('nazwisko').value = offer.nazwisko;
         var note = document.getElementById('proOfferNote');
+        var expires = Date.parse(offer.expiresAt);
         note.textContent = 'Twoja indywidualna oferta PRO po rozmowie kwalifikacyjnej. Cena jest ostateczna (brutto), oferta ważna do ' +
-          new Date(offer.expiresAt).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' }) + '.';
+          new Date(expires).toLocaleString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + '.';
         note.hidden = false;
         refreshSummary();
+
+        // Licznik personalny: gdy do końca oferty zostało ≤ 48 h (m.in. oferty 24-godzinne). Po czasie blokujemy zakup —
+        // serwer i tak odrzuci wygasły link.
+        if (expires - Date.now() <= 48 * 3600 * 1000) {
+          var timer = document.createElement('div');
+          timer.className = 'pro-timer';
+          timer.innerHTML = '<span class="pro-timer__label">Twoja oferta wygasa za</span><span class="pro-timer__value" id="proTimer"></span>';
+          note.insertAdjacentElement('afterend', timer);
+          var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+          var tick = function () {
+            var left = Math.max(0, Math.floor((expires - Date.now()) / 1000));
+            document.getElementById('proTimer').textContent = pad(Math.floor(left / 3600)) + ':' + pad(Math.floor(left % 3600 / 60)) + ':' + pad(left % 60);
+            if (left === 0) {
+              clearInterval(iv);
+              timer.classList.add('is-expired');
+              timer.firstChild.textContent = 'Oferta wygasła';
+              submitBtn.disabled = true;
+              showStatus('Twoja oferta PRO wygasła. Skontaktuj się ze swoim opiekunem, jeśli chcesz otrzymać nową.', true);
+            }
+          };
+          var iv = setInterval(tick, 1000);
+          tick();
+        }
       }
 
       var packageLabels = document.querySelectorAll('.order-package');

@@ -126,6 +126,6 @@ PRO nie jest w publicznym formularzu. Po rozmowie kwalifikacyjnej wysyłasz klie
    klienta i cenę, kopiuje gotowy link i mail. Imię sprzedawcy trafia do powiadomienia o opłaconym zamówieniu.
    Odebranie dostępu: usuń jego wpis z `PRO_SELLERS`.
    Alternatywnie z konsoli: `node tools/link_pro.mjs --cena 9997 --email klient@domena.pl --imie Jan --nazwisko Kowalski`
-   (opcjonalnie `--dni 14`, domyślnie 7 — regulamin wymaga min. 7 dni ważności oferty).
+   (opcjonalnie `--godziny 24`, domyślnie 168 = 7 dni; regulamin: min. 24 godziny).
 3. Wyślij link mailem razem z ofertą: zakres PRO, cena brutto, termin ważności (regulamin pkt 3).
 4. Link działa tylko z tym adresem e-mail, ceny nie da się zmienić. Zmiana sekretu unieważnia wszystkie wysłane linki.

@@ -3266,3 +3266,7 @@ body.has-countdown { --bar-h: 66px; }
 /* ── Oferta indywidualna PRO w formularzu zamówienia ── */
 #orderBump[hidden], #proOfferNote[hidden] { display: none; }
 .order-form__offer-note { margin: 0 0 1rem; padding: .85rem 1rem; border: 1px solid rgba(167,139,250,.45); border-radius: 12px; background: rgba(167,139,250,.08); font-size: .92rem; line-height: 1.5; }
+.pro-timer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: -0.4rem 0 1rem; padding: .8rem 1rem; border-radius: 12px; background: linear-gradient(90deg, rgba(120,48,6,.9), rgba(214,92,12,.85)); color: #fff; }
+.pro-timer__label { font-size: .8rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.pro-timer__value { font-size: 1.6rem; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: .04em; }
+.pro-timer.is-expired { background: rgba(110,14,8,.9); }

@@ -7,6 +7,11 @@ import { PRO_PACKAGE } from './products.mjs';
 
 const b64url = (buf) => Buffer.from(buf).toString('base64url');
 
+// Cena PRO (zł brutto; max = limit rat P24) i dozwolona ważność oferty — regulamin pkt 3: min. 24 godziny.
+export const PRO_MIN_PRICE = 8000;
+export const PRO_MAX_PRICE = 50000;
+export const PRO_VALIDITY_HOURS = [24, 72, 7 * 24, 14 * 24, 30 * 24];
+
 function secret() {
   const s = process.env.PRO_OFFER_SECRET;
   if (!s || s.length < 32) throw new Error('Brak PRO_OFFER_SECRET (min. 32 znaki) — oferty PRO są wyłączone.');
@@ -18,11 +23,14 @@ function sign(payloadB64) {
 }
 
 /**
- * @param {{cena: number, email: string, imie?: string, nazwisko?: string, dni?: number, sprzedawca?: string}} o  cena w PLN brutto
+ * @param {{cena: number, email: string, imie?: string, nazwisko?: string, godziny?: number, sprzedawca?: string}} o  cena w PLN brutto
  * @returns {string} token do parametru ?oferta=
  */
-export function createProOffer({ cena, email, imie, nazwisko, dni = 7, sprzedawca }) {
-  if (!Number.isInteger(cena) || cena < 100 || cena > 50000) throw new Error('Cena PRO musi być liczbą całkowitą 100–50 000 zł.');
+export function createProOffer({ cena, email, imie, nazwisko, godziny = 7 * 24, sprzedawca }) {
+  if (!Number.isInteger(cena) || cena < PRO_MIN_PRICE || cena > PRO_MAX_PRICE) {
+    throw new Error(`Cena PRO musi być liczbą całkowitą od ${PRO_MIN_PRICE} do ${PRO_MAX_PRICE} zł.`);
+  }
+  if (!PRO_VALIDITY_HOURS.includes(godziny)) throw new Error(`Ważność oferty: ${PRO_VALIDITY_HOURS.join(', ')} godzin.`);
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Podaj poprawny e-mail klienta.');
   const payload = {
     p: PRO_PACKAGE,
@@ -31,7 +39,7 @@ export function createProOffer({ cena, email, imie, nazwisko, dni = 7, sprzedawc
     i: imie || undefined,
     n: nazwisko || undefined,
     s: sprzedawca || undefined,
-    x: Date.now() + dni * 24 * 60 * 60 * 1000,
+    x: Date.now() + godziny * 60 * 60 * 1000,
   };
   const body = b64url(JSON.stringify(payload));
   return `${body}.${sign(body)}`;

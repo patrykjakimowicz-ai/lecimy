@@ -104,6 +104,7 @@ else window.LECIMY_applySalesState();
   function init() {
     if (Date.now() >= Date.parse(ed.salesCloseISO)) return;
     if (!document.getElementById('nav') && !document.getElementById('orderForm')) return; // tylko index i zamówienie
+    if (/[?&]oferta=/.test(window.location.search)) return; // oferta PRO ma własny licznik (zamowienie.html)
 
     var bar = document.createElement('div');
     bar.className = 'countdown-bar';

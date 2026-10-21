@@ -51,14 +51,16 @@
         </div>
         <div class="order-form__row">
           <label for="cena">Cena brutto w zł *</label>
-          <input type="number" id="cena" required min="100" max="50000" step="1" placeholder="np. 9997" />
+          <input type="number" id="cena" required min="8000" max="50000" step="1" placeholder="od 8000, np. 9997" />
         </div>
         <div class="order-form__row">
-          <label for="dni">Oferta ważna (dni)</label>
-          <select id="dni">
-            <option value="7" selected>7 dni</option>
-            <option value="14">14 dni</option>
-            <option value="30">30 dni</option>
+          <label for="godziny">Oferta ważna</label>
+          <select id="godziny">
+            <option value="24">24 godziny (z licznikiem)</option>
+            <option value="72">3 dni</option>
+            <option value="168" selected>7 dni</option>
+            <option value="336">14 dni</option>
+            <option value="720">30 dni</option>
           </select>
         </div>
       </div>
@@ -98,7 +100,7 @@
       }
 
       function fmtDate(iso) {
-        return new Date(iso).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+        return new Date(iso).toLocaleString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
       }
 
       function mailText(o) {
@@ -124,9 +126,10 @@
           nazwisko: $('nazwisko').value.trim(),
           email: $('email').value.trim(),
           cena: parseInt($('cena').value, 10),
-          dni: parseInt($('dni').value, 10),
+          godziny: parseInt($('godziny').value, 10),
         };
         if (!body.haslo || !body.imie || !body.email || !body.cena) return show('Uzupełnij hasło, imię, e-mail i cenę.', true);
+        if (body.cena < 8000) return show('Minimalna cena PRO to 8000 zł.', true);
         try {
           if ($('zapamietaj').checked) localStorage.setItem(KEY, body.haslo); else localStorage.removeItem(KEY);
         } catch (e2) {}
