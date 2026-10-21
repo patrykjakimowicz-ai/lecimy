@@ -26,7 +26,7 @@ function sign(payloadB64) {
  * @param {{cena: number, email: string, imie?: string, nazwisko?: string, godziny?: number, sprzedawca?: string}} o  cena w PLN brutto
  * @returns {string} token do parametru ?oferta=
  */
-export function createProOffer({ cena, email, imie, nazwisko, godziny = 7 * 24, sprzedawca }) {
+export function createProOffer({ cena, email, imie, nazwisko, godziny = 24, sprzedawca }) {
   if (!Number.isInteger(cena) || cena < PRO_MIN_PRICE || cena > PRO_MAX_PRICE) {
     throw new Error(`Cena PRO musi być liczbą całkowitą od ${PRO_MIN_PRICE} do ${PRO_MAX_PRICE} zł.`);
   }

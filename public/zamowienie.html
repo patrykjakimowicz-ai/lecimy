@@ -294,9 +294,8 @@
         note.hidden = false;
         refreshSummary();
 
-        // Licznik personalny: gdy do końca oferty zostało ≤ 48 h (m.in. oferty 24-godzinne). Po czasie blokujemy zakup —
-        // serwer i tak odrzuci wygasły link.
-        if (expires - Date.now() <= 48 * 3600 * 1000) {
+        // Licznik personalny do końca oferty. Po czasie blokujemy zakup — serwer i tak odrzuci wygasły link.
+        {
           var timer = document.createElement('div');
           timer.className = 'pro-timer';
           timer.innerHTML = '<span class="pro-timer__label">Twoja oferta wygasa za</span><span class="pro-timer__value" id="proTimer"></span>';
@@ -304,7 +303,9 @@
           var pad = function (n) { return (n < 10 ? '0' : '') + n; };
           var tick = function () {
             var left = Math.max(0, Math.floor((expires - Date.now()) / 1000));
-            document.getElementById('proTimer').textContent = pad(Math.floor(left / 3600)) + ':' + pad(Math.floor(left % 3600 / 60)) + ':' + pad(left % 60);
+            var days = Math.floor(left / 86400);
+            document.getElementById('proTimer').textContent = (days ? days + (days === 1 ? ' dzień ' : ' dni ') : '') +
+              pad(Math.floor(left % 86400 / 3600)) + ':' + pad(Math.floor(left % 3600 / 60)) + ':' + pad(left % 60);
             if (left === 0) {
               clearInterval(iv);
               timer.classList.add('is-expired');

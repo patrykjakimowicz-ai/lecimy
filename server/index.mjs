@@ -439,7 +439,7 @@ app.post('/api/pro-offer', proLinkLimiter, (req, res) => {
   if (!sprzedawca) return res.status(401).json({ error: 'Nieprawidłowe hasło sprzedawcy.' });
   const clean = (v) => (typeof v === 'string' ? v.trim().slice(0, 80) : '');
   try {
-    const token = createProOffer({ cena: Number(cena), email: clean(email), imie: clean(imie), nazwisko: clean(nazwisko), godziny: Number(godziny) || 7 * 24, sprzedawca });
+    const token = createProOffer({ cena: Number(cena), email: clean(email), imie: clean(imie), nazwisko: clean(nazwisko), godziny: Number(godziny) || 24, sprzedawca });
     const offer = readProOffer(token);
     console.log(`[pro-offer] ${sprzedawca} -> ${offer.email}, ${offer.cena} zł, ważna do ${offer.expiresAt}`);
     res.set('Cache-Control', 'no-store').json({ url: `${SITE_URL}/zamowienie.html?oferta=${token}`, ...offer });
