@@ -18,10 +18,10 @@ function sign(payloadB64) {
 }
 
 /**
- * @param {{cena: number, email: string, imie?: string, nazwisko?: string, dni?: number}} o  cena w PLN brutto
+ * @param {{cena: number, email: string, imie?: string, nazwisko?: string, dni?: number, sprzedawca?: string}} o  cena w PLN brutto
  * @returns {string} token do parametru ?oferta=
  */
-export function createProOffer({ cena, email, imie, nazwisko, dni = 7 }) {
+export function createProOffer({ cena, email, imie, nazwisko, dni = 7, sprzedawca }) {
   if (!Number.isInteger(cena) || cena < 100 || cena > 50000) throw new Error('Cena PRO musi być liczbą całkowitą 100–50 000 zł.');
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Podaj poprawny e-mail klienta.');
   const payload = {
@@ -30,6 +30,7 @@ export function createProOffer({ cena, email, imie, nazwisko, dni = 7 }) {
     e: email.trim().toLowerCase(),
     i: imie || undefined,
     n: nazwisko || undefined,
+    s: sprzedawca || undefined,
     x: Date.now() + dni * 24 * 60 * 60 * 1000,
   };
   const body = b64url(JSON.stringify(payload));
@@ -49,5 +50,20 @@ export function readProOffer(token) {
   let o;
   try { o = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')); } catch { return null; }
   if (o.p !== PRO_PACKAGE || !Number.isInteger(o.c) || typeof o.e !== 'string' || !(o.x > Date.now())) return null;
-  return { pakiet: o.p, cena: o.c, email: o.e, imie: o.i || '', nazwisko: o.n || '', expiresAt: new Date(o.x).toISOString() };
+  return { pakiet: o.p, cena: o.c, email: o.e, imie: o.i || '', nazwisko: o.n || '', sprzedawca: o.s || '', expiresAt: new Date(o.x).toISOString() };
+}
+
+// Sprzedawcy generujący linki na stronie generator-pro.html. PRO_SELLERS="Ania:haslo1,Tomek:haslo2"
+// (Render -> Environment). Imię trafia do linku i do powiadomienia o sprzedaży. Usunięcie wpisu odbiera dostęp.
+export function sellerForPassword(password) {
+  if (typeof password !== 'string' || !password) return null;
+  const given = Buffer.from(password);
+  for (const entry of (process.env.PRO_SELLERS || '').split(',')) {
+    const i = entry.indexOf(':');
+    if (i < 1) continue;
+    const name = entry.slice(0, i).trim();
+    const pw = Buffer.from(entry.slice(i + 1).trim());
+    if (pw.length >= 8 && pw.length === given.length && timingSafeEqual(pw, given)) return name;
+  }
+  return null;
 }

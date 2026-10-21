@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generator ofert PRO – Lecimy po swoje</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="edition.js"></script>
+  <style>
+    .gen { max-width: 640px; margin: 0 auto; padding: 7rem 16px 4rem; }
+    .gen h1 { font-size: 1.8rem; margin-bottom: .4rem; }
+    .gen__lead { opacity: .75; margin-bottom: 2rem; line-height: 1.5; }
+    .gen__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+    .gen__grid .order-form__row--full { grid-column: 1 / -1; }
+    @media (max-width: 560px) { .gen__grid { grid-template-columns: 1fr; } }
+    .gen__out { margin-top: 2rem; padding: 1.25rem; border: 1px solid rgba(167,139,250,.45); border-radius: 14px; background: rgba(167,139,250,.06); }
+    .gen__out[hidden] { display: none; }
+    .gen__out h2 { font-size: 1.1rem; margin-bottom: .75rem; }
+    .gen__out textarea { width: 100%; min-height: 3.2rem; font: inherit; font-size: .9rem; padding: .7rem; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: rgba(0,0,0,.25); color: inherit; resize: vertical; }
+    .gen__out textarea#genMail { min-height: 17rem; }
+    .gen__copy { margin: .5rem 0 1.25rem; }
+    .gen__remember { display: flex; gap: .5rem; align-items: center; font-size: .9rem; opacity: .8; margin: -.25rem 0 1.25rem; }
+  </style>
+</head>
+<body>
+  <main class="gen">
+    <h1>Generator ofert PRO</h1>
+    <p class="gen__lead">Po pozytywnej rozmowie kwalifikacyjnej wpisz dane klienta i ustaloną cenę. Dostaniesz osobisty link do zamówienia i gotowy mail do wysłania. Link działa tylko z adresem e-mail klienta, ceny nie da się w nim zmienić.</p>
+
+    <form class="order-form" id="genForm" novalidate>
+      <div class="order-form__row">
+        <label for="haslo">Twoje hasło sprzedawcy *</label>
+        <input type="password" id="haslo" required autocomplete="current-password" />
+      </div>
+      <label class="gen__remember"><input type="checkbox" id="zapamietaj" /> Zapamiętaj hasło na tym urządzeniu</label>
+
+      <div class="gen__grid">
+        <div class="order-form__row">
+          <label for="imie">Imię klienta *</label>
+          <input type="text" id="imie" required maxlength="80" />
+        </div>
+        <div class="order-form__row">
+          <label for="nazwisko">Nazwisko klienta</label>
+          <input type="text" id="nazwisko" maxlength="80" />
+        </div>
+        <div class="order-form__row order-form__row--full">
+          <label for="email">E-mail klienta * (ten sam musi podać przy zamówieniu)</label>
+          <input type="email" id="email" required maxlength="254" />
+        </div>
+        <div class="order-form__row">
+          <label for="cena">Cena brutto w zł *</label>
+          <input type="number" id="cena" required min="100" max="50000" step="1" placeholder="np. 9997" />
+        </div>
+        <div class="order-form__row">
+          <label for="dni">Oferta ważna (dni)</label>
+          <select id="dni">
+            <option value="7" selected>7 dni</option>
+            <option value="14">14 dni</option>
+            <option value="30">30 dni</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--lg btn--full" id="genSubmit">Wygeneruj link</button>
+      <div class="order-form__status" id="genStatus"></div>
+    </form>
+
+    <section class="gen__out" id="genOut" hidden>
+      <h2>1. Link do zamówienia</h2>
+      <textarea id="genLink" readonly></textarea>
+      <button type="button" class="btn btn--pricing gen__copy" data-copy="genLink">Kopiuj link</button>
+
+      <h2>2. Gotowy mail do klienta</h2>
+      <textarea id="genMail" readonly></textarea>
+      <button type="button" class="btn btn--pricing gen__copy" data-copy="genMail">Kopiuj mail</button>
+      <p class="gen__lead" style="margin:0">Wyślij mail ze skrzynki firmowej. Klient klika link, wypełnia dane, akceptuje regulamin i płaci. O opłaceniu dowiesz się z powiadomienia o zamówieniu.</p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://lecimy-xlxt.onrender.com';
+      var KEY = 'lecimy_pro_haslo';
+      var $ = function (id) { return document.getElementById(id); };
+      var status = $('genStatus');
+
+      try {
+        var saved = localStorage.getItem(KEY);
+        if (saved) { $('haslo').value = saved; $('zapamietaj').checked = true; }
+      } catch (e) {}
+
+      function show(msg, isError) {
+        status.textContent = msg;
+        status.classList.add('is-visible');
+        status.classList.toggle('is-error', !!isError);
+      }
+
+      function fmtDate(iso) {
+        return new Date(iso).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+
+      function mailText(o) {
+        var ed = window.LECIMY_EDITION || {};
+        var price = new Intl.NumberFormat('pl-PL').format(o.cena);
+        return 'Temat: Twoja indywidualna oferta Lecimy po swoje PRO\n\n' +
+          'Cześć ' + (o.imie || '') + ',\n\n' +
+          'dziękuję za rozmowę. Zgodnie z ustaleniami przesyłam Twoją indywidualną ofertę programu Lecimy po swoje PRO' +
+          (ed.startLabel ? ' (' + (ed.name || 'Edycja') + ': ' + ed.startLabel + ' – ' + ed.endLabel + ')' : '') + '.\n\n' +
+          'Zakres: wszystko z pakietu Kompletny System (4 filary: Dyscyplina, Szczęście, Finanse, Duchowość; Społeczność „Lecimy”; comiesięczne spotkania na żywo z Bartem; Gotowy Zestaw Narzędzi Wdrożeniowych; narzędzia pracy z podświadomością) oraz Zakazane Lekcje, osobisty feedback od Barta, Ekskluzywne Materiały PRO i indywidualny audyt od Barta w wiadomości głosowej.\n\n' +
+          'Cena: ' + price + ' zł brutto (zawiera VAT), płatność online.\n' +
+          'Oferta ważna do: ' + fmtDate(o.expiresAt) + '.\n\n' +
+          'Link do zamówienia (działa z adresem ' + o.email + '):\n' + o.url + '\n\n' +
+          'Przed płatnością zapoznaj się z Regulaminem: https://lecimyposwoje.pl/regulamin\n\n' +
+          'Pozdrawiam\n' + o.sprzedawca + '\nLecimy po swoje';
+      }
+
+      $('genForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var body = {
+          haslo: $('haslo').value,
+          imie: $('imie').value.trim(),
+          nazwisko: $('nazwisko').value.trim(),
+          email: $('email').value.trim(),
+          cena: parseInt($('cena').value, 10),
+          dni: parseInt($('dni').value, 10),
+        };
+        if (!body.haslo || !body.imie || !body.email || !body.cena) return show('Uzupełnij hasło, imię, e-mail i cenę.', true);
+        try {
+          if ($('zapamietaj').checked) localStorage.setItem(KEY, body.haslo); else localStorage.removeItem(KEY);
+        } catch (e2) {}
+        $('genSubmit').disabled = true;
+        status.classList.remove('is-visible', 'is-error');
+        fetch(API_BASE + '/api/pro-offer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || 'Błąd serwera.'); return d; }); })
+          .then(function (o) {
+            $('genLink').value = o.url;
+            $('genMail').value = mailText(o);
+            $('genOut').hidden = false;
+            show('Gotowe: oferta dla ' + o.email + ' ważna do ' + fmtDate(o.expiresAt) + '.');
+            $('genOut').scrollIntoView({ behavior: 'smooth' });
+          })
+          .catch(function (err) { show(err.message, true); })
+          .then(function () { $('genSubmit').disabled = false; });
+      });
+
+      document.querySelectorAll('[data-copy]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var el = $(btn.dataset.copy);
+          el.select();
+          var done = function () { var t = btn.textContent; btn.textContent = 'Skopiowano ✓'; setTimeout(function () { btn.textContent = t; }, 1500); };
+          if (navigator.clipboard) navigator.clipboard.writeText(el.value).then(done, function () { document.execCommand('copy'); done(); });
+          else { document.execCommand('copy'); done(); }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

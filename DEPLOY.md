@@ -121,7 +121,11 @@ PRO nie jest w publicznym formularzu. Po rozmowie kwalifikacyjnej wysyłasz klie
 
 1. Raz: wygeneruj sekret `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`, wpisz go jako
    `PRO_OFFER_SECRET` w `.env` **i** na Render -> Environment (ta sama wartość).
-2. Link dla klienta: `node tools/link_pro.mjs --cena 9997 --email klient@domena.pl --imie Jan --nazwisko Kowalski`
+2. **Sprzedawcy:** na Render dodaj `PRO_SELLERS` w formacie `Ania:hasloAni,Tomek:hasloTomka` (hasło min. 8 znaków,
+   każdy sprzedawca swoje). Sprzedawca wchodzi na **https://lecimyposwoje.pl/generator-pro.html**, wpisuje hasło, dane
+   klienta i cenę, kopiuje gotowy link i mail. Imię sprzedawcy trafia do powiadomienia o opłaconym zamówieniu.
+   Odebranie dostępu: usuń jego wpis z `PRO_SELLERS`.
+   Alternatywnie z konsoli: `node tools/link_pro.mjs --cena 9997 --email klient@domena.pl --imie Jan --nazwisko Kowalski`
    (opcjonalnie `--dni 14`, domyślnie 7 — regulamin wymaga min. 7 dni ważności oferty).
 3. Wyślij link mailem razem z ofertą: zakres PRO, cena brutto, termin ważności (regulamin pkt 3).
 4. Link działa tylko z tym adresem e-mail, ceny nie da się zmienić. Zmiana sekretu unieważnia wszystkie wysłane linki.

@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /generator-pro
 
 Sitemap: https://lecimyposwoje.pl/sitemap.xml

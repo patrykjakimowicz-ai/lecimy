@@ -207,6 +207,7 @@ export async function sendOwnerNotification({ order, accountError, mailError, ex
       ${problems.length ? `<p style="background:#fff3cd;padding:10px;border-radius:6px;">${problems.join('<br/>')}</p>` : ''}
       <p><strong>${escapeHtml(order.pakiet)}</strong>${order.addonMasterclass ? ' + Masterclass Wdrożeniowy' : ''} — ${fmtPln(order.amount)}</p>
       <p>Klient: ${escapeHtml(order.imie)} ${escapeHtml(order.nazwisko)}, ${escapeHtml(order.email)}</p>
+      ${order.ofertaPro ? `<p>Oferta indywidualna PRO: ${fmtPln(order.ofertaPro.cena * 100)}, sprzedawca: <strong>${escapeHtml(order.ofertaPro.sprzedawca || 'link z konsoli')}</strong></p>` : ''}
       ${faktura}
       <p>Źródło ruchu: ${attr}</p>
     </div>
