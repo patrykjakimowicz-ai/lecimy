@@ -1,11 +1,14 @@
-// Limit miejsc w pakietach (VIP: 25 na edycję). Źródłem prawdy jest serwer (/api/seats) — on też odrzuca
+// Limit miejsc w pakietach (PRO: 25 na edycję). Źródłem prawdy jest serwer (/api/seats) — on też odrzuca
 // zamówienia po wyczerpaniu miejsc. Ten skrypt tylko pokazuje stan w cenniku i blokuje wybór pakietu w formularzu.
 (function () {
   // Ten sam backend co API_BASE w zamowienie.html i podziekowanie.html (lokalnie: ten sam host).
   var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://lecimy-xlxt.onrender.com';
 
+  // Nazwa pakietu z API -> klasa karty w cenniku.
+  var CARD_CLASS = { 'Lecimy po swoje PRO': 'vip' };
+
   function applyPricing(pakiet, info) {
-    var card = document.querySelector('.pricing-card--' + pakiet.toLowerCase());
+    var card = document.querySelector('.pricing-card--' + (CARD_CLASS[pakiet] || pakiet.toLowerCase()));
     if (!card) return;
     var badge = card.querySelector('.pricing-card__limit');
     var btn = card.querySelector('.btn--pricing');

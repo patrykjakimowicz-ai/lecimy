@@ -11,7 +11,8 @@ import { randomUUID } from 'node:crypto';
 import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
-import { PACKAGES, ADDONS, SEAT_LIMITS, MARKETING_CONSENT_DISCOUNT, toGrosze } from './products.mjs';
+import { PACKAGES, ADDONS, SEAT_LIMITS, MARKETING_CONSENT_DISCOUNT, PRO_PACKAGE, toGrosze } from './products.mjs';
+import { readProOffer } from './proOffer.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
 import { createCheckoutSession, constructWebhookEvent } from './stripe.mjs';
 import { fulfillPaidOrder } from './fulfillment.mjs';
@@ -177,12 +178,18 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     if (Date.now() >= Date.parse(EDITION.salesCloseISO)) {
       return res.status(400).json({ error: `Sprzedaż tej edycji została zamknięta (${EDITION.salesCloseLabel}).` });
     }
-    const { pakiet, addonMasterclass, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura, zgodyTresc } = req.body || {};
+    const { pakiet, addonMasterclass: addonRaw, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura, zgodyTresc, oferta } = req.body || {};
     const telefon = MARKETING_ENABLED ? telefonRaw : null;
 
-    if (typeof pakiet !== 'string' || !Object.hasOwn(PACKAGES, pakiet)) {
+    // PRO kupuje się wyłącznie z osobistego linku po kwalifikacji — cena pochodzi z podpisanej oferty.
+    const proOffer = pakiet === PRO_PACKAGE ? readProOffer(oferta) : null;
+    if (pakiet === PRO_PACKAGE && !proOffer) {
+      return res.status(400).json({ error: 'Link do oferty PRO jest nieprawidłowy albo wygasł. Napisz do nas, a wyślemy nowy.' });
+    }
+    if (!proOffer && (typeof pakiet !== 'string' || !Object.hasOwn(PACKAGES, pakiet))) {
       return res.status(400).json({ error: 'Nieznany pakiet.' });
     }
+    const addonMasterclass = !proOffer && !!addonRaw; // PRO zawiera pełny zakres, bez dodatków
     if (!imie || !nazwisko || !email) {
       return res.status(400).json({ error: 'Uzupełnij imię, nazwisko i e-mail.' });
     }
@@ -196,10 +203,13 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Podaj poprawny adres e-mail.' });
     }
+    if (proOffer && email.trim().toLowerCase() !== proOffer.email) {
+      return res.status(400).json({ error: `Oferta PRO jest przypisana do adresu ${proOffer.email} — użyj tego adresu e-mail.` });
+    }
     // Rabat za zgodę marketingową wymaga telefonu (SMS-y nie polecą donikąd) —
     // jeśli klient zaznaczył zgodę, ale nie podał telefonu, blokujemy całe zamówienie
     // zamiast po cichu policzyć pełną cenę bez rabatu, na który liczył.
-    const marketingConsent = MARKETING_ENABLED && !!zgodaMarketing;
+    const marketingConsent = MARKETING_ENABLED && !proOffer && !!zgodaMarketing;
     if (marketingConsent && !telefon) {
       return res.status(400).json({
         error: 'Podaj numer telefonu, żeby odebrać rabat -50 zł za zgodę marketingową (albo odznacz tę zgodę).',
@@ -237,7 +247,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       }
     }
 
-    let pricePln = PACKAGES[pakiet] + (addonMasterclass ? ADDONS.masterclass.price : 0);
+    let pricePln = (proOffer ? proOffer.cena : PACKAGES[pakiet]) + (addonMasterclass ? ADDONS.masterclass.price : 0);
     if (marketingConsent) pricePln -= MARKETING_CONSENT_DISCOUNT;
     const amountGrosze = toGrosze(pricePln);
     const sessionId = randomUUID();
@@ -249,7 +259,8 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
 
     const order = {
       pakiet,
-      addonMasterclass: !!addonMasterclass,
+      addonMasterclass,
+      ofertaPro: proOffer ? { cena: proOffer.cena, wazna: proOffer.expiresAt } : null,
       imie,
       nazwisko,
       email,
@@ -392,7 +403,7 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
 app.get('/api/health', readLimiter, async (req, res) => {
   try {
     await countOrders();
-    res.set('Cache-Control', 'no-store').json({ ok: true, db: true, time: new Date().toISOString() });
+    res.set('Cache-Control', 'no-store').json({ ok: true, db: true, provider: PAYMENT_PROVIDER, time: new Date().toISOString() });
   } catch (err) {
     console.error('[health] baza niedostępna:', err.message);
     res.status(503).set('Cache-Control', 'no-store').json({ ok: false, db: false, time: new Date().toISOString() });
@@ -411,6 +422,13 @@ app.get('/api/seats', readLimiter, async (req, res) => {
     console.error('[seats] błąd:', err.message);
     res.status(503).set('Cache-Control', 'no-store').json({ error: 'unavailable' });
   }
+});
+
+// ── API: odczyt osobistej oferty PRO (formularz zamówienia pokazuje pakiet i cenę z linku) ──
+app.get('/api/pro-offer', readLimiter, (req, res) => {
+  const offer = readProOffer(req.query.t);
+  if (!offer) return res.status(404).set('Cache-Control', 'no-store').json({ error: 'Oferta nieprawidłowa albo wygasła.' });
+  res.set('Cache-Control', 'no-store').json(offer);
 });
 
 // ── API: status zamówienia (do ewentualnego odpytania ze strony podziękowania) ──

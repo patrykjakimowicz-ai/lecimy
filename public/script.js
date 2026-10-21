@@ -160,7 +160,7 @@ function initVideo() {
   if (!trigger) return;
 
   // URL do podmiany na docelowy
-  const VIDEO_URL = 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME?autoplay=1&rel=0&modestbranding=1';
+  const VIDEO_URL = 'https://www.youtube-nocookie.com/embed/aaAVlPexqXs?autoplay=1&rel=0&modestbranding=1';
 
   trigger.addEventListener('click', () => {
     // Utwórz overlay

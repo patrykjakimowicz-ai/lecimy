@@ -3,6 +3,6 @@
 // ZMIEŃ DATĘ przy każdej zmianie treści regulamin.html / polityka-prywatnosci.html
 // (ta sama data jest w nagłówku „Data ostatniej aktualizacji” w tych dokumentach).
 export const LEGAL_VERSIONS = {
-  regulamin: '2026-10-19-v10',
-  polityka: '2026-10-19-v13',
+  regulamin: '2026-10-21-v11',
+  polityka: '2026-10-21-v14',
 };

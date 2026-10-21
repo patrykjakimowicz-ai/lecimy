@@ -93,3 +93,35 @@ decyduje zmienna `PAYMENT_PROVIDER` (`stripe` albo `p24`, domyślnie `p24`). Web
 6. Test: karta `4242 4242 4242 4242` (dowolna przyszła data i CVC) w trybie testowym.
    Lokalnie: `stripe listen --forward-to localhost:3000/api/stripe/webhook` (poda tymczasowy `whsec_...`).
 7. Produkcja: podmień klucze na `sk_live_...` i utwórz webhook także w trybie live (ma osobny sekret).
+
+---
+
+# Hosting strony na Cloudflare Pages
+
+Backend zostaje na Render (`lecimy-xlxt.onrender.com`), na Cloudflare idzie wyłącznie folder `public/`.
+Nagłówki bezpieczeństwa są w `public/_headers` (Cloudflare czyta ten plik, `netlify.toml` ignoruje).
+
+1. dash.cloudflare.com -> Workers & Pages -> Create -> Pages -> Connect to Git (repo) albo Direct Upload.
+2. Ustawienia buildu: Framework preset **None**, build command **puste**, output directory **`public`**.
+3. Domena: Pages -> Custom domains -> dodaj `lecimyposwoje.pl` (i `www`). Jeśli DNS jest na Cloudflare,
+   zrobi się samo; jeśli nie, ustaw rekord CNAME na `<projekt>.pages.dev` albo przenieś nameservery.
+4. **Render -> Environment**: `SITE_URL` = finalny adres strony (z https, bez ukośnika na końcu).
+   CORS i powroty z Przelewy24 (`urlReturn`, `urlCancel`) biorą adres z tej zmiennej.
+   Na czas testów pod `*.pages.dev` dodaj ten adres do `EXTRA_ALLOWED_ORIGINS`.
+5. Panel Przelewy24 / Stripe: sprawdź, że adresy powrotu i webhooków wskazują na właściwe domeny.
+6. Quirk: Cloudflare Pages przekierowuje `regulamin.html` -> `/regulamin` (308). Linki działają, ale po
+   wdrożeniu sprawdź, że pobrany `regulamin.html` ma ten sam SHA-256 co plik z `archiwum_dokumentow/`
+   (log zgód porównuje odciski). Włączone Auto Minify / Rocket Loader zmieniłoby treść pliku — wyłącz je.
+
+---
+
+# Oferta indywidualna PRO (osobiste linki)
+
+PRO nie jest w publicznym formularzu. Po rozmowie kwalifikacyjnej wysyłasz klientowi osobisty link z ceną.
+
+1. Raz: wygeneruj sekret `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`, wpisz go jako
+   `PRO_OFFER_SECRET` w `.env` **i** na Render -> Environment (ta sama wartość).
+2. Link dla klienta: `node tools/link_pro.mjs --cena 9997 --email klient@domena.pl --imie Jan --nazwisko Kowalski`
+   (opcjonalnie `--dni 14`, domyślnie 7 — regulamin wymaga min. 7 dni ważności oferty).
+3. Wyślij link mailem razem z ofertą: zakres PRO, cena brutto, termin ważności (regulamin pkt 3).
+4. Link działa tylko z tym adresem e-mail, ceny nie da się zmienić. Zmiana sekretu unieważnia wszystkie wysłane linki.

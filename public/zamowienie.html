@@ -57,6 +57,7 @@
 
             <div class="order-step">
               <h2 class="order-step__title">1. Wybierz pakiet</h2>
+              <p class="order-form__offer-note" id="proOfferNote" hidden></p>
               <div class="order-packages" id="orderPackages">
                 <label class="order-package" data-package="Fundament" data-price="997">
                   <input type="radio" name="pakiet" value="Fundament" />
@@ -67,11 +68,6 @@
                   <input type="radio" name="pakiet" value="Kompletny System" checked />
                   <span class="order-package__name">Kompletny System</span>
                   <span class="order-package__price">1&nbsp;597 zł</span>
-                </label>
-                <label class="order-package" data-package="VIP" data-price="2497">
-                  <input type="radio" name="pakiet" value="VIP" />
-                  <span class="order-package__name">VIP</span>
-                  <span class="order-package__price">2&nbsp;497 zł</span>
                 </label>
               </div>
             </div>
@@ -159,7 +155,7 @@
                 <div class="order-form__check">
                   <input type="checkbox" id="zgodaCyfrowa" name="zgodaCyfrowa" required />
                   <label for="zgodaCyfrowa">
-                    Wyrażam zgodę na rozpoczęcie świadczenia (udostępnienie treści cyfrowych) przed upływem 14 dni od zawarcia umowy i przyjmuję do wiadomości, że <strong>z chwilą rozpoczęcia świadczenia, czyli udostępnienia materiałów w dniu rozpoczęcia edycji (14&nbsp;listopada 2026), utracę prawo odstąpienia od umowy</strong>. Do tego czasu mogę od umowy odstąpić w terminie 14 dni od jej zawarcia. *
+                    Wyrażam zgodę na rozpoczęcie świadczenia (udostępnienie treści cyfrowych) przed upływem 14 dni od zawarcia umowy i przyjmuję do wiadomości, że <strong>z chwilą rozpoczęcia świadczenia, czyli udostępnienia materiałów w dniu rozpoczęcia edycji (20&nbsp;listopada 2026), utracę prawo odstąpienia od umowy</strong>. Do tego czasu mogę od umowy odstąpić w terminie 14 dni od jej zawarcia. *
                   </label>
                 </div>
 
@@ -199,12 +195,12 @@
                 <span id="sumVat">298,63 zł</span>
               </div>
               <p class="order-summary__note">Ceny są cenami brutto (zawierają podatek VAT) i są podane w złotych polskich. Płatność jednorazowa, bez dodatkowych opłat.</p>
-              <p class="order-summary__note"><strong>Edycja 1:</strong> dostęp od 14&nbsp;listopada 2026 do 13&nbsp;lutego 2027 dla wszystkich uczestników. Sprzedaż trwa do 14&nbsp;listopada 2026.</p>
+              <p class="order-summary__note"><strong>Edycja 1:</strong> dostęp od 20&nbsp;listopada 2026 do 19&nbsp;lutego 2027 dla wszystkich uczestników. Sprzedaż trwa do 20&nbsp;listopada 2026.</p>
             </div>
 
             <p class="order__secure">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-              Bezpieczna płatność obsługiwana przez Stripe
+              <span id="orderProvider">Bezpieczna płatność online</span>
             </p>
           </aside>
         </div>
@@ -232,7 +228,7 @@
         <img class="footer__payments-img" src="brand_assets/platnosci/p24-metody-platnosci-kompakt.png" width="1180" height="385" loading="lazy" decoding="async" alt="Płatności obsługuje Przelewy24: Apple Pay, Google Pay, BLIK, Visa, Mastercard i przelewy bankowe" />
       </div>
       <div class="footer__bottom">
-        <p class="footer__contact">Kontakt: <a href="mailto:lecimyposwoje2020@gmail.com">lecimyposwoje2020@gmail.com</a></p>
+        <p class="footer__contact">Kontakt: <a href="mailto:lecimyposwoje2020@gmail.com">lecimyposwoje2020@gmail.com</a> · tel. <a href="tel:+48571507237">+48 571 507 237</a></p>
         <p>PEEWEE Sp. z o.o. · ul. Złota 7/28, 00-019 Warszawa · NIP 9452314380 · REGON 542269350 · KRS 0001184787</p>
         <p>&copy; 2026 Lecimy po swoje. Wszelkie prawa zastrzeżone.</p>
       </div>
@@ -245,7 +241,7 @@
       // stoją na tym samym hoście/domenie. Jeśli strona jest hostowana osobno (np. GoDaddy
       // shared hosting bez Node.js), a backend na innym serwerze (np. Render/Railway) —
       // wpisz tu pełny adres backendu, np. 'https://lecimyposwoje-api.onrender.com'.
-      var API_BASE = 'https://lecimy-xlxt.onrender.com';
+      var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://lecimy-xlxt.onrender.com';
 
       var fmt = new Intl.NumberFormat('pl-PL');
       var fmtMoney = new Intl.NumberFormat('pl-PL', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -259,6 +255,43 @@
       var MARKETING_ENABLED = false;
       if (MARKETING_ENABLED) {
         document.querySelectorAll('[data-marketing-feature]').forEach(function (el) { el.hidden = false; });
+      }
+
+      // Nazwa operatora płatności z backendu (PAYMENT_PROVIDER) — regulamin: operator wskazywany w procesie płatności.
+      var PROVIDER_NAMES = { p24: 'Przelewy24', stripe: 'Stripe' };
+      fetch(API_BASE + '/api/health')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (d && PROVIDER_NAMES[d.provider]) document.getElementById('orderProvider').textContent = 'Bezpieczna płatność obsługiwana przez ' + PROVIDER_NAMES[d.provider];
+        })
+        .catch(function () {});
+
+      // Oferta indywidualna PRO: ?oferta=<token z tools/link_pro.mjs>. Bez linku pakietu PRO nie da się wybrać.
+      var proToken = new URLSearchParams(window.location.search).get('oferta');
+      var proOffer = null;
+      function applyProOffer(offer) {
+        proOffer = offer;
+        var list = document.getElementById('orderPackages');
+        var esc = function (t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
+        list.innerHTML = '<label class="order-package is-selected" data-package="' + esc(offer.pakiet) + '" data-price="' + offer.cena + '">' +
+          '<input type="radio" name="pakiet" value="' + esc(offer.pakiet) + '" checked />' +
+          '<span class="order-package__name">' + esc(offer.pakiet) + '</span>' +
+          '<span class="order-package__price">' + fmt.format(offer.cena) + ' zł</span></label>';
+        packageLabels = list.querySelectorAll('.order-package');
+        packageLabels[0].querySelector('input').addEventListener('change', refreshSummary);
+        addonCheckbox.checked = false;
+        orderBump.hidden = true;
+        if (marketingCheck) marketingCheck.hidden = true;
+        var emailInput = document.getElementById('email');
+        emailInput.value = offer.email;
+        emailInput.readOnly = true;
+        if (offer.imie && !document.getElementById('imie').value) document.getElementById('imie').value = offer.imie;
+        if (offer.nazwisko && !document.getElementById('nazwisko').value) document.getElementById('nazwisko').value = offer.nazwisko;
+        var note = document.getElementById('proOfferNote');
+        note.textContent = 'Twoja indywidualna oferta PRO po rozmowie kwalifikacyjnej. Cena jest ostateczna (brutto), oferta ważna do ' +
+          new Date(offer.expiresAt).toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' }) + '.';
+        note.hidden = false;
+        refreshSummary();
       }
 
       var packageLabels = document.querySelectorAll('.order-package');
@@ -331,6 +364,15 @@
       marketingCheckbox.addEventListener('change', refreshSummary);
       refreshSummary();
 
+      if (proToken) {
+        fetch(API_BASE + '/api/pro-offer?t=' + encodeURIComponent(proToken))
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(applyProOffer)
+          .catch(function () {
+            showStatus('Link do oferty PRO jest nieprawidłowy albo wygasł. Napisz na lecimyposwoje2020@gmail.com, a wyślemy nowy.', true);
+          });
+      }
+
       // Pomiar: wejście do koszyka (wysyłane tylko za zgodą na cookies)
       if (window.lecimyTrack) {
         var startPkg = selectedPackageEl();
@@ -391,6 +433,7 @@
             regulamin: (document.querySelector('label[for="zgodaRegulamin"]') || {}).textContent || '',
             cyfrowa: (document.querySelector('label[for="zgodaCyfrowa"]') || {}).textContent || '',
           },
+          oferta: proOffer ? proToken : undefined,
           faktura: fakturaCheckbox.checked ? {
             firma: document.getElementById('fakturaFirma').value.trim(),
             nip: document.getElementById('fakturaNip').value.trim(),

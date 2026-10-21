@@ -4,12 +4,14 @@
 export const PACKAGES = {
   'Fundament': 997,
   'Kompletny System': 1597,
-  'VIP': 2497,
 };
+
+// Pakiet PRO: oferta indywidualna po kwalifikacji, bez ceny w PACKAGES — cenę niesie podpisany link (server/proOffer.mjs).
+export const PRO_PACKAGE = 'Lecimy po swoje PRO';
 
 // Limit miejsc w pakiecie (na edycję). Musi być zgodny z cennikiem w index.html i regulaminem (pkt 3).
 export const SEAT_LIMITS = {
-  'VIP': 25,
+  [PRO_PACKAGE]: 25,
 };
 
 export const ADDONS = {
