@@ -56,8 +56,8 @@ export function readProOffer(token) {
 // Sprzedawcy generujący linki na stronie generator-pro.html. PRO_SELLERS="Ania:haslo1,Tomek:haslo2"
 // (Render -> Environment). Imię trafia do linku i do powiadomienia o sprzedaży. Usunięcie wpisu odbiera dostęp.
 export function sellerForPassword(password) {
-  if (typeof password !== 'string' || !password) return null;
-  const given = Buffer.from(password);
+  if (typeof password !== 'string' || !password.trim()) return null;
+  const given = Buffer.from(password.trim()); // spacje z kopiowania hasła
   for (const entry of (process.env.PRO_SELLERS || '').split(',')) {
     const i = entry.indexOf(':');
     if (i < 1) continue;
