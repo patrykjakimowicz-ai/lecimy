@@ -3271,12 +3271,3 @@ body.has-countdown { --bar-h: 66px; }
 .pro-timer__value { font-size: 1.6rem; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: .04em; }
 .pro-timer.is-expired { background: rgba(110,14,8,.9); }
 
-/* ── Strona PRO: cena i lista kroków ── */
-.pro-price { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin: 0 0 1.5rem; padding: 1.25rem 1.4rem; border: 1px solid rgba(167,139,250,.45); border-radius: 16px; background: rgba(167,139,250,.07); }
-.pro-price__amount { display: block; font-size: 2.2rem; font-weight: 600; color: var(--clr-text); line-height: 1.1; }
-.pro-price__note { display: block; margin-top: .35rem; font-size: var(--fs-xs); color: var(--clr-text-muted); }
-.legal__body ol { padding-left: 1.3rem; margin-bottom: 1rem; }
-.legal__body ol li { margin-bottom: .6rem; line-height: 1.6; color: var(--clr-text-muted); }
-.legal__body a.btn { text-decoration: none; color: #0d0d0d; }
-.legal__body a.btn:hover { color: #fff; }
-.pricing-card__details { display: block; margin-top: .75rem; text-align: center; font-size: var(--fs-xs); color: var(--clr-text-muted); text-decoration: underline; text-underline-offset: 3px; position: relative; z-index: 2; }
