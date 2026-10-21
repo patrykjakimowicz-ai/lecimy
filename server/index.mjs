@@ -12,7 +12,7 @@ import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 import { PACKAGES, ADDONS, SEAT_LIMITS, MARKETING_CONSENT_DISCOUNT, PRO_PACKAGE, toGrosze } from './products.mjs';
-import { readProOffer, createProOffer, sellerForPassword } from './proOffer.mjs';
+import { readProOffer, createProOffer, sellerForPassword, PRO_PRICE } from './proOffer.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
 import { createCheckoutSession, constructWebhookEvent } from './stripe.mjs';
 import { fulfillPaidOrder } from './fulfillment.mjs';
@@ -439,7 +439,7 @@ app.post('/api/pro-offer', proLinkLimiter, (req, res) => {
   if (!sprzedawca) return res.status(401).json({ error: 'Nieprawidłowe hasło sprzedawcy.' });
   const clean = (v) => (typeof v === 'string' ? v.trim().slice(0, 80) : '');
   try {
-    const token = createProOffer({ cena: Number(cena), email: clean(email), imie: clean(imie), nazwisko: clean(nazwisko), godziny: Number(godziny) || 24, sprzedawca });
+    const token = createProOffer({ cena: Number(cena) || PRO_PRICE, email: clean(email), imie: clean(imie), nazwisko: clean(nazwisko), godziny: Number(godziny) || 24, sprzedawca });
     const offer = readProOffer(token);
     console.log(`[pro-offer] ${sprzedawca} -> ${offer.email}, ${offer.cena} zł, ważna do ${offer.expiresAt}`);
     res.set('Cache-Control', 'no-store').json({ url: `${SITE_URL}/zamowienie.html?oferta=${token}`, ...offer });

@@ -14,16 +14,16 @@ Teksty niżej są gotowe do wysłania.
 
 ## 1. Wersja do formularza kontaktowego (limit 1000 znaków)
 
-Gdzie: Centrum pomocy P24 → „Skontaktuj się z nami”. Tak zaleca artykuł „Zakładam nowy sklep, jak mogę dodać kolejne konto w P24?”. Pole „Firma”: PEEWEE Sp. z o.o., pole „NIP”: 9452314380.
+Pola formularza: Imię i nazwisko: Bartłomiej Weska · E-mail: kontakt@peewee.ai · Telefon: +48 571 507 237 · Firma: PEEWEE Sp. z o.o. · NIP: 9452314380 · Plik: odpis KRS (PDF).
 
 > Dzień dobry, PEEWEE Sp. z o.o. (NIP 9452314380) ma konto P24 o ID 353826. Prosimy o dodanie kolejnego sklepu dla https://lecimyposwoje.pl i przekazanie go do weryfikacji.
-> Sprzedajemy program rozwoju osobistego online (treści cyfrowe, edycja 3-miesięczna): pakiety 997 zł i 1597 zł oraz PRO – oferta indywidualna po rozmowie kwalifikacyjnej, opłacana przez formularz zamówienia na stronie (ok. 10 000 zł).
+> Sprzedajemy program rozwoju osobistego online (treści cyfrowe, edycja 3-miesięczna): pakiety 997 zł i 1597 zł oraz PRO za 9997 zł – dostępny po rozmowie kwalifikacyjnej, opłacany przez formularz zamówienia na stronie.
 > Prosimy o: BLIK, przelewy, karty Visa/Mastercard, Apple Pay/Google Pay oraz Przelewy24 Raty.
-> Adres siedziby (ul. Złota 7/28, Warszawa) zaktualizowaliśmy w panelu zgodnie z KRS (jest w weryfikacji).
+> Adres siedziby (ul. Złota 7/28, Warszawa) zaktualizowaliśmy w panelu zgodnie z KRS (jest w weryfikacji, odpis KRS w załączniku).
 > Regulamin: https://lecimyposwoje.pl/regulamin
 > Polityka prywatności: https://lecimyposwoje.pl/polityka-prywatnosci
 > Integracja: własna, REST API (register, urlStatus, verify).
-> Kontakt: Patryk Jakimowicz, lecimyposwoje2020@gmail.com, +48 571 507 237. Dziękujemy!
+> Kontakt: Bartłomiej Weska, Prezes Zarządu, kontakt@peewee.ai, +48 571 507 237. Dziękujemy!
 
 ---
 
@@ -39,7 +39,7 @@ Gdzie: Centrum pomocy P24 → „Skontaktuj się z nami”. Tak zaleca artykuł 
 > - Fundament: 997 zł brutto,
 > - Kompletny System: 1 597 zł brutto,
 > - dodatek Masterclass Wdrożeniowy: 157 zł,
-> - Lecimy po swoje PRO: oferta indywidualna (limit 25 miejsc). Klient wypełnia zgłoszenie, przechodzi bezpłatną rozmowę kwalifikacyjną i dostaje e-mailem ofertę z ceną (ok. 10 000 zł brutto) oraz osobisty link do formularza zamówienia na lecimyposwoje.pl. Umowę zawiera i płaci wyłącznie przez ten formularz, po akceptacji regulaminu. Zasady opisuje pkt 3 regulaminu. Dlatego PRO nie ma publicznej ceny na stronie.
+> - Lecimy po swoje PRO: oferta indywidualna (limit 25 miejsc). Klient wypełnia zgłoszenie, przechodzi bezpłatną rozmowę kwalifikacyjną i dostaje e-mailem ofertę z ceną 9 997 zł brutto oraz osobisty link do formularza zamówienia na lecimyposwoje.pl. Umowę zawiera i płaci wyłącznie przez ten formularz, po akceptacji regulaminu. Zasady opisuje pkt 3 regulaminu. Dlatego PRO nie ma publicznej ceny na stronie.
 >
 > **Aktualizacja danych konta.** Siedziba spółki została przeniesiona. Na koncie widnieje adres Aleja 29 Listopada 85, 31-408 Kraków, a aktualny adres według KRS to ul. Złota 7/28, 00-019 Warszawa. Nowy adres siedziby i adres korespondencyjny wpisaliśmy już w panelu i czekają na weryfikację. Aktualny odpis z KRS w załączniku.
 >
@@ -57,10 +57,10 @@ Gdzie: Centrum pomocy P24 → „Skontaktuj się z nami”. Tak zaleca artykuł 
 >
 > Szacunkowe dane: [średnia wartość transakcji, np. ~1 600 zł] · [roczny obrót] · [liczba transakcji rocznie] · sprzedaż na terenie Polski · zwroty: rzadkie, tylko przed startem edycji.
 >
-> Kontakt: Patryk Jakimowicz, lecimyposwoje2020@gmail.com, tel. +48 571 507 237.
+> Kontakt: Bartłomiej Weska, Prezes Zarządu, kontakt@peewee.ai, tel. +48 571 507 237.
 >
 > Z pozdrowieniami
-> Patryk Jakimowicz
+> Bartłomiej Weska, Prezes Zarządu
 > PEEWEE Sp. z o.o.
 
 ---
@@ -71,7 +71,7 @@ Formularz „Jak uruchomić karty?” w Centrum pomocy P24 pyta o:
 - **Waluta:** PLN.
 - **ID konta w P24:** 353826 (albo ID nowego sklepu, jeśli P24 je nada).
 - **Oferowane produkty/usługi:** program rozwoju osobistego online (treści cyfrowe), dostęp na czas edycji (3 miesiące).
-- **Cena najtańszego / najdroższego produktu:** 997 zł / ok. 10 000 zł (PRO).
+- **Cena najtańszego / najdroższego produktu:** 997 zł / 9 997 zł (PRO).
 - **Region sprzedaży:** kraj (Polska).
 - **Dowód realizacji:** potwierdzenie zamówienia e-mailem, konto w panelu uczestnika, log akceptacji regulaminu (wersja i SHA-256 dokumentu, IP, czas).
 - **Dni od transakcji do dostawy:** dostęp do konta w ciągu 15 minut, materiały w dniu startu edycji, czyli do ok. 30 dni po zakupie (sprzedaż kończy się w dniu startu).

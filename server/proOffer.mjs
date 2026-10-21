@@ -7,9 +7,9 @@ import { PRO_PACKAGE } from './products.mjs';
 
 const b64url = (buf) => Buffer.from(buf).toString('base64url');
 
-// Cena PRO (zł brutto; max = limit rat P24) i dozwolona ważność oferty — regulamin pkt 3: min. 24 godziny.
-export const PRO_MIN_PRICE = 8000;
-export const PRO_MAX_PRICE = 50000;
+// Cena PRO (zł brutto) — stała, zapisana w regulaminie (pkt 3); zmiana ceny = nowa wersja regulaminu.
+// Ważność oferty — regulamin pkt 3: min. 24 godziny.
+export const PRO_PRICE = 9997;
 export const PRO_VALIDITY_HOURS = [24, 72, 7 * 24, 14 * 24, 30 * 24];
 
 function secret() {
@@ -27,9 +27,7 @@ function sign(payloadB64) {
  * @returns {string} token do parametru ?oferta=
  */
 export function createProOffer({ cena, email, imie, nazwisko, godziny = 24, sprzedawca }) {
-  if (!Number.isInteger(cena) || cena < PRO_MIN_PRICE || cena > PRO_MAX_PRICE) {
-    throw new Error(`Cena PRO musi być liczbą całkowitą od ${PRO_MIN_PRICE} do ${PRO_MAX_PRICE} zł.`);
-  }
+  if (cena !== PRO_PRICE) throw new Error(`Cena PRO wynosi ${PRO_PRICE} zł (regulamin, pkt 3).`);
   if (!PRO_VALIDITY_HOURS.includes(godziny)) throw new Error(`Ważność oferty: ${PRO_VALIDITY_HOURS.join(', ')} godzin.`);
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Podaj poprawny e-mail klienta.');
   const payload = {
