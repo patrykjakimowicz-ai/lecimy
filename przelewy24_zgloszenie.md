@@ -16,14 +16,16 @@ Teksty niżej są gotowe do wysłania.
 
 Pola formularza: Imię i nazwisko: Bartłomiej Weska · E-mail: kontakt@peewee.ai · Telefon: +48 571 507 237 · Firma: PEEWEE Sp. z o.o. · NIP: 9452314380 · Plik: odpis KRS (PDF).
 
-> Dzień dobry, PEEWEE Sp. z o.o. (NIP 9452314380) ma konto P24 o ID 353826. Prosimy o dodanie kolejnego sklepu dla https://lecimyposwoje.pl i przekazanie go do weryfikacji.
-> Sprzedajemy program rozwoju osobistego online (treści cyfrowe, edycja 3-miesięczna): pakiety 997 zł i 1597 zł oraz PRO za 9997 zł (regulamin pkt 3): karta PRO na stronie prowadzi tylko do ankiety zgłoszeniowej, a po rozmowie klient dostaje osobisty link do formularza zamówienia na stronie.
-> Prosimy o: BLIK, przelewy, karty Visa/Mastercard, Apple Pay/Google Pay oraz Przelewy24 Raty.
-> Adres siedziby (ul. Złota 7/28, Warszawa) zaktualizowaliśmy w panelu zgodnie z KRS (jest w weryfikacji, odpis KRS w załączniku).
+> Dzień dobry, prosimy o dodanie do naszego konta (ID 353826) sklepu https://lecimyposwoje.pl i jego weryfikację.
+> Sprzedajemy program rozwoju osobistego online (treści cyfrowe, edycja 3-mies.), ceny 997–9997 zł. Pakiet PRO (regulamin pkt 3) sprzedajemy po rozmowie kwalifikacyjnej przez osobisty link do zamówienia; klient płaci sam na stronie, nie przez telefon. Przykład: https://lecimyposwoje.pl/zamowienie.html?oferta=eyJwIjoiTGVjaW15IHBvIHN3b2plIFBSTyIsImMiOjk5OTcsImUiOiJrb250YWt0QHBlZXdlZS5haSIsInMiOiJQYXRyeWsiLCJ4IjoxNzk1MTk2NDE4MTM4fQ.qAxAM7FMjNwQ-Nxk9fl84FnnGgRitnja5do9TLGJtBc
+> Prosimy o: BLIK, przelewy, karty, Apple Pay/Google Pay i Przelewy24 Raty.
+> Adres siedziby (Złota 7/28, Warszawa) zmieniliśmy w panelu wg KRS (odpis w załączniku).
 > Regulamin: https://lecimyposwoje.pl/regulamin
 > Polityka prywatności: https://lecimyposwoje.pl/polityka-prywatnosci
-> Integracja: własna, REST API (register, urlStatus, verify).
-> Kontakt: Bartłomiej Weska, Prezes Zarządu, kontakt@peewee.ai, +48 571 507 237. Dziękujemy!
+> Integracja własna przez API P24. Do czasu akceptacji płatności obsługuje Stripe.
+> Dziękujemy!
+
+Przykładowy link PRO jest przypisany do kontakt@peewee.ai i ważny do 20.11.2026.
 
 ---
 
