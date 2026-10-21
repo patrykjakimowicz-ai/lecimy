@@ -3271,3 +3271,26 @@ body.has-countdown { --bar-h: 66px; }
 .pro-timer__value { font-size: 1.6rem; font-weight: 400; font-variant-numeric: tabular-nums; letter-spacing: .04em; }
 .pro-timer.is-expired { background: rgba(110,14,8,.9); }
 
+
+/* Klarna: 3 raty 0% / 30 dni — cennik i zamówienie */
+.klarna-tag { flex-shrink: 0; display: inline-flex; align-items: center; padding: 0.3em 0.7em; border-radius: 6px; background: #ffa8cd; color: #0b051d; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.01em; line-height: 1; }
+.pricing-card__installments { display: flex; align-items: center; gap: 0.6rem; margin: 0.6rem 0 0.2rem; padding: 0.55rem 0.75rem; border: 1px solid rgba(255,168,205,0.35); border-radius: var(--radius-md); background: rgba(255,168,205,0.07); color: var(--clr-text); text-align: left; position: relative; z-index: 1; transition: border-color var(--dur-fast), background var(--dur-fast); }
+.pricing-card__installments:hover { border-color: rgba(255,168,205,0.7); background: rgba(255,168,205,0.12); }
+.pricing-card__installments-text { display: flex; flex-direction: column; font-size: var(--fs-sm); line-height: 1.3; }
+.pricing-card__installments-text strong { color: var(--clr-white); }
+.pricing-card__installments-text small { font-size: var(--fs-xs); color: var(--clr-text-muted); }
+.pricing-card__installments-text u { text-underline-offset: 2px; }
+.klarna-box { display: flex; align-items: center; gap: 0.75rem; margin: var(--sp-sm) 0; padding: 0.75rem 0.9rem; border: 1px solid rgba(255,168,205,0.4); border-radius: var(--radius-md); background: rgba(255,168,205,0.08); }
+.klarna-box[hidden] { display: none; }
+.klarna-box__text { display: flex; flex-direction: column; gap: 2px; font-size: var(--fs-xs); color: var(--clr-text-muted); line-height: 1.45; }
+.klarna-box__text strong { font-size: var(--fs-sm); color: var(--clr-white); }
+.klarna-box__text b { color: var(--clr-text); }
+.klarna-box__text a { color: #ffa8cd; text-decoration: underline; text-underline-offset: 2px; }
+.klarna-box--summary { margin-top: var(--sp-sm); }
+
+/* Poradnik raty-klarna.html */
+.installments-steps { margin: 0 0 var(--sp-sm); padding-left: var(--sp-lg); list-style: decimal; }
+.installments-shot { margin: var(--sp-lg) auto; max-width: 436px; }
+.installments-shot img { display: block; width: 100%; height: auto; border-radius: var(--radius-md); border: 1px solid var(--clr-border); }
+.installments-shot figcaption { margin-top: var(--sp-xs); font-size: var(--fs-xs); color: var(--clr-text-muted); text-align: center; }
+.legal__body a.installments-cta { color: inherit; text-decoration: none; margin-top: var(--sp-md); }

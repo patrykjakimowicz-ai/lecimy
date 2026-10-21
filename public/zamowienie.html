@@ -159,6 +159,14 @@
                   </label>
                 </div>
 
+                <div class="klarna-box" data-klarna>
+                  <span class="klarna-tag">Klarna</span>
+                  <div class="klarna-box__text">
+                    <strong>Zapłać w 3 ratach 0%: <span data-klarna-rate>3 × 532,33 zł</span></strong>
+                    <span>albo za 30 dni. Na stronie płatności wybierz <b>Klarna</b>. <a href="raty-klarna.html" target="_blank" rel="noopener">Zobacz poradnik</a></span>
+                  </div>
+                </div>
+
                 <button type="submit" class="btn btn--primary btn--lg btn--full order-form__submit" id="orderSubmit">
                   <span id="orderSubmitLabel">Kupuję i płacę</span>
                 </button>
@@ -195,6 +203,13 @@
                 <span id="sumVat">298,63 zł</span>
               </div>
               <p class="order-summary__note">Ceny są cenami brutto (zawierają podatek VAT) i są podane w złotych polskich. Płatność jednorazowa, bez dodatkowych opłat.</p>
+              <div class="klarna-box klarna-box--summary" data-klarna>
+                <span class="klarna-tag">Klarna</span>
+                <div class="klarna-box__text">
+                  <strong>lub <span data-klarna-rate>3 × 532,33 zł</span> (0%)</strong>
+                  <span>albo całość za 30 dni · <a href="raty-klarna.html" target="_blank" rel="noopener">poradnik</a></span>
+                </div>
+              </div>
               <p class="order-summary__note"><strong>Edycja 1:</strong> dostęp od 20&nbsp;listopada 2026 do 19&nbsp;lutego 2027 dla wszystkich uczestników. Sprzedaż trwa do 20&nbsp;listopada 2026.</p>
             </div>
 
@@ -363,6 +378,11 @@
         }
 
         sumTotal.textContent = fmt.format(total) + ' zł';
+        // Klarna (3 raty 0% / 30 dni) tylko dla pakietów z cennika — nie dla indywidualnej oferty PRO.
+        document.querySelectorAll('[data-klarna]').forEach(function (el) { el.hidden = !!proOffer; });
+        document.querySelectorAll('[data-klarna-rate]').forEach(function (el) {
+          el.textContent = '3 × ' + fmtMoney.format(Math.round(total / 3 * 100) / 100) + ' zł';
+        });
         // VAT zawarty w cenie brutto: brutto * stawka / (100 + stawka)
         sumVat.textContent = fmtMoney.format(Math.round(total * VAT_RATE / (100 + VAT_RATE) * 100) / 100) + ' zł';
 
