@@ -3294,3 +3294,17 @@ body.has-countdown { --bar-h: 66px; }
 .installments-shot img { display: block; width: 100%; height: auto; border-radius: var(--radius-md); border: 1px solid var(--clr-border); }
 .installments-shot figcaption { margin-top: var(--sp-xs); font-size: var(--fs-xs); color: var(--clr-text-muted); text-align: center; }
 .legal__body a.installments-cta { color: inherit; text-decoration: none; margin-top: var(--sp-md); }
+
+/* ── HERO: „od poniedziałku.” nigdy nie rozdzielone, podtytuł jaśniejszy na desktopie ── */
+@media (min-width: 769px) {
+  .hero__text { gap: var(--sp-lg); }
+  .hero__text .hero__headline { font-size: min(3.9rem, 4.1vw); white-space: nowrap; }
+  .hero__text .hero__sub { color: rgba(255,255,255,0.92); }
+}
+
+@media (max-width: 768px) {
+  .hero__overlay-content .hero__headline {
+    font-size: clamp(1.6rem, 8.2vw, 2.4rem);
+    white-space: nowrap;
+  }
+}
