@@ -3412,3 +3412,27 @@ body.has-countdown { --bar-h: 66px; }
   .for-who__compare { grid-template-columns: 1fr; gap: var(--sp-md); }
   .for-who__panel { padding: var(--sp-lg) var(--sp-md); }
 }
+.guarantee__terms { display: inline-block; margin-top: var(--sp-xs); font-size: var(--fs-xs); color: var(--clr-text-muted); text-decoration: underline; text-underline-offset: 3px; opacity: 0.75; transition: opacity var(--dur-fast); }
+.guarantee__terms:hover { opacity: 1; }
+.guarantee__scope { display: inline-block; margin-bottom: var(--sp-xs); padding: 3px 10px; border-radius: var(--radius-full); font-size: var(--fs-xs); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--clr-gold-light); background: rgba(232,120,12,0.12); border: 1px solid rgba(232,120,12,0.3); }
+
+/* Gwarancja na karcie Kompletny System */
+.pricing-card__guarantee {
+  display: flex; align-items: center; gap: var(--sp-sm);
+  margin-top: var(--sp-lg); padding: var(--sp-sm) var(--sp-md);
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(232,120,12,0.16), rgba(232,120,12,0.04));
+  border: 1px solid rgba(232,120,12,0.35);
+  text-align: left; text-decoration: none;
+  transition: border-color var(--dur-base), background var(--dur-base);
+}
+.pricing-card__guarantee:hover { border-color: rgba(240,144,48,0.6); background: linear-gradient(135deg, rgba(232,120,12,0.22), rgba(232,120,12,0.06)); }
+.pricing-card__guarantee-icon {
+  flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff;
+  background: linear-gradient(145deg, var(--clr-gold-light), var(--clr-gold));
+  box-shadow: 0 0 0 4px rgba(232,120,12,0.15), 0 4px 14px rgba(232,120,12,0.35);
+}
+.pricing-card__guarantee-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.pricing-card__guarantee-text strong { color: var(--clr-white); font-size: var(--fs-sm); line-height: 1.3; }
+.pricing-card__guarantee-text small { color: var(--clr-text-muted); font-size: 0.8125rem; line-height: 1.4; }
