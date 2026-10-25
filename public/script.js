@@ -35,7 +35,10 @@ function initSmoothScroll() {
       const target = document.querySelector(targetId);
       if (!target) return;
       e.preventDefault();
-      lenis.scrollTo(target, { offset: -navHeight });
+      // Lenis sam dolicza scroll-margin-top celu - odejmujemy go, żeby liczył się tylko dół menu (z paskiem licznika)
+      const navBottom = nav ? nav.getBoundingClientRect().bottom : navHeight;
+      const scrollMargin = parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+      lenis.scrollTo(target, { offset: scrollMargin - (navBottom + 40) });
     });
   });
 

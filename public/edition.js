@@ -4,6 +4,8 @@ window.LECIMY_EDITION = {
   name: 'Edycja 1',
   salesCloseISO: '2026-11-20T00:00:00+01:00',
   salesCloseLabel: '20 listopada 2026',
+  // Do tej chwili obowiązuje obecna cena; pasek na górze odlicza do podwyżki, potem do zamknięcia sprzedaży.
+  priceRiseISO: '2026-11-08T23:59:59+01:00',
   startISO: '2026-11-20T00:00:00+01:00',
   endISO: '2027-02-19T23:59:59+01:00',
   startLabel: '20 listopada 2026',
@@ -42,11 +44,15 @@ window.LECIMY_applySalesState = function () {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.LECIMY_applySalesState);
 else window.LECIMY_applySalesState();
 
-// ── Licznik do zamknięcia sprzedaży (pasek na górze strony) ──
+// ── Licznik do podwyżki ceny, a po niej do zamknięcia sprzedaży (pasek na górze strony) ──
 (function () {
   var ed = window.LECIMY_EDITION;
   var timer = null;
   var units = {};
+  var PRICE_LABEL = 'Podwyżka ceny za';
+  var CLOSE_LABEL = 'Zapisy zamykamy za';
+
+  function priceRiseLeft() { return ed.priceRiseISO ? Date.parse(ed.priceRiseISO) - Date.now() : 0; }
 
   function pad(n) { return n < 10 ? '0' + n : String(n); }
 
@@ -70,7 +76,12 @@ else window.LECIMY_applySalesState();
   }
 
   function render(bar) {
-    var left = Date.parse(ed.salesCloseISO) - Date.now();
+    var priceMode = priceRiseLeft() > 0;
+    var left = priceMode ? priceRiseLeft() : Date.parse(ed.salesCloseISO) - Date.now();
+    var labelEl = bar.querySelector('.cd-label__text');
+    var labelText = priceMode ? PRICE_LABEL : CLOSE_LABEL;
+    if (labelEl.textContent !== labelText) labelEl.textContent = labelText;
+    bar.classList.toggle('is-price', priceMode);
     if (left <= 0) {
       clearInterval(timer);
       bar.classList.add('is-leaving');
@@ -111,8 +122,9 @@ else window.LECIMY_applySalesState();
     bar.setAttribute('role', 'timer');
     bar.innerHTML =
       '<div class="countdown-bar__inner">' +
-        '<span class="cd-label"><span class="cd-dot" aria-hidden="true"></span><span class="cd-label__text">Zapisy zamykamy za</span></span>' +
+        '<span class="cd-label"><span class="cd-dot" aria-hidden="true"></span><span class="cd-label__text"></span></span>' +
         '<div class="cd-units">' + unitHtml('d') + unitHtml('h') + unitHtml('m') + unitHtml('s') + '</div>' +
+        '<a class="cd-cta" href="' + (document.getElementById('pricing') ? '' : 'index.html') + '#pricing">Kupuję przed podwyżką</a>' +
       '</div>';
     document.body.insertBefore(bar, document.body.firstChild);
 
