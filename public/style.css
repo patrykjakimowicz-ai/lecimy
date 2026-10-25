@@ -1818,13 +1818,13 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   font-size: var(--fs-base);
 }
 
-/* Cards grid - 3 pakiety */
+/* Cards grid - 2 pakiety (PRO ukryte w index.html) */
 .pricing__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--sp-lg);
   align-items: stretch;
-  max-width: 1140px;
+  max-width: 800px;
   margin-inline: auto;
   margin-top: var(--sp-xl);
   position: relative;
