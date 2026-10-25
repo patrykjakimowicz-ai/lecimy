@@ -1,5 +1,5 @@
 /* ================================================
-   INNER CIRCLE — STYLE SHEET
+   INNER CIRCLE - STYLE SHEET
    Sekcje: Tokens → Reset → Base → Layout → Nav →
            Hero → Stats → Video → Benefits → Features →
            Testimonials → Pricing → FAQ → CTA → Footer
@@ -89,7 +89,7 @@ body {
   touch-action: pan-y;
 }
 
-/* ── Cursor follower — desktop only ───────────── */
+/* ── Cursor follower - desktop only ───────────── */
 .cursor-glow {
   display: none;
 }
@@ -219,7 +219,7 @@ section { padding-block: 2rem; }
 .btn--lg { padding: 1em 2.5em; font-size: 1rem; }
 .btn--full { width: 100%; justify-content: center; }
 
-/* ── ANIMATION — REVEAL SYSTEM ────────────────── */
+/* ── ANIMATION - REVEAL SYSTEM ────────────────── */
 /*
   Elementy z [data-reveal] startują ukryte.
   JS (IntersectionObserver) dodaje klasę .is-visible gdy wchodzą w viewport.
@@ -308,7 +308,7 @@ section { padding-block: 2rem; }
   margin-inline: auto;
 }
 
-/* Tekst obok zdjęcia — ukryty na mobile */
+/* Tekst obok zdjęcia - ukryty na mobile */
 .hero__text {
   display: none;
 }
@@ -406,7 +406,7 @@ section { padding-block: 2rem; }
   box-shadow: 0 0 25px rgba(232,120,12,0.5), 0 0 60px rgba(232,120,12,0.2);
 }
 
-/* ── HERO SMALL PHONE — twarz wyżej w kadrze ──────── */
+/* ── HERO SMALL PHONE - twarz wyżej w kadrze ──────── */
 @media (max-width: 430px) {
   .hero__photo {
     min-height: 680px;
@@ -417,7 +417,7 @@ section { padding-block: 2rem; }
   }
 }
 
-/* ── HERO DESKTOP — tekst po lewej, zdjęcie po prawej ── */
+/* ── HERO DESKTOP - tekst po lewej, zdjęcie po prawej ── */
 @media (min-width: 769px) {
   .hero {
     display: grid;
@@ -452,7 +452,7 @@ section { padding-block: 2rem; }
     will-change: transform;
     transform: translateZ(0);
   }
-  /* Bez nakładki z tekstem gradient nie musi być pomarańczowy — dół zdjęcia płynnie gaśnie w czerń */
+  /* Bez nakładki z tekstem gradient nie musi być pomarańczowy - dół zdjęcia płynnie gaśnie w czerń */
   .hero__gradient {
     inset: -1px; /* przykrywa wygładzoną krawędź zdjęcia w zaokrąglonych rogach */
     background: linear-gradient(
@@ -468,7 +468,7 @@ section { padding-block: 2rem; }
     height: auto;
     aspect-ratio: 3 / 4;
     min-height: 0;
-    /* Zaokrąglenie na samym zdjęciu — na warstwie GPU sam overflow karty potrafi zostawić jasny róg */
+    /* Zaokrąglenie na samym zdjęciu - na warstwie GPU sam overflow karty potrafi zostawić jasny róg */
     border-radius: inherit;
     clip-path: inset(0 round 24px);
     object-fit: cover;
@@ -476,8 +476,8 @@ section { padding-block: 2rem; }
   }
 }
 
-/* ── HERO DESKTOP — animowane tło: szary „ethereal shadow” za mgłą ──
-   Efekt filtra SVG nagrany raz jako pętla wideo (fx/shadow-loop.mp4) — dekoduje go karta
+/* ── HERO DESKTOP - animowane tło: szary „ethereal shadow” za mgłą ──
+   Efekt filtra SVG nagrany raz jako pętla wideo (fx/shadow-loop.mp4) - dekoduje go karta
    graficzna, więc jest płynnie także w Safari. Odtwarzanie steruje hero-shadow.js. */
 .hero__bg { display: none; }
 
@@ -501,7 +501,7 @@ section { padding-block: 2rem; }
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: fill; /* zanikanie góra/dół jest wypalone w wideo — nie może być przycięte */
+    object-fit: fill; /* zanikanie góra/dół jest wypalone w wideo - nie może być przycięte */
     opacity: 0.6;
   }
   .hero__noise {
@@ -628,7 +628,7 @@ section { padding-block: 2rem; }
   transform: translate(-50%, -50%) scale(1.1);
 }
 
-/* ── ALLACCESS — paszport do transformacji ─────── */
+/* ── ALLACCESS - paszport do transformacji ─────── */
 .allaccess {
   position: relative;
   overflow: hidden;
@@ -1111,7 +1111,7 @@ section { padding-block: 2rem; }
   background: var(--clr-gold);
   opacity: 0.9;
   transition: transform var(--dur-base) var(--ease-out), opacity var(--dur-base);
-  /* ANIMACJA: pulse ring — dodasz przez ::after z animation */
+  /* ANIMACJA: pulse ring - dodasz przez ::after z animation */
 }
 .video-thumb:hover .video-thumb__play::before {
   transform: scale(1.1);
@@ -1325,7 +1325,7 @@ section { padding-block: 2rem; }
   line-height: 1.35;
 }
 
-/* ── FOR WHO — hub layout ─────────────────────── */
+/* ── FOR WHO - hub layout ─────────────────────── */
 .for-who {
   padding-block: var(--sp-2xl);
   border-top: 1px solid var(--clr-border);
@@ -1818,7 +1818,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   font-size: var(--fs-base);
 }
 
-/* Cards grid — 3 pakiety */
+/* Cards grid - 3 pakiety */
 .pricing__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1837,7 +1837,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 }
 .pricing__grid > .pricing-card > .pricing-card__body { flex: 1; }
 
-/* Outer card — the "shell" */
+/* Outer card - the "shell" */
 .pricing-card {
   --pricing-scale: 1;
   position: relative;
@@ -1864,7 +1864,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
     0 0 120px rgba(232,120,12,0.1);
 }
 
-/* Smooth staggered entrance — each card fades/rises/unblurs in with a slight cascade */
+/* Smooth staggered entrance - each card fades/rises/unblurs in with a slight cascade */
 .pricing-card[data-reveal] {
   opacity: 0;
   transform: translateY(28px) scale(calc(var(--pricing-scale) * 0.96));
@@ -1881,7 +1881,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   filter: blur(0);
 }
 
-/* Inner header — glass card */
+/* Inner header - glass card */
 .pricing-card__head {
   position: relative;
   background:
@@ -1999,7 +1999,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   z-index: 1;
 }
 
-/* CTA button — gradient with depth */
+/* CTA button - gradient with depth */
 .btn--pricing {
   display: block;
   width: 100%;
@@ -2029,7 +2029,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   transform: translateY(-2px);
 }
 
-/* Body — features section */
+/* Body - features section */
 .pricing-card__body {
   padding: var(--sp-sm) var(--sp-sm) var(--sp-xs);
   display: flex;
@@ -2087,12 +2087,12 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   padding-top: var(--sp-xs);
 }
 
-/* Elementy niedostępne w pakiecie — kontrast straty */
+/* Elementy niedostępne w pakiecie - kontrast straty */
 .pricing-card__features li strong { color: var(--clr-text); font-weight: 600; }
 .pricing-card__features li.is-off { color: rgba(255,255,255,0.38); }
 .pricing-card__features li.is-off svg { color: #f87171; opacity: 0.75; }
 
-/* ── Pakiet BAZA — stonowany ── */
+/* ── Pakiet BAZA - stonowany ── */
 .pricing-card--base .pricing-card__head { border-top-color: rgba(255,255,255,0.1); }
 .pricing-card--base .pricing-card__head-glow,
 .pricing-card--base .pricing-card__price-glow { opacity: 0.4; }
@@ -2112,7 +2112,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   box-shadow: 0 1px 0 0 rgba(255,255,255,0.1) inset, 0 10px 30px rgba(0,0,0,0.35);
 }
 
-/* ── Pakiet PEŁNY — bestseller ── */
+/* ── Pakiet PEŁNY - bestseller ── */
 .pricing-card--featured {
   --pricing-scale: 1.04;
   border-color: rgba(232,120,12,0.45);
@@ -2139,7 +2139,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   background: radial-gradient(ellipse at center, rgba(232,120,12,0.22), transparent 70%);
 }
 
-/* ── Pakiet VIP — fioletowy, elitarny ── */
+/* ── Pakiet VIP - fioletowy, elitarny ── */
 .pricing-card__limit {
   display: inline-block;
   padding: 0.35em 1em;
@@ -2367,7 +2367,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 .footer__bottom { padding-top: var(--sp-md); text-align: center; }
 .footer__bottom p { font-size: var(--fs-xs); }
 
-/* ── LOGIN BANNER — "Masz już konto?" ─────────── */
+/* ── LOGIN BANNER - "Masz już konto?" ─────────── */
 .login-banner { padding-block: 0 var(--sp-2xl); }
 .login-banner__box {
   display: flex;
@@ -2566,7 +2566,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   margin-bottom: var(--sp-sm);
 }
 
-/* Package picker — radio "cards" */
+/* Package picker - radio "cards" */
 .order-packages {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -2594,7 +2594,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   background: linear-gradient(180deg, rgba(232,120,12,0.08), var(--clr-bg-card));
 }
 
-/* Order bump — Masterclass Wdrożeniowy */
+/* Order bump - Masterclass Wdrożeniowy */
 .order-bump {
   border: 1.5px dashed rgba(232, 120, 12, 0.5);
   border-radius: var(--radius-lg);
@@ -2775,7 +2775,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 }
 
 /* ================================================
-   AUTH — LOGOWANIE / RESET HASŁA
+   AUTH - LOGOWANIE / RESET HASŁA
    ================================================ */
 .auth {
   min-height: 100vh;
@@ -2847,7 +2847,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 .auth__back:hover { color: var(--clr-text); }
 
 /* ================================================
-   LMS — PANEL PROGRAMU
+   LMS - PANEL PROGRAMU
    ================================================ */
 .lms {
   min-height: 100vh;
@@ -3073,7 +3073,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
 
 /* ── Metody płatności w stopce (wymóg weryfikacji Przelewy24) ── */
 .footer__payments { padding-block: var(--sp-md); text-align: center; border-top: 1px solid var(--clr-border); }
-/* Oficjalny baner Przelewy24 ma białe tło — dajemy mu jasną, zaokrągloną ramkę. */
+/* Oficjalny baner Przelewy24 ma białe tło - dajemy mu jasną, zaokrągloną ramkę. */
 .footer__payments-img { display: block; width: min(300px, 100%); height: auto; margin-inline: auto; background: #fff; border-radius: 10px; }
 .footer--mini { margin-top: var(--sp-lg); }
 .footer--mini .footer__bottom a { color: var(--clr-text-muted); text-decoration: underline; }
@@ -3089,7 +3089,7 @@ blockquote::before { content: open-quote; color: var(--clr-gold); }
   .hero__overlay-content { gap: var(--sp-sm); padding-bottom: var(--sp-md); }
 }
 
-/* Funkcje wyłączone przełącznikiem (np. rabat marketingowy) — atrybut hidden ma wygrywać ze stylami komponentów */
+/* Funkcje wyłączone przełącznikiem (np. rabat marketingowy) - atrybut hidden ma wygrywać ze stylami komponentów */
 [data-marketing-feature][hidden] { display: none !important; }
 
 /* Zamówienie: notatki pod podsumowaniem i dane do faktury */
@@ -3272,7 +3272,7 @@ body.has-countdown { --bar-h: 66px; }
 .pro-timer.is-expired { background: rgba(110,14,8,.9); }
 
 
-/* Klarna: 3 raty 0% / 30 dni — cennik i zamówienie */
+/* Klarna: 3 raty 0% / 30 dni - cennik i zamówienie */
 .klarna-tag { flex-shrink: 0; display: inline-flex; align-items: center; padding: 0.3em 0.7em; border-radius: 6px; background: #ffa8cd; color: #0b051d; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.01em; line-height: 1; }
 .pricing-card__installments { display: flex; align-items: center; gap: 0.6rem; margin: 0.6rem 0 0.2rem; padding: 0.55rem 0.75rem; border: 1px solid rgba(255,168,205,0.35); border-radius: var(--radius-md); background: rgba(255,168,205,0.07); color: var(--clr-text); text-align: left; position: relative; z-index: 1; transition: border-color var(--dur-fast), background var(--dur-fast); }
 .pricing-card__installments:hover { border-color: rgba(255,168,205,0.7); background: rgba(255,168,205,0.12); }

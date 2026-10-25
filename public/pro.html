@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lecimy po swoje PRO - zgłoszenie</title>
+  <meta name="description" content="Sprawdź, czy kwalifikujesz się do programu Lecimy po swoje PRO. Ankieta zajmie Ci 2 minuty." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <style>
+    @font-face {
+      font-family: 'SF Pro Text';
+      src: local('SF Pro Text Medium'), url('/Library/Fonts/SF-Pro-Text-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+  <script src="tracking.js"></script>
+  <!-- Analityka bez cookies (Plausible) - nie wymaga zgody, więc nie ma banera -->
+  <script async src="https://plausible.io/js/pa-FJmUPwUSueTUbwNQCrnvE.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
+  <style>
+    .q { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+    .q__top { padding: 22px 16px 0; display: flex; justify-content: center; }
+    .q__top img { height: 26px; width: auto; }
+    .q__main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 32px 16px 48px; }
+    .q__box { width: 100%; max-width: 640px; }
+    .q__box--center { text-align: center; max-width: 680px; }
+
+    .q__eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .3em; color: var(--clr-gold); text-transform: uppercase; margin-bottom: 1.5rem; }
+    .q__hero { font-size: clamp(2rem, 6vw, 3.25rem); font-weight: 800; line-height: 1.08; }
+    .q__hero em { font-style: normal; color: var(--clr-gold); }
+    .q__lead { margin: 1.5rem auto 0; max-width: 560px; font-size: 1.05rem; line-height: 1.55; }
+    .q__start { margin-top: 2.5rem; }
+    .q__note { margin-top: .9rem; font-size: .85rem; color: #8a8a8a; }
+
+    .q__progress { margin-bottom: 2.5rem; }
+    .q__progress-meta { display: flex; justify-content: space-between; font-size: .75rem; color: #8a8a8a; margin-bottom: .5rem; letter-spacing: .04em; }
+    .q__bar { height: 6px; border-radius: 99px; background: #1c1c1c; overflow: hidden; }
+    .q__bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--clr-gold), var(--clr-gold-light)); border-radius: 99px; transition: width .5s var(--ease-out); }
+
+    .q__title { font-size: clamp(1.45rem, 4vw, 1.9rem); font-weight: 700; line-height: 1.2; }
+    .q__sub { margin-top: .75rem; color: #a3a3a3; }
+    .q__opts { margin-top: 2rem; display: flex; flex-direction: column; gap: .75rem; }
+    .q__opt { display: flex; align-items: center; gap: .85rem; width: 100%; text-align: left; padding: 1rem 1.25rem; border-radius: 14px; border: 1px solid var(--clr-border); background: var(--clr-bg-card); color: #e5e5e5; font-size: 1rem; line-height: 1.35; transition: border-color var(--dur-fast), background var(--dur-fast); }
+    .q__opt:hover { border-color: rgba(232,120,12,.6); }
+    .q__opt::before { content: ''; width: 12px; height: 12px; flex-shrink: 0; border-radius: 50%; background: #3a3a3a; transition: background var(--dur-fast); }
+    .q__opt--multi::before { border-radius: 3px; }
+    .q__opt.is-active { border-color: var(--clr-gold); background: rgba(232,120,12,.1); color: #fff; }
+    .q__opt.is-active::before { background: var(--clr-gold); }
+
+    .q__scale { margin-top: 2rem; display: grid; grid-template-columns: repeat(10, 1fr); gap: .5rem; }
+    .q__scale button { padding: 1rem 0; border-radius: 12px; border: 1px solid var(--clr-border); background: var(--clr-bg-card); font-size: 1.1rem; font-weight: 700; transition: border-color var(--dur-fast), background var(--dur-fast); }
+    .q__scale button:hover { border-color: rgba(232,120,12,.6); }
+    .q__scale button.is-active { background: var(--clr-gold); border-color: var(--clr-gold); color: #0d0d0d; }
+    .q__scale-legend { display: flex; justify-content: space-between; margin-top: .5rem; font-size: .75rem; color: #8a8a8a; }
+    @media (max-width: 560px) { .q__scale { grid-template-columns: repeat(5, 1fr); } }
+
+    .q__field { margin-top: 1rem; display: flex; flex-direction: column; gap: 6px; }
+    .q__field label { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: #a3a3a3; font-weight: 600; }
+    .q__input, .q__textarea, .q__select { width: 100%; background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 12px; padding: .85rem 1rem; font: inherit; font-size: 1rem; color: #fff; transition: border-color var(--dur-fast); }
+    .q__input:focus, .q__textarea:focus, .q__select:focus { outline: none; border-color: var(--clr-gold); }
+    .q__input.is-invalid { border-color: #ef4444; }
+    .q__textarea { margin-top: 2rem; min-height: 150px; resize: vertical; line-height: 1.5; }
+    .q__count { margin-top: .5rem; font-size: .75rem; color: #8a8a8a; }
+    .q__count.is-ok { color: #4ade80; }
+    .q__grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+    @media (max-width: 560px) { .q__grid2 { grid-template-columns: 1fr; } }
+    .q__phone { display: flex; gap: .5rem; }
+    .q__phone .q__select { width: auto; flex-shrink: 0; padding-right: .5rem; }
+    .q__err { font-size: .75rem; color: #f87171; }
+    .q__consent { margin-top: 1.25rem; display: flex; gap: .75rem; align-items: flex-start; font-size: .88rem; line-height: 1.5; color: #a3a3a3; cursor: pointer; }
+    .q__consent input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--clr-gold); flex-shrink: 0; }
+    .q__consent a { color: var(--clr-gold); text-decoration: underline; text-underline-offset: 2px; }
+
+    .q__nav { margin-top: 2.5rem; display: flex; align-items: center; gap: 1rem; }
+    .q__back { font-size: .9rem; color: #8a8a8a; transition: color var(--dur-fast); }
+    .q__back:hover { color: #fff; }
+    .q__next { margin-left: auto; }
+    .q .btn[disabled] { opacity: .3; cursor: not-allowed; transform: none; box-shadow: none; }
+    .q__status { margin-top: 1rem; padding: .75rem 1rem; border-radius: 10px; background: rgba(220,38,38,.1); border: 1px solid rgba(220,38,38,.4); font-size: .9rem; color: #fff; }
+    .q__status[hidden] { display: none; }
+
+    .q__step { animation: qIn .35s var(--ease-out); }
+    @keyframes qIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .q__step { animation: none; } .q__bar span { transition: none; } }
+  </style>
+</head>
+<body>
+  <div class="q">
+    <header class="q__top"><a href="index.html"><img src="brand_assets/logo.png" alt="Lecimy po swoje" /></a></header>
+    <main class="q__main"><div class="q__box" id="app"></div></main>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+    // Lokalnie ten sam host, na produkcji backend na Render (jak w zamowienie.html).
+    var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://lecimy-xlxt.onrender.com';
+    var STEPS = 9;
+    var STORE = 'lps_pro_ankieta';
+
+    // Te same napisy co SURVEY w server/crm.mjs - serwer przyjmuje tylko wartości z tych list.
+    var OPT = {
+      wiek: ['poniżej 18', '18-24', '25-34', '35-44', '45+'],
+      zajecie: ['etat', 'własna firma', 'studia', 'nie pracuję', 'inne'],
+      blokady: ['brak dyscypliny i prokrastynacja', 'brak energii i radości z życia', 'finanse i stres o pieniądze', 'lęki, niepewność, blokady w głowie', 'złe otoczenie i relacje', 'brak sensu i kierunku'],
+      budzet: ['tak, mam środki', 'tak, w ratach', 'wolę tańszą opcję samodzielną', 'nie stać mnie teraz'],
+      start: ['od zaraz', 'w ciągu miesiąca', 'dopiero się rozglądam']
+    };
+    var COUNTRIES = [['PL', '+48'], ['DE', '+49'], ['GB', '+44'], ['NL', '+31'], ['IE', '+353'], ['NO', '+47'], ['SE', '+46'], ['BE', '+32'], ['FR', '+33'], ['ES', '+34'], ['IT', '+39'], ['CZ', '+420'], ['UA', '+380'], ['US', '+1']];
+
+    function load() {
+      try { var s = JSON.parse(sessionStorage.getItem(STORE)); if (s && /^[0-9a-f]{64}$/.test(s.token)) return s; } catch (e) { /* prywatne okno */ }
+      var bytes = new Uint8Array(32);
+      crypto.getRandomValues(bytes);
+      var token = Array.prototype.map.call(bytes, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+      return { token: token, step: 0, odp: { blokady: [] }, kontakt: { kraj: '+48' } };
+    }
+    var S = load();
+    function persist() { try { sessionStorage.setItem(STORE, JSON.stringify(S)); } catch (e) { /* bez zapisu */ } }
+
+    function zrodlo() {
+      var z = window.lecimyAttribution ? window.lecimyAttribution() : {};
+      if (document.referrer && document.referrer.indexOf(location.host) === -1) z.referrer = document.referrer;
+      return z;
+    }
+    function post(path, body) {
+      return fetch(API_BASE + path, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j.httpOk = r.ok; return j; }); });
+    }
+    // Zapis postępu w tle - porzucone ankiety też trafiają do CRM. Błąd sieci nie przerywa ankiety.
+    function saveProgress(krok) {
+      post('/api/lead/progress', { token: S.token, krok: krok, odpowiedzi: S.odp, zrodlo: zrodlo() }).catch(function () {});
+    }
+
+    var app = document.getElementById('app');
+    function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+    function go(step) {
+      S.step = step;
+      persist();
+      render();
+      window.scrollTo(0, 0);
+    }
+    function next(krok) { saveProgress(krok); go(krok + 1); }
+
+    function progress(n) {
+      var pct = Math.round(n / STEPS * 100);
+      return '<div class="q__progress"><div class="q__progress-meta"><span>Krok ' + n + '/' + STEPS + '</span><span>' + pct + '%</span></div>' +
+        '<div class="q__bar"><span style="width:' + pct + '%"></span></div></div>';
+    }
+    function navRow(n, nextBtn) {
+      return '<div class="q__nav">' + (n > 1 ? '<button type="button" class="q__back" data-back>← Wstecz</button>' : '') +
+        (nextBtn || '') + '</div>';
+    }
+
+    function single(n, key, title) {
+      return progress(n) + '<h1 class="q__title">' + title + '</h1><div class="q__opts">' +
+        OPT[key].map(function (o) {
+          return '<button type="button" class="q__opt' + (S.odp[key] === o ? ' is-active' : '') + '" data-single="' + key + '" data-val="' + esc(o) + '">' + esc(o) + '</button>';
+        }).join('') + '</div>' + navRow(n);
+    }
+    function text(n, key, title, sub) {
+      var v = S.odp[key] || '';
+      return progress(n) + '<h1 class="q__title">' + title + '</h1>' + (sub ? '<p class="q__sub">' + sub + '</p>' : '') +
+        '<textarea class="q__textarea" data-text="' + key + '" maxlength="2000" placeholder="Napisz szczerze…">' + esc(v) + '</textarea>' +
+        '<p class="q__count" data-count></p>' +
+        navRow(n, '<button type="button" class="btn btn--primary q__next" data-next>Dalej →</button>');
+    }
+
+    var VIEWS = {
+      0: function () {
+        app.className = 'q__box q__box--center';
+        return '<div class="q__eyebrow">Lecimy po swoje PRO</div>' +
+          '<h1 class="q__hero">Sprawdź, czy kwalifikujesz się do <em>Lecimy po swoje PRO</em></h1>' +
+          '<p class="q__lead">To nie jest kolejny kurs. Pracujemy tylko z osobami, które są gotowe wziąć odpowiedzialność za swoje życie. Liczba miejsc jest ograniczona, dlatego każde zgłoszenie przechodzi selekcję. Odpowiadaj szczerze.</p>' +
+          '<button type="button" class="btn btn--primary btn--lg q__start" data-go="1">Lecimy po swoje</button>' +
+          '<p class="q__note">Zajmie Ci to 2 minuty</p>';
+      },
+      1: function () { return single(1, 'wiek', 'Ile masz lat?'); },
+      2: function () { return single(2, 'zajecie', 'Czym się obecnie zajmujesz?'); },
+      3: function () {
+        return progress(3) + '<h1 class="q__title">Co najbardziej blokuje Cię dziś w życiu?</h1><p class="q__sub">Możesz zaznaczyć kilka odpowiedzi.</p><div class="q__opts">' +
+          OPT.blokady.map(function (o) {
+            return '<button type="button" class="q__opt q__opt--multi' + (S.odp.blokady.indexOf(o) > -1 ? ' is-active' : '') + '" data-multi="' + esc(o) + '">' + esc(o) + '</button>';
+          }).join('') + '</div>' +
+          navRow(3, '<button type="button" class="btn btn--primary q__next" data-next' + (S.odp.blokady.length ? '' : ' disabled') + '>Dalej →</button>');
+      },
+      4: function () { return text(4, 'probowal', 'Co już próbowałeś, żeby to zmienić, i dlaczego nie zadziałało?'); },
+      5: function () { return text(5, 'cel', 'Gdzie chcesz być za 6 miesięcy?', 'Opisz konkretnie.'); },
+      6: function () {
+        var b = '';
+        for (var i = 1; i <= 10; i++) b += '<button type="button" class="' + (S.odp.gotowosc === String(i) ? 'is-active' : '') + '" data-single="gotowosc" data-val="' + i + '">' + i + '</button>';
+        return progress(6) + '<h1 class="q__title">Na ile jesteś gotów na zmianę - teraz, nie „kiedyś”?</h1>' +
+          '<div class="q__scale">' + b + '</div><div class="q__scale-legend"><span>wcale</span><span>w 100%</span></div>' + navRow(6);
+      },
+      7: function () { return single(7, 'budzet', 'PRO to inwestycja rzędu 10 000 zł, z możliwością rat. Czy jesteś gotów zainwestować w siebie, jeśli okaże się, że możemy Ci pomóc?'); },
+      8: function () { return single(8, 'start', 'Kiedy chcesz zacząć?'); },
+      9: function () {
+        var k = S.kontakt;
+        function f(id, label, attrs, val) {
+          return '<div class="q__field"><label for="' + id + '">' + label + '</label><input class="q__input" id="' + id + '" ' + attrs + ' value="' + esc(val || '') + '" /><span class="q__err" data-err="' + id + '"></span></div>';
+        }
+        return progress(9) + '<h1 class="q__title">Zostaw dane - oddzwonimy do Ciebie</h1>' +
+          '<form id="contact" novalidate style="margin-top:1.5rem">' +
+          '<div class="q__grid2">' + f('imie', 'Imię', 'maxlength="60" autocomplete="given-name"', k.imie) + f('nazwisko', 'Nazwisko', 'maxlength="80" autocomplete="family-name"', k.nazwisko) + '</div>' +
+          '<div class="q__field"><label for="telefon">Telefon</label><div class="q__phone"><select class="q__select" id="kraj" aria-label="Kierunkowy">' +
+          COUNTRIES.map(function (c) { return '<option value="' + c[1] + '"' + (k.kraj === c[1] ? ' selected' : '') + '>' + c[0] + ' ' + c[1] + '</option>'; }).join('') +
+          '</select><input class="q__input" id="telefon" type="tel" inputmode="tel" maxlength="30" autocomplete="tel-national" placeholder="np. 512 345 678" value="' + esc(k.telefon || '') + '" /></div><span class="q__err" data-err="telefon"></span></div>' +
+          f('email', 'E-mail', 'type="email" maxlength="254" autocomplete="email"', k.email) +
+          f('nick', 'Nick IG lub TikTok (opcjonalnie)', 'maxlength="60" placeholder="@twojnick"', k.nick) +
+          '<label class="q__consent"><input type="checkbox" id="zgoda"' + (k.zgoda ? ' checked' : '') + ' /><span>Akceptuję <a href="regulamin.html" target="_blank" rel="noopener">regulamin</a> i <a href="polityka-prywatnosci.html" target="_blank" rel="noopener">politykę prywatności</a> oraz zgadzam się na kontakt telefoniczny i mailowy w sprawie oferty Lecimy po swoje PRO.</span></label>' +
+          '<span class="q__err" data-err="zgoda"></span>' +
+          '<div class="q__status" id="status" hidden></div>' +
+          '<button type="submit" class="btn btn--primary btn--lg btn--full" id="send" style="margin-top:1.75rem">Wyślij zgłoszenie</button>' +
+          '</form>' + navRow(9);
+      },
+      done: function () {
+        app.className = 'q__box q__box--center';
+        var pro = S.segment === 'pro';
+        return '<div class="q__eyebrow">Lecimy po swoje</div>' +
+          '<h1 class="q__hero" style="font-size:clamp(1.8rem,5vw,2.6rem)">' + (pro ? 'Gratulacje, przeszedłeś wstępną selekcję.' : 'Dzięki za szczerość.') + '</h1>' +
+          '<p class="q__lead">' + (pro
+            ? 'Zadzwonimy do Ciebie, żeby sprawdzić, czy możemy Ci pomóc. Odbierz telefon - miejsc jest mało.'
+            : 'PRO to dziś nie jest Twój etap, ale możesz zacząć od programu Lecimy po swoje i zbudować fundamenty samodzielnie.') + '</p>' +
+          (pro ? '' : '<a href="index.html#pricing" class="btn btn--primary btn--lg q__start">Zobacz program</a>');
+      }
+    };
+
+    function render() {
+      app.className = 'q__box';
+      var html = VIEWS[S.step]();
+      app.innerHTML = '<div class="q__step">' + html + '</div>';
+      var ta = app.querySelector('[data-text]');
+      if (ta) { updateCount(ta); ta.focus(); }
+    }
+    function updateCount(ta) {
+      var n = ta.value.trim().length;
+      var c = app.querySelector('[data-count]');
+      c.textContent = n < 20 ? 'Minimum 20 znaków (' + n + '/20)' : '✓';
+      c.classList.toggle('is-ok', n >= 20);
+      app.querySelector('[data-next]').disabled = n < 20;
+    }
+
+    app.addEventListener('click', function (e) {
+      var t = e.target.closest('button, [data-go]');
+      if (!t) return;
+      if (t.hasAttribute('data-go')) return go(Number(t.getAttribute('data-go')));
+      if (t.hasAttribute('data-back')) return go(Math.max(1, S.step - 1));
+      if (t.hasAttribute('data-single')) {
+        S.odp[t.getAttribute('data-single')] = t.getAttribute('data-val');
+        t.parentNode.querySelectorAll('.is-active').forEach(function (b) { b.classList.remove('is-active'); });
+        t.classList.add('is-active');
+        var step = S.step;
+        persist();
+        setTimeout(function () { if (S.step === step) next(step); }, 180);
+        return;
+      }
+      if (t.hasAttribute('data-multi')) {
+        var v = t.getAttribute('data-multi');
+        var i = S.odp.blokady.indexOf(v);
+        if (i > -1) S.odp.blokady.splice(i, 1); else S.odp.blokady.push(v);
+        t.classList.toggle('is-active', i === -1);
+        app.querySelector('[data-next]').disabled = !S.odp.blokady.length;
+        persist();
+        return;
+      }
+      if (t.hasAttribute('data-next') && !t.disabled) next(S.step);
+    });
+    app.addEventListener('input', function (e) {
+      if (e.target.hasAttribute('data-text')) {
+        S.odp[e.target.getAttribute('data-text')] = e.target.value;
+        persist();
+        updateCount(e.target);
+      } else if (S.step === 9) {
+        readContact();
+        var err = app.querySelector('[data-err="' + e.target.id + '"]');
+        if (err) err.textContent = '';
+        e.target.classList.remove('is-invalid');
+      }
+    });
+    app.addEventListener('change', function () { if (S.step === 9) readContact(); });
+
+    function readContact() {
+      var g = function (id) { return document.getElementById(id); };
+      S.kontakt = { imie: g('imie').value, nazwisko: g('nazwisko').value, kraj: g('kraj').value, telefon: g('telefon').value, email: g('email').value, nick: g('nick').value, zgoda: g('zgoda').checked };
+      persist();
+    }
+    // Numer w formacie międzynarodowym: +48512345678. Wpisany z „+" lub „00" - zostaje jak jest.
+    function fullPhone(kraj, raw) {
+      var v = String(raw || '').replace(/[\s().-]/g, '');
+      if (/^00\d/.test(v)) v = '+' + v.slice(2);
+      if (v.charAt(0) !== '+') v = kraj + v.replace(/^0+/, '');
+      return v;
+    }
+
+    app.addEventListener('submit', function (e) {
+      e.preventDefault();
+      readContact();
+      var k = S.kontakt;
+      var errs = {};
+      var phone = fullPhone(k.kraj, k.telefon);
+      if (k.imie.trim().length < 2) errs.imie = 'Podaj imię';
+      if (k.nazwisko.trim().length < 2) errs.nazwisko = 'Podaj nazwisko';
+      if (!/^\+\d{8,15}$/.test(phone) || (k.kraj === '+48' && phone.indexOf('+48') === 0 && phone.length !== 12)) errs.telefon = 'Podaj poprawny numer telefonu';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(k.email.trim())) errs.email = 'Podaj poprawny e-mail';
+      if (!k.zgoda) errs.zgoda = 'Zaznacz zgodę';
+      app.querySelectorAll('[data-err]').forEach(function (el) {
+        var id = el.getAttribute('data-err');
+        el.textContent = errs[id] || '';
+        var input = document.getElementById(id);
+        if (input && input.classList.contains('q__input')) input.classList.toggle('is-invalid', !!errs[id]);
+      });
+      if (Object.keys(errs).length) return;
+
+      var btn = document.getElementById('send');
+      var status = document.getElementById('status');
+      btn.disabled = true;
+      btn.textContent = 'Wysyłam…';
+      status.hidden = true;
+      post('/api/lead/submit', {
+        token: S.token,
+        odpowiedzi: S.odp,
+        kontakt: { imie: k.imie.trim(), nazwisko: k.nazwisko.trim(), telefon: phone, email: k.email.trim(), nick: k.nick.trim() || null },
+        zgoda: true,
+        zrodlo: zrodlo()
+      }).then(function (r) {
+        if (!r.httpOk || !r.ok) throw new Error(r.error || 'Nie udało się wysłać formularza. Spróbuj ponownie.');
+        if (window.plausible) try { window.plausible('Zgłoszenie PRO', { props: { segment: r.segment } }); } catch (x) { /* analityka */ }
+        S.segment = r.segment;
+        try { sessionStorage.removeItem(STORE); } catch (x) { /* bez zapisu */ }
+        S.step = 'done';
+        render();
+        window.scrollTo(0, 0);
+      }).catch(function (err) {
+        status.textContent = err && err.message && err.message !== 'Failed to fetch' ? err.message : 'Nie udało się wysłać formularza. Sprawdź internet i spróbuj ponownie.';
+        status.hidden = false;
+        btn.disabled = false;
+        btn.textContent = 'Wyślij zgłoszenie';
+      });
+    });
+
+    if (S.step === 'done' || !VIEWS[S.step]) S.step = 0;
+    render();
+  })();
+  </script>
+</body>
+</html>

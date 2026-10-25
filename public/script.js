@@ -1,12 +1,12 @@
 /* ================================================
-   INNER CIRCLE — SCRIPT.JS
+   INNER CIRCLE - SCRIPT.JS
    Moduły: Smooth scroll → Nav → Reveal → Parallax →
            Counters → Video → Slider → Pricing Toggle → FAQ
    ================================================ */
 
 'use strict';
 
-/* ── 0. SMOOTH SCROLL — Lenis ────────────────────
+/* ── 0. SMOOTH SCROLL - Lenis ────────────────────
    Inercyjny, wygładzony scroll (jak w Framer/Lenis).
    Podpina się też pod linki kotwiczące (href="#...").
    ------------------------------------------------ */
@@ -42,7 +42,7 @@ function initSmoothScroll() {
   return lenis;
 }
 
-/* ── 1. NAV — sticky z blur po scrollu ──────────
+/* ── 1. NAV - sticky z blur po scrollu ──────────
    Dodaje klasę .scrolled gdy strona przekroczy 80px.
    CSS obsługuje animację tła/blur (transition).
    ------------------------------------------------ */
@@ -56,7 +56,7 @@ window.addEventListener('scroll', updateNav, { passive: true });
 updateNav();
 
 
-/* ── 2. REVEAL — IntersectionObserver ───────────
+/* ── 2. REVEAL - IntersectionObserver ───────────
    Każdy element [data-reveal] wchodzi z fade+slide
    gdy 15% powierzchni jest widoczne.
    Opcjonalne data-delay="NNN" (ms) opóźnia transition.
@@ -91,7 +91,7 @@ function initReveal() {
 }
 
 
-/* ── 3. PARALLAX — hero background ──────────────
+/* ── 3. PARALLAX - hero background ──────────────
    Element [data-parallax] przesuwa się 0.4× wolniej niż scroll.
    requestAnimationFrame zapobiega jankowaniu.
    ------------------------------------------------ */
@@ -115,7 +115,7 @@ function initParallax() {
 }
 
 
-/* ── 4. COUNTER ANIMATION — statystyki ──────────
+/* ── 4. COUNTER ANIMATION - statystyki ──────────
    Gdy stats__num wchodzi w viewport, liczba "odlicza"
    od 0 do wartości data-count przez 1.5s.
    ------------------------------------------------ */
@@ -284,7 +284,7 @@ function initSlider() {
 
 
 
-/* ── 8. FAQ — smooth accordion height ───────────
+/* ── 8. FAQ - smooth accordion height ───────────
    Natywny <details> działa, ale animacja zamknięcia
    nie jest obsługiwana przez przeglądarkę.
    Tu: JS animuje max-height dla płynnego close.
@@ -314,7 +314,7 @@ function initFAQ() {
 }
 
 
-/* ── 9. ABOUT VIDEO — lazy YouTube embed ─────────
+/* ── 9. ABOUT VIDEO - lazy YouTube embed ─────────
    Klik na thumbnail → zamienia na iframe.
    Obchodzi błąd 153 na plikach lokalnych (file://).
    ------------------------------------------------ */
@@ -337,7 +337,7 @@ function initAboutVideo() {
 }
 
 
-/* ── 10. CURSOR DOT — kółko podąża za kursorem ── */
+/* ── 10. CURSOR DOT - kółko podąża za kursorem ── */
 function initCursorGlow() {
   const dot = document.getElementById('cursorGlow');
   if (!dot || window.matchMedia('(max-width: 768px)').matches) return;
@@ -375,7 +375,7 @@ function initCursorGlow() {
 }
 
 
-/* ── 11. JOURNEY TIMELINE — scroll-fill line + step reveal + confetti ── */
+/* ── 11. JOURNEY TIMELINE - scroll-fill line + step reveal + confetti ── */
 function initJourney() {
   const timeline = document.getElementById('journeyTimeline');
   const line = document.getElementById('journeyLine');
@@ -472,7 +472,7 @@ function fireConfetti(origin) {
 }
 
 
-/* ── 12. FOR-WHO LINES — dynamic angle + length ── */
+/* ── 12. FOR-WHO LINES - dynamic angle + length ── */
 function initForWhoLines() {
   const hub = document.querySelector('.for-who__hub');
   if (!hub) return;

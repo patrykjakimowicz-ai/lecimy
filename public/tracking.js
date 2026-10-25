@@ -1,11 +1,11 @@
 /* ============================================================
-   Pomiar ruchu i konwersji — bez cookies, bez zgód
+   Pomiar ruchu i konwersji - bez cookies, bez zgód
    ------------------------------------------------------------
    - Analityka: Plausible (skrypt w <head> każdej strony; nie zapisuje
      nic na urządzeniu użytkownika).
    - Atrybucja UTM: parametry z adresu (utm_*, ttclid, fbclid, gclid)
      są przenoszone w linkach do zamówienia i zapisywane przy zamówieniu
-     na serwerze — dzięki temu wiadomo, z jakiego źródła przyszła sprzedaż.
+     na serwerze - dzięki temu wiadomo, z jakiego źródła przyszła sprzedaż.
    - Zdarzenia: lecimyTrack('begin_checkout' | 'purchase', {...}) → Plausible.
    ============================================================ */
 (function () {

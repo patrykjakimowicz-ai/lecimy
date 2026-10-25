@@ -129,3 +129,19 @@ PRO nie jest w publicznym formularzu. Po rozmowie kwalifikacyjnej wysyłasz klie
    (opcjonalnie `--godziny 168` = 7 dni, domyślnie 24; regulamin: min. 24 godziny).
 3. Wyślij link mailem razem z ofertą: zakres PRO, cena brutto, termin ważności (regulamin pkt 3).
 4. Link działa tylko z tym adresem e-mail, ceny nie da się zmienić. Zmiana sekretu unieważnia wszystkie wysłane linki.
+
+---
+
+# CRM leadów PRO (ankieta `pro.html` + panel `crm.html`)
+
+- Ankieta: `https://lecimyposwoje.pl/pro`, panel: `https://lecimyposwoje.pl/crm`. Oba pliki leżą w `public/`, więc wchodzą
+  na Cloudflare razem z resztą strony. Backend (Render) przyjmuje odpowiedzi: `/api/lead/*` i `/api/crm/*` (`server/crm.mjs`).
+- **Przed pierwszym użyciem** uruchom w Supabase (SQL Editor) fragment `create table ... public.leads` z końca
+  `server/supabase-schema.sql`. Bez tej tabeli zapis zgłoszeń zwraca błąd.
+- Logowanie do panelu: hasła z `PRO_SELLERS` (te same co w generatorze ofert PRO). Sesja jest podpisana kluczem `PRO_OFFER_SECRET`,
+  więc jego zmiana wylogowuje wszystkich.
+- Powiadomienie o nowym zgłoszeniu przychodzi na `OWNER_EMAIL` (link otwiera kartę leada w panelu).
+- Ankieta zapisuje odpowiedzi po każdym kroku, więc porzucone zgłoszenia też widać w panelu (filtr „Niedokończone ankiety").
+- Leady ze starego CRM (Lovable): panel → zakładka **Stary CRM** → „Importuj CSV" (eksport z Lovable, separator `;`).
+  Import trzeba zrobić na produkcji (lecimyposwoje.pl/crm) - import na localhost trafia tylko do pliku lokalnego.
+  Ponowny import tego samego pliku pomija istniejące leady i nie nadpisuje zmian z panelu.

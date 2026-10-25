@@ -1,12 +1,12 @@
 -- Zabezpieczenie dowodów zgód: tabela public.consents staje się "tylko do dopisywania".
 -- Uruchom w Supabase → SQL Editor DOPIERO PO wyczyszczeniu danych testowych (potem usuwanie wierszy będzie zablokowane).
--- Uwaga: osoba z uprawnieniami administratora bazy może wyłączyć trigger — to utrudnia przypadkowe lub nieuprawnione zmiany,
+-- Uwaga: osoba z uprawnieniami administratora bazy może wyłączyć trigger - to utrudnia przypadkowe lub nieuprawnione zmiany,
 -- ale nie zastępuje kopii zapasowych (cotygodniowy eksport CSV + archiwum_dokumentow/).
 
 create or replace function public.consents_block_changes()
 returns trigger language plpgsql as $$
 begin
-  raise exception 'Tabela consents jest tylko do dopisywania (dowody zgód) — zmiany i usuwanie są zablokowane.';
+  raise exception 'Tabela consents jest tylko do dopisywania (dowody zgód) - zmiany i usuwanie są zablokowane.';
 end;
 $$;
 

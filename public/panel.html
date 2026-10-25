@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Panel programu – Lecimy po swoje</title>
+  <title>Panel programu - Lecimy po swoje</title>
   <meta name="description" content="Panel programu Lecimy po swoje." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
@@ -15,7 +15,7 @@
       font-style: normal;
       font-display: swap;
     }
-    /* Panel jest osobną aplikacją — nie chcemy globalnego tła strony głównej */
+    /* Panel jest osobną aplikacją - nie chcemy globalnego tła strony głównej */
     body { background: var(--clr-bg); }
   </style>
   <link rel="stylesheet" href="style.css" />
@@ -74,18 +74,18 @@
               description: 'Dlaczego motywacja zawodzi i jak zbudować system, który dowozi wyniki nawet w najgorsze dni.',
               video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME',
               materials: [
-                { label: 'Karta pracy — Fundament dyscypliny (PDF)', url: '#' },
+                { label: 'Karta pracy - Fundament dyscypliny (PDF)', url: '#' },
               ],
             },
-            { id: 'd2', title: 'System nawyków krok po kroku', description: 'Budowa nawyków, które utrzymują się same — bez polegania na sile woli.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
-            { id: 'd3', title: 'Radzenie sobie z oporem', description: 'Co robić w dni, kiedy nic się nie chce — konkretny protokół awaryjny.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+            { id: 'd2', title: 'System nawyków krok po kroku', description: 'Budowa nawyków, które utrzymują się same - bez polegania na sile woli.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+            { id: 'd3', title: 'Radzenie sobie z oporem', description: 'Co robić w dni, kiedy nic się nie chce - konkretny protokół awaryjny.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
           ],
         },
         {
           id: 'szczescie',
           title: 'Filar 2: Szczęście',
           lessons: [
-            { id: 's1', title: 'Czym naprawdę jest szczęście', description: 'Odkryj, co realnie daje Ci energię i radość — bez pogoni za iluzją.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
+            { id: 's1', title: 'Czym naprawdę jest szczęście', description: 'Odkryj, co realnie daje Ci energię i radość - bez pogoni za iluzją.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
             { id: 's2', title: 'Praca z emocjami na co dzień', description: 'Proste narzędzia do regulacji emocji w codziennym życiu.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
           ],
         },
@@ -138,7 +138,7 @@
       function saveProgress() {
         try {
           window.localStorage.setItem(progressKey, JSON.stringify(completed));
-        } catch (e) { /* localStorage niedostępny — postęp nie zostanie zapamiętany */ }
+        } catch (e) { /* localStorage niedostępny - postęp nie zostanie zapamiętany */ }
       }
 
       function updateProgressBar() {
@@ -311,7 +311,7 @@
         var ed = window.LECIMY_EDITION;
         var title = state === 'before' ? ed.name + ' rusza ' + ed.startLabel : 'Edycja zakończona';
         var text = state === 'before'
-          ? 'Twoje konto jest gotowe i płatność została zaksięgowana. Materiały programu będą dostępne tutaj od ' + ed.startLabel + ' do ' + ed.endLabel + '. Wróć w dniu startu — czekamy na Ciebie!'
+          ? 'Twoje konto jest gotowe i płatność została zaksięgowana. Materiały programu będą dostępne tutaj od ' + ed.startLabel + ' do ' + ed.endLabel + '. Wróć w dniu startu - czekamy na Ciebie!'
           : 'Dostęp do programu w ramach tej edycji trwał do ' + ed.endLabel + '. Dziękujemy za wspólną pracę! Jeśli chcesz dołączyć do kolejnej edycji, zobacz ofertę.';
         var box = document.createElement('div');
         box.style.cssText = 'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;';
@@ -349,7 +349,7 @@
         window.location.replace('logowanie.html');
       });
 
-      // Jeśli sesja wygaśnie / użytkownik wyloguje się w innej karcie — wyrzuć z panelu
+      // Jeśli sesja wygaśnie / użytkownik wyloguje się w innej karcie - wyrzuć z panelu
       client.auth.onAuthStateChange(function (event) {
         if (event === 'SIGNED_OUT') {
           window.location.replace('logowanie.html');

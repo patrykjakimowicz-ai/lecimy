@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zamówienie – Lecimy po swoje</title>
+  <title>Zamówienie - Lecimy po swoje</title>
   <meta name="description" content="Dokończ zamówienie wybranego pakietu programu Lecimy po swoje." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
@@ -20,7 +20,7 @@
   <script src="tracking.js"></script>
   <script src="edition.js"></script>
   <script src="seats.js"></script>
-  <!-- Analityka bez cookies (Plausible) — nie wymaga zgody, więc nie ma banera -->
+  <!-- Analityka bez cookies (Plausible) - nie wymaga zgody, więc nie ma banera -->
   <script async src="https://plausible.io/js/pa-FJmUPwUSueTUbwNQCrnvE.js"></script>
   <script>
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
@@ -254,7 +254,7 @@
     (function () {
       // Adres backendu (API płatności). Zostaw pusty string, jeśli backend i ta strona
       // stoją na tym samym hoście/domenie. Jeśli strona jest hostowana osobno (np. GoDaddy
-      // shared hosting bez Node.js), a backend na innym serwerze (np. Render/Railway) —
+      // shared hosting bez Node.js), a backend na innym serwerze (np. Render/Railway) -
       // wpisz tu pełny adres backendu, np. 'https://lecimyposwoje-api.onrender.com'.
       var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://lecimy-xlxt.onrender.com';
 
@@ -272,7 +272,7 @@
         document.querySelectorAll('[data-marketing-feature]').forEach(function (el) { el.hidden = false; });
       }
 
-      // Nazwa operatora płatności z backendu (PAYMENT_PROVIDER) — regulamin: operator wskazywany w procesie płatności.
+      // Nazwa operatora płatności z backendu (PAYMENT_PROVIDER) - regulamin: operator wskazywany w procesie płatności.
       var PROVIDER_NAMES = { p24: 'Przelewy24', stripe: 'Stripe' };
       fetch(API_BASE + '/api/health')
         .then(function (r) { return r.ok ? r.json() : null; })
@@ -309,7 +309,7 @@
         note.hidden = false;
         refreshSummary();
 
-        // Licznik personalny do końca oferty. Po czasie blokujemy zakup — serwer i tak odrzuci wygasły link.
+        // Licznik personalny do końca oferty. Po czasie blokujemy zakup - serwer i tak odrzuci wygasły link.
         {
           var timer = document.createElement('div');
           timer.className = 'pro-timer';
@@ -378,7 +378,7 @@
         }
 
         sumTotal.textContent = fmt.format(total) + ' zł';
-        // Klarna (3 raty 0% / 30 dni) tylko dla pakietów z cennika — nie dla indywidualnej oferty PRO.
+        // Klarna (3 raty 0% / 30 dni) tylko dla pakietów z cennika - nie dla indywidualnej oferty PRO.
         document.querySelectorAll('[data-klarna]').forEach(function (el) { el.hidden = !!proOffer; });
         document.querySelectorAll('[data-klarna-rate]').forEach(function (el) {
           el.textContent = '3 × ' + fmtMoney.format(Math.round(total / 3 * 100) / 100) + ' zł';
@@ -490,7 +490,7 @@
 
         if (payload.faktura && !nipValid(payload.faktura.nip)) {
           document.getElementById('fakturaNip').focus();
-          showStatus('Sprawdź numer NIP do faktury — wygląda na nieprawidłowy.', true);
+          showStatus('Sprawdź numer NIP do faktury - wygląda na nieprawidłowy.', true);
           return;
         }
 

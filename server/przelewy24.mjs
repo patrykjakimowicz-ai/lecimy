@@ -22,7 +22,7 @@ function assertConfigured() {
   if (!CRC) missing.push('P24_CRC');
   if (missing.length) {
     throw new Error(
-      `Przelewy24 nie jest skonfigurowane — brakuje w .env: ${missing.join(', ')}. ` +
+      `Przelewy24 nie jest skonfigurowane - brakuje w .env: ${missing.join(', ')}. ` +
       `Zobacz .env.example.`
     );
   }
@@ -32,7 +32,7 @@ function sha384(input) {
   return createHash('sha384').update(input, 'utf8').digest('hex');
 }
 
-// WAŻNE: kolejność kluczy w obiekcie musi być identyczna z dokumentacją P24 —
+// WAŻNE: kolejność kluczy w obiekcie musi być identyczna z dokumentacją P24 -
 // od niej zależy wynik hasha. JS zachowuje kolejność wstawiania kluczy tekstowych,
 // więc wystarczy budować literały obiektów w podanej kolejności.
 function signRegister({ sessionId, amount, currency }) {

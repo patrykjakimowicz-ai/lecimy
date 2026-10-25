@@ -1,7 +1,7 @@
 // Serwer produkcyjny: serwuje statyczną stronę + obsługuje backend płatności (Stripe / Przelewy24).
 //
 // Uruchomienie:  node server/index.mjs   (albo: npm start)
-// Wymaga pliku .env — patrz .env.example.
+// Wymaga pliku .env - patrz .env.example.
 
 import 'dotenv/config';
 import express from 'express';
@@ -21,28 +21,29 @@ import { appendConsent } from './consentLog.mjs';
 import { EDITION } from './edition.mjs';
 import { LEGAL_VERSIONS } from './legalVersions.mjs';
 import { legalFingerprint } from './legalDocs.mjs';
+import { crmRouter } from './crm.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-// Publicznie serwujemy WYŁĄCZNIE folder public/ — nigdy katalog główny projektu (server/, dane, .env itd.).
+// Publicznie serwujemy WYŁĄCZNIE folder public/ - nigdy katalog główny projektu (server/, dane, .env itd.).
 const ROOT = path.join(__dirname, '..', 'public');
 const PORT = process.env.PORT || 3000;
 
-// SITE_URL — gdzie stoi statyczna strona (np. GoDaddy, jeśli backend jest hostowany osobno,
-// bo shared hosting zwykle nie uruchomi Node.js). API_URL — gdzie stoi TEN serwer (backend).
+// SITE_URL - gdzie stoi statyczna strona (np. GoDaddy, jeśli backend jest hostowany osobno,
+// bo shared hosting zwykle nie uruchomi Node.js). API_URL - gdzie stoi TEN serwer (backend).
 // Jeśli strona i backend są na tym samym hoście, oba mogą wskazywać na ten sam adres
-// (albo po prostu zostaw domyślne wartości — wtedy wszystko dzieje się na PORT lokalnie).
+// (albo po prostu zostaw domyślne wartości - wtedy wszystko dzieje się na PORT lokalnie).
 const SITE_URL = process.env.SITE_URL || process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 const API_URL = process.env.API_URL || process.env.PUBLIC_URL || `http://localhost:${PORT}`;
 
-// Rabat za zgodę marketingową (+ telefon) — wyłączony do czasu zakończenia weryfikacji w P24.
+// Rabat za zgodę marketingową (+ telefon) - wyłączony do czasu zakończenia weryfikacji w P24.
 // Włączenie: MARKETING_ENABLED=true w zmiennych środowiskowych Rendera.
 const MARKETING_ENABLED = process.env.MARKETING_ENABLED === 'true';
 
 // Aktywny operator płatności: 'stripe' albo 'p24'. Kod obu jest wdrożony naraz (webhooki obu działają),
-// przełączasz tylko to, gdzie trafiają NOWE zamówienia. Domyślnie 'p24' — nic się nie zmienia bez jawnego ustawienia.
+// przełączasz tylko to, gdzie trafiają NOWE zamówienia. Domyślnie 'p24' - nic się nie zmienia bez jawnego ustawienia.
 const PAYMENT_PROVIDER = (process.env.PAYMENT_PROVIDER || 'p24').toLowerCase();
 if (!['stripe', 'p24'].includes(PAYMENT_PROVIDER)) {
-  throw new Error(`Nieznany PAYMENT_PROVIDER="${PAYMENT_PROVIDER}" — dozwolone: stripe, p24.`);
+  throw new Error(`Nieznany PAYMENT_PROVIDER="${PAYMENT_PROVIDER}" - dozwolone: stripe, p24.`);
 }
 
 // Prawdziwy adres IP klienta. Render przepuszcza ruch przez Cloudflare, więc req.ip to adres serwera
@@ -56,18 +57,18 @@ function clientIp(req) {
 }
 
 const app = express();
-app.set('trust proxy', 1); // Render stoi za proxy — potrzebne do poprawnego req.ip i rate limitu
+app.set('trust proxy', 1); // Render stoi za proxy - potrzebne do poprawnego req.ip i rate limitu
 app.disable('x-powered-by');
 app.use(helmet({ contentSecurityPolicy: false })); // CSP wyłączone: strona ma inline'owe skrypty
 
 // ── API: webhook Stripe ──────────────────────────────────────
-// MUSI być przed express.json() — podpis Stripe liczony jest z surowego body.
+// MUSI być przed express.json() - podpis Stripe liczony jest z surowego body.
 app.post('/api/stripe/webhook', express.raw({ type: 'application/json', limit: '1mb' }), async (req, res) => {
   let event;
   try {
     event = constructWebhookEvent(req.body, req.headers['stripe-signature']);
   } catch (err) {
-    console.warn('[stripe-webhook] nieprawidłowy podpis — odrzucam:', err.message);
+    console.warn('[stripe-webhook] nieprawidłowy podpis - odrzucam:', err.message);
     return res.status(400).send('invalid signature');
   }
 
@@ -76,7 +77,7 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json', limit: '
     const sessionId = obj.client_reference_id || obj.metadata?.sessionId;
 
     if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
-      // 'completed' przy płatności opóźnionej (np. przelew) ma payment_status 'unpaid' — czekamy wtedy na async_payment_succeeded.
+      // 'completed' przy płatności opóźnionej (np. przelew) ma payment_status 'unpaid' - czekamy wtedy na async_payment_succeeded.
       if (obj.payment_status !== 'paid') return res.status(200).send('OK');
 
       const order = sessionId && (await getOrder(sessionId));
@@ -88,7 +89,7 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json', limit: '
         console.warn('[stripe-webhook] kwota/waluta nie zgadza się z zamówieniem', { order, amount: obj.amount_total, currency: obj.currency });
         return res.status(400).send('amount mismatch');
       }
-      // Stripe potrafi dostarczyć to samo zdarzenie kilkukrotnie — drugi raz nic nie robimy.
+      // Stripe potrafi dostarczyć to samo zdarzenie kilkukrotnie - drugi raz nic nie robimy.
       if (order.status === 'paid') return res.status(200).send('OK');
 
       await fulfillPaidOrder({
@@ -99,21 +100,21 @@ app.post('/api/stripe/webhook', express.raw({ type: 'application/json', limit: '
         patch: { provider: 'stripe', stripeCheckoutSessionId: obj.id, stripePaymentIntentId: obj.payment_intent || null },
       });
     } else if (event.type === 'checkout.session.expired' || event.type === 'checkout.session.async_payment_failed') {
-      // Klient nie zapłacił — zwalniamy miejsce od razu, bez czekania na koniec rezerwacji.
+      // Klient nie zapłacił - zwalniamy miejsce od razu, bez czekania na koniec rezerwacji.
       const order = sessionId && (await getOrder(sessionId));
       if (order && order.status === 'pending') await updateOrder(sessionId, { status: 'expired' });
     }
     res.status(200).send('OK');
   } catch (err) {
     console.error('[stripe-webhook] błąd przetwarzania', err);
-    // Odpowiedź inna niż 2xx — Stripe ponowi dostarczenie zdarzenia.
+    // Odpowiedź inna niż 2xx - Stripe ponowi dostarczenie zdarzenia.
     res.status(500).send('internal error');
   }
 });
 
 app.use(express.json({ limit: '20kb' }));
 
-// CORS — tylko własne originy (strona na Netlify/domena + lokalny dev).
+// CORS - tylko własne originy (strona na Netlify/domena + lokalny dev).
 const ALLOWED_ORIGINS = new Set(
   [
     SITE_URL,
@@ -132,7 +133,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', origin);
     res.header('Vary', 'Origin');
     res.header('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Authorization: sesja panelu CRM
   }
   if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
@@ -157,7 +158,7 @@ async function seatsTaken(pakiet) {
     (o) => o.status === 'paid' || (o.status === 'pending' && now - Date.parse(o.createdAt || o.updatedAt) < SEAT_HOLD_MS)
   ).length;
 }
-// Sprawdzenie limitu i zapis zamówienia muszą iść po kolei — inaczej dwa równoczesne zamówienia zajęłyby ostatnie miejsce.
+// Sprawdzenie limitu i zapis zamówienia muszą iść po kolei - inaczej dwa równoczesne zamówienia zajęłyby ostatnie miejsce.
 let seatLock = Promise.resolve();
 function withSeatLock(fn) {
   const run = seatLock.then(fn, fn);
@@ -167,21 +168,30 @@ function withSeatLock(fn) {
 
 const readLimiter = rateLimit({ keyGenerator: (req) => ipKeyGenerator(clientIp(req)), windowMs: 60 * 1000, limit: 60, standardHeaders: true, legacyHeaders: false });
 
+// ── CRM: ankieta PRO (pro.html) + panel leadów (crm.html) ──
+app.use(crmRouter({
+  clientIp,
+  limiter: (opts) => rateLimit({ keyGenerator: (req) => ipKeyGenerator(clientIp(req)), standardHeaders: true, legacyHeaders: false, ...opts }),
+  siteUrl: SITE_URL,
+}));
+
 // ── STATIC SITE ──────────────────────────────────────────────
+// /pro i /crm bez .html - tak samo jak serwuje je Cloudflare.
+app.get(['/pro', '/crm'], (req, res) => res.sendFile(path.join(ROOT, `${req.path.slice(1)}.html`)));
 app.use(express.static(ROOT));
 
 // ── API: utworzenie zamówienia + rejestracja transakcji w P24 ──
 app.post('/api/create-order', createOrderLimiter, async (req, res) => {
   let stage = 'walidacja';
   try {
-    // Sprzedaż jest zamykana przed startem edycji — po terminie nie przyjmujemy zamówień.
+    // Sprzedaż jest zamykana przed startem edycji - po terminie nie przyjmujemy zamówień.
     if (Date.now() >= Date.parse(EDITION.salesCloseISO)) {
       return res.status(400).json({ error: `Sprzedaż tej edycji została zamknięta (${EDITION.salesCloseLabel}).` });
     }
     const { pakiet, addonMasterclass: addonRaw, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura, zgodyTresc, oferta } = req.body || {};
     const telefon = MARKETING_ENABLED ? telefonRaw : null;
 
-    // PRO kupuje się wyłącznie z osobistego linku po kwalifikacji — cena pochodzi z podpisanej oferty.
+    // PRO kupuje się wyłącznie z osobistego linku po kwalifikacji - cena pochodzi z podpisanej oferty.
     const proOffer = pakiet === PRO_PACKAGE ? readProOffer(oferta) : null;
     if (pakiet === PRO_PACKAGE && !proOffer) {
       return res.status(400).json({ error: 'Link do oferty PRO jest nieprawidłowy albo wygasł. Napisz do nas, a wyślemy nowy.' });
@@ -204,9 +214,9 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       return res.status(400).json({ error: 'Podaj poprawny adres e-mail.' });
     }
     if (proOffer && email.trim().toLowerCase() !== proOffer.email) {
-      return res.status(400).json({ error: `Oferta PRO jest przypisana do adresu ${proOffer.email} — użyj tego adresu e-mail.` });
+      return res.status(400).json({ error: `Oferta PRO jest przypisana do adresu ${proOffer.email} - użyj tego adresu e-mail.` });
     }
-    // Rabat za zgodę marketingową wymaga telefonu (SMS-y nie polecą donikąd) —
+    // Rabat za zgodę marketingową wymaga telefonu (SMS-y nie polecą donikąd) -
     // jeśli klient zaznaczył zgodę, ale nie podał telefonu, blokujemy całe zamówienie
     // zamiast po cichu policzyć pełną cenę bez rabatu, na który liczył.
     const marketingConsent = MARKETING_ENABLED && !proOffer && !!zgodaMarketing;
@@ -217,7 +227,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     }
 
 
-    // Dane do faktury (opcjonalne) — walidacja po stronie serwera.
+    // Dane do faktury (opcjonalne) - walidacja po stronie serwera.
     function nipValid(raw) {
       let d = String(raw || '').replace(/[^0-9]/g, '');
       if (d.length === 12 && d.startsWith('00')) d = d.slice(2);
@@ -238,7 +248,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       };
     }
 
-    // Źródło ruchu (UTM / klik-ID) — tylko znane klucze, krótkie stringi.
+    // Źródło ruchu (UTM / klik-ID) - tylko znane klucze, krótkie stringi.
     const ATTR_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid', 'ttclid', 'gclid'];
     const cleanAttribution = {};
     if (attribution && typeof attribution === 'object') {
@@ -287,7 +297,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       return res.status(409).json({ error: `Wszystkie miejsca w pakiecie ${pakiet} (${seatLimit}) zostały zajęte. Wybierz inny pakiet.` });
     }
 
-    // Archiwizacja faktu i momentu wyrażenia zgód — niezależnie od stanu zamówienia,
+    // Archiwizacja faktu i momentu wyrażenia zgód - niezależnie od stanu zamówienia,
     // które może się później zmieniać (status płatności itd.).
     stage = 'zapis-zgod';
     // Dowód: odciski dokumentów + brzmienie zgód widoczne dla klienta w formularzu (długość ograniczona).
@@ -348,7 +358,7 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
 
   try {
     if (!isWebhookSignatureValid(payload)) {
-      console.warn('[p24-webhook] nieprawidłowy podpis (sign) — odrzucam', payload);
+      console.warn('[p24-webhook] nieprawidłowy podpis (sign) - odrzucam', payload);
       return res.status(400).send('invalid sign');
     }
 
@@ -363,7 +373,7 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
       return res.status(400).send('amount mismatch');
     }
 
-    // Zamówienie już obsłużone wcześniej (P24 potrafi wysłać powiadomienie kilkukrotnie) — potwierdź i zakończ.
+    // Zamówienie już obsłużone wcześniej (P24 potrafi wysłać powiadomienie kilkukrotnie) - potwierdź i zakończ.
     if (order.status === 'paid') {
       return res.status(200).send('OK');
     }
@@ -391,7 +401,7 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
     res.status(200).send('OK');
   } catch (err) {
     console.error('[p24-webhook] błąd przetwarzania', err);
-    // Odpowiedź inna niż 200 — P24 spróbuje wysłać powiadomienie ponownie później.
+    // Odpowiedź inna niż 200 - P24 spróbuje wysłać powiadomienie ponownie później.
     res.status(500).send('internal error');
   }
 });
@@ -399,7 +409,7 @@ app.post('/api/przelewy24/webhook', async (req, res) => {
 // ── API: kontrola stanu (monitoring + utrzymanie bazy w gotowości) ──
 // Odpytywany co kilka minut przez UptimeRobot: sprawdza, czy serwer i baza żyją, a jednocześnie
 // generuje aktywność w Supabase, dzięki czemu darmowy projekt nie jest usypiany po tygodniu bez ruchu.
-// Nie zwraca żadnych danych — tylko 200/503 i znacznik czasu.
+// Nie zwraca żadnych danych - tylko 200/503 i znacznik czasu.
 app.get('/api/health', readLimiter, async (req, res) => {
   try {
     await countOrders();
@@ -460,5 +470,5 @@ app.listen(PORT, () => {
   console.log(`Serwer działa: http://localhost:${PORT}`);
   console.log(`Operator płatności dla nowych zamówień: ${PAYMENT_PROVIDER}`);
   console.log(`SITE_URL (strona / urlReturn): ${SITE_URL}`);
-  console.log(`API_URL  (ten backend / webhook urlStatus): ${API_URL} — musi być publicznie dostępny po HTTPS.`);
+  console.log(`API_URL  (ten backend / webhook urlStatus): ${API_URL} - musi być publicznie dostępny po HTTPS.`);
 });

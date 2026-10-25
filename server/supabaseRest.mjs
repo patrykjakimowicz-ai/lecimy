@@ -1,4 +1,4 @@
-// Minimalny klient REST (PostgREST) Supabase — bez dodatkowych zależności.
+// Minimalny klient REST (PostgREST) Supabase - bez dodatkowych zależności.
 // Używa klucza SERVICE ROLE (tylko po stronie serwera, w zmiennych środowiskowych Rendera!).
 // Jeśli klucz nie jest ustawiony, magazyny wracają do plików lokalnych (tylko dev).
 
@@ -12,7 +12,7 @@ export async function rest(method, pathAndQuery, { body, prefer } = {}) {
     method,
     headers: {
       apikey: KEY,
-      // Nowe klucze sb_secret_... nie są JWT — wysyłamy je wyłącznie w apikey.
+      // Nowe klucze sb_secret_... nie są JWT - wysyłamy je wyłącznie w apikey.
       // Stary service_role (JWT, zaczyna się od "eyJ") wymaga też nagłówka Authorization.
       ...(KEY.startsWith('eyJ') ? { Authorization: `Bearer ${KEY}` } : {}),
       'Content-Type': 'application/json',

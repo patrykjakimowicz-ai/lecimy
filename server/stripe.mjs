@@ -1,24 +1,24 @@
-// Klient Stripe (Checkout Session — strona płatności hostowana przez Stripe).
+// Klient Stripe (Checkout Session - strona płatności hostowana przez Stripe).
 // Dokumentacja: https://docs.stripe.com/payments/checkout
 //
 // Wymagane zmienne środowiskowe (patrz .env.example):
 //   STRIPE_SECRET_KEY (sk_test_... / sk_live_...), STRIPE_WEBHOOK_SECRET (whsec_...)
 //
 // Metody płatności (karty, BLIK, Przelewy24, Apple/Google Pay) włączasz w panelu Stripe
-// (Ustawienia -> Metody płatności) — kod ich nie wymienia, Stripe pokazuje klientowi te dostępne dla PLN.
+// (Ustawienia -> Metody płatności) - kod ich nie wymienia, Stripe pokazuje klientowi te dostępne dla PLN.
 
 import Stripe from 'stripe';
 
 const SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
-// Minimalny czas wygaśnięcia sesji w Stripe to 30 min — dokładnie tyle trzyma się miejsce w limicie (SEAT_HOLD_MS).
+// Minimalny czas wygaśnięcia sesji w Stripe to 30 min - dokładnie tyle trzyma się miejsce w limicie (SEAT_HOLD_MS).
 const SESSION_TTL_S = 30 * 60 + 60;
 
 let client = null;
 function stripe() {
   if (!SECRET_KEY) {
-    throw new Error('Stripe nie jest skonfigurowany — brakuje w .env: STRIPE_SECRET_KEY. Zobacz .env.example.');
+    throw new Error('Stripe nie jest skonfigurowany - brakuje w .env: STRIPE_SECRET_KEY. Zobacz .env.example.');
   }
   return (client ??= new Stripe(SECRET_KEY));
 }
@@ -60,7 +60,7 @@ export async function createCheckoutSession(order) {
  */
 export function constructWebhookEvent(rawBody, signatureHeader) {
   if (!WEBHOOK_SECRET) {
-    throw new Error('Brakuje STRIPE_WEBHOOK_SECRET w .env — nie można zweryfikować webhooka Stripe.');
+    throw new Error('Brakuje STRIPE_WEBHOOK_SECRET w .env - nie można zweryfikować webhooka Stripe.');
   }
   return stripe().webhooks.constructEvent(rawBody, signatureHeader, WEBHOOK_SECRET);
 }

@@ -1,5 +1,5 @@
 // Zakładanie kont klientów w Supabase Auth po potwierdzonej płatności.
-// Używa klucza SECRET / service_role (tylko serwer) — patrz supabaseRest.mjs.
+// Używa klucza SECRET / service_role (tylko serwer) - patrz supabaseRest.mjs.
 //
 // Przepływ: konto tworzone bez hasła (e-mail od razu potwierdzony) → generujemy link
 // "ustaw hasło" (recovery), który logowanie.html już obsługuje → link trafia do maila.
@@ -12,7 +12,7 @@ export const authAdminEnabled = !!(URL_BASE && KEY);
 function headers() {
   return {
     apikey: KEY,
-    // Nowe klucze sb_secret_... nie są JWT — tylko apikey. Stary service_role (JWT) wymaga też Bearer.
+    // Nowe klucze sb_secret_... nie są JWT - tylko apikey. Stary service_role (JWT) wymaga też Bearer.
     ...(KEY.startsWith('eyJ') ? { Authorization: `Bearer ${KEY}` } : {}),
     'Content-Type': 'application/json',
   };
@@ -32,11 +32,11 @@ async function call(path, body) {
 
 /**
  * Zakłada konto (jeśli nie istnieje) i zwraca jednorazowy link do ustawienia hasła.
- * Ponowny zakup tym samym e-mailem jest OK — konto już jest, generujemy tylko nowy link.
+ * Ponowny zakup tym samym e-mailem jest OK - konto już jest, generujemy tylko nowy link.
  * @returns {Promise<string>} action_link
  */
 export async function ensureCustomerAccount(email, redirectTo) {
-  if (!authAdminEnabled) throw new Error('Brak SUPABASE_URL / SUPABASE_SERVICE_KEY — nie mogę założyć konta.');
+  if (!authAdminEnabled) throw new Error('Brak SUPABASE_URL / SUPABASE_SERVICE_KEY - nie mogę założyć konta.');
 
   const created = await call('admin/users', { email, email_confirm: true });
   const alreadyExists =

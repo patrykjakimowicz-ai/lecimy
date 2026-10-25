@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dziękujemy – Lecimy po swoje</title>
+  <title>Dziękujemy - Lecimy po swoje</title>
   <meta name="description" content="Status Twojego zamówienia w Lecimy po swoje." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
@@ -18,7 +18,7 @@
   </style>
   <link rel="stylesheet" href="style.css" />
   <script src="tracking.js"></script>
-  <!-- Analityka bez cookies (Plausible) — nie wymaga zgody, więc nie ma banera -->
+  <!-- Analityka bez cookies (Plausible) - nie wymaga zgody, więc nie ma banera -->
   <script async src="https://plausible.io/js/pa-FJmUPwUSueTUbwNQCrnvE.js"></script>
   <script>
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
@@ -64,7 +64,7 @@
       </div>
       <h1 id="thankyouTitle">Sprawdzamy status zamówienia…</h1>
       <p id="thankyouMessage">
-        Chwileczkę — potwierdzamy Twoją płatność. To zwykle trwa kilka–kilkanaście sekund.
+        Chwileczkę - potwierdzamy Twoją płatność. To zwykle trwa kilka-kilkanaście sekund.
       </p>
       <div class="thankyou__spam" id="thankyouSpam" role="alert" hidden>
         <strong>⚠️ WAŻNE: sprawdź folder SPAM</strong>
@@ -98,7 +98,7 @@
 
   <script>
     (function () {
-      // Musi wskazywać na to samo co API_BASE w zamowienie.html — patrz komentarz tam.
+      // Musi wskazywać na to samo co API_BASE w zamowienie.html - patrz komentarz tam.
       var API_BASE = 'https://lecimy-xlxt.onrender.com';
 
       var sid = new URLSearchParams(window.location.search).get('sid');
@@ -121,10 +121,10 @@
         return;
       }
 
-      // Etapy (webhook operatora płatności przychodzi tylko po UDANEJ płatności — przy błędzie lub braku wpłaty nic nie dostajemy,
+      // Etapy (webhook operatora płatności przychodzi tylko po UDANEJ płatności - przy błędzie lub braku wpłaty nic nie dostajemy,
       // więc pokazujemy kolejne komunikaty w miarę upływu czasu i aktualizujemy stronę, gdy płatność dojdzie):
-      //  0–20 s    sprawdzamy status
-      //  20–90 s   czekamy na potwierdzenie z banku
+      //  0-20 s    sprawdzamy status
+      //  20-90 s   czekamy na potwierdzenie z banku
       //  > 90 s    brak potwierdzenia (błąd / brak wpłaty / opóźniony przelew) + dalsze sprawdzanie w tle
       var startedAt = Date.now();
       var finished = false;
@@ -161,10 +161,10 @@
         var sec = (Date.now() - startedAt) / 1000;
         if (sec < 20) {
           setState('Sprawdzamy status zamówienia…',
-            'Chwileczkę — potwierdzamy Twoją płatność. To zwykle trwa kilka–kilkanaście sekund.', true);
+            'Chwileczkę - potwierdzamy Twoją płatność. To zwykle trwa kilka-kilkanaście sekund.', true);
         } else if (sec < 90) {
           setState('Czekamy na potwierdzenie płatności',
-            'Płatność jeszcze nie została potwierdzona. Przy przelewie bankowym może to potrwać kilka minut. Nie zamykaj tej strony — odświeży się sama, gdy płatność dojdzie.', true);
+            'Płatność jeszcze nie została potwierdzona. Przy przelewie bankowym może to potrwać kilka minut. Nie zamykaj tej strony - odświeży się sama, gdy płatność dojdzie.', true);
         } else {
           setState('Nie widzimy jeszcze potwierdzenia płatności',
             'Jeśli płatność się nie udała lub z niej zrezygnowałeś, wróć do zamówienia i spróbuj ponownie. Jeśli zapłaciłeś (np. przelewem), potwierdzenie przyjdzie na Twój e-mail po zaksięgowaniu, a ta strona zaktualizuje się sama.');
@@ -182,7 +182,7 @@
             if (data && data.status === 'paid') { showPaid(data); return; }
             showByElapsed();
           })
-          .catch(function () { showByElapsed(); /* chwilowy błąd sieci — próbujemy dalej */ });
+          .catch(function () { showByElapsed(); /* chwilowy błąd sieci - próbujemy dalej */ });
       }
 
       function schedule() {

@@ -17,3 +17,14 @@ create table if not exists public.consents (
 
 alter table public.orders   enable row level security;
 alter table public.consents enable row level security;
+
+-- Leady z ankiety PRO (pro.html) dla panelu CRM (crm.html). Dodane później - jeśli tabele orders/consents
+-- już istnieją, wystarczy uruchomić tylko ten fragment.
+create table if not exists public.leads (
+  id         text primary key,
+  data       jsonb not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists leads_created_at_idx on public.leads (created_at desc);
+alter table public.leads enable row level security;

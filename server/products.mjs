@@ -1,4 +1,4 @@
-// Źródło prawdy dla cen — musi być zgodne z cennikiem w index.html (#pricing).
+// Źródło prawdy dla cen - musi być zgodne z cennikiem w index.html (#pricing).
 // Ceny w PLN (złotych), przeliczane na grosze przy komunikacji z Przelewy24.
 
 export const PACKAGES = {
@@ -6,7 +6,7 @@ export const PACKAGES = {
   'Kompletny System': 1597,
 };
 
-// Pakiet PRO: oferta indywidualna po kwalifikacji, bez ceny w PACKAGES — cenę niesie podpisany link (server/proOffer.mjs).
+// Pakiet PRO: oferta indywidualna po kwalifikacji, bez ceny w PACKAGES - cenę niesie podpisany link (server/proOffer.mjs).
 export const PRO_PACKAGE = 'Lecimy po swoje PRO';
 
 // Limit miejsc w pakiecie (na edycję). Musi być zgodny z cennikiem w index.html i regulaminem (pkt 3).

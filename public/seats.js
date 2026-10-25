@@ -1,4 +1,4 @@
-// Limit miejsc w pakietach (PRO: 25 na edycję). Źródłem prawdy jest serwer (/api/seats) — on też odrzuca
+// Limit miejsc w pakietach (PRO: 25 na edycję). Źródłem prawdy jest serwer (/api/seats) - on też odrzuca
 // zamówienia po wyczerpaniu miejsc. Ten skrypt tylko pokazuje stan w cenniku i blokuje wybór pakietu w formularzu.
 (function () {
   // Ten sam backend co API_BASE w zamowienie.html i podziekowanie.html (lokalnie: ten sam host).
@@ -36,7 +36,7 @@
     label.style.cursor = 'not-allowed';
     if (price) price.textContent = 'Wyprzedane';
     if (input.checked) {
-      // Wybrany był pakiet bez miejsc (np. z linku ?pakiet=VIP) — przełączamy na Kompletny System.
+      // Wybrany był pakiet bez miejsc (np. z linku ?pakiet=VIP) - przełączamy na Kompletny System.
       var fallback = document.querySelector('.order-package[data-package="Kompletny System"] input');
       if (fallback) {
         fallback.checked = true;
@@ -44,7 +44,7 @@
       }
       var status = document.getElementById('orderStatus');
       if (status) {
-        status.textContent = 'Wszystkie miejsca w pakiecie ' + pakiet + ' zostały zajęte — wybraliśmy dla Ciebie pakiet Kompletny System.';
+        status.textContent = 'Wszystkie miejsca w pakiecie ' + pakiet + ' zostały zajęte - wybraliśmy dla Ciebie pakiet Kompletny System.';
         status.classList.add('is-visible');
       }
     }
@@ -60,7 +60,7 @@
           applyOrderForm(pakiet, data[pakiet]);
         });
       })
-      .catch(function () { /* brak danych — serwer i tak pilnuje limitu przy zamówieniu */ });
+      .catch(function () { /* brak danych - serwer i tak pilnuje limitu przy zamówieniu */ });
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);

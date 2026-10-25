@@ -1,4 +1,4 @@
-// Odcisk (SHA-256) treści regulaminu i polityki — zapisywany w logu zgód jako dowód, jaki dokładnie tekst obowiązywał
+// Odcisk (SHA-256) treści regulaminu i polityki - zapisywany w logu zgód jako dowód, jaki dokładnie tekst obowiązywał
 // w chwili zakupu. Ten sam odcisk liczy tools/archiwizuj_dokumenty.mjs dla kopii w archiwum_dokumentow/.
 import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';

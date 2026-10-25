@@ -10,7 +10,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Adres kontaktowy (ten sam co na stronie i w regulaminie) — na niego trafiają odpowiedzi klientów,
+// Adres kontaktowy (ten sam co na stronie i w regulaminie) - na niego trafiają odpowiedzi klientów,
 // niezależnie od skrzynki, z której wysyłamy (SMTP_FROM / SMTP_USER).
 const CONTACT_EMAIL = 'lecimyposwoje2020@gmail.com';
 
@@ -25,7 +25,7 @@ async function getTransporter() {
   const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASS) {
     throw new Error(
-      'Brak konfiguracji SMTP w .env (SMTP_HOST / SMTP_USER / SMTP_PASS) — nie mogę wysłać e-maila. Zobacz .env.example.'
+      'Brak konfiguracji SMTP w .env (SMTP_HOST / SMTP_USER / SMTP_PASS) - nie mogę wysłać e-maila. Zobacz .env.example.'
     );
   }
 
@@ -34,7 +34,7 @@ async function getTransporter() {
     const [ip] = await resolve4(SMTP_HOST);
     if (ip) host = ip;
   } catch {
-    // brak rekordu A — spróbujemy połączyć się po nazwie
+    // brak rekordu A - spróbujemy połączyć się po nazwie
   }
 
   transporter = nodemailer.createTransport({
@@ -51,7 +51,7 @@ async function getTransporter() {
   return transporter;
 }
 
-const NAMED_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', larr: '←', rarr: '→', ndash: '–', mdash: '—', hellip: '…', bdquo: '„', ldquo: '“', rdquo: '”', laquo: '«', raquo: '»', copy: '©', middot: '·' };
+const NAMED_ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', larr: '←', rarr: '→', ndash: '-', mdash: '-', hellip: '…', bdquo: '„', ldquo: '“', rdquo: '”', laquo: '«', raquo: '»', copy: '©', middot: '·' };
 function decodeEntity(ent, original) {
   if (ent[0] === '#') {
     const code = ent[1].toLowerCase() === 'x' ? parseInt(ent.slice(2), 16) : parseInt(ent.slice(1), 10);
@@ -85,7 +85,7 @@ async function legalAttachment(htmlFile, label, version) {
     const body = htmlToText((m ? m[1] : raw).replace(/<a [^>]*class="legal__back"[^>]*>.*?<\/a>/is, ''));
     return {
       filename: `${label}-Lecimy-po-swoje-${version}.txt`,
-      content: `${label} — Lecimy po swoje (wersja ${version})\nPEEWEE Sp. z o.o., NIP 9452314380\n\n${body}\n`,
+      content: `${label} - Lecimy po swoje (wersja ${version})\nPEEWEE Sp. z o.o., NIP 9452314380\n\n${body}\n`,
       contentType: 'text/plain; charset=utf-8',
     };
   } catch (err) {
@@ -125,7 +125,7 @@ export async function sendOrderConfirmationEmail(order) {
   const wzorUrl = `${siteUrl}/regulamin.html#wzor-odstapienia`;
 
   const addonLine = order.addonMasterclass
-    ? '<li>Masterclass Wdrożeniowy (+157 zł) — dostęp do niego udostępnimy w panelu programu najpóźniej w dniu startu edycji.</li>'
+    ? '<li>Masterclass Wdrożeniowy (+157 zł) - dostęp do niego udostępnimy w panelu programu najpóźniej w dniu startu edycji.</li>'
     : '';
 
   const accessBlock = order.setPasswordUrl
@@ -135,7 +135,7 @@ export async function sendOrderConfirmationEmail(order) {
         <a href="${order.setPasswordUrl}" style="background:#e8780c;color:#111;text-decoration:none;font-weight:bold;padding:14px 24px;border-radius:6px;display:inline-block;">Ustaw hasło i wejdź do programu</a>
       </p>
       <p style="font-size:13px;color:#555;">Link jest jednorazowy i ma ograniczoną ważność. Jeśli wygaśnie, wejdź na
-        <a href="${loginUrl}">${loginUrl}</a> i kliknij „Nie pamiętasz hasła?", podając ten adres e-mail — wyślemy nowy link.</p>`
+        <a href="${loginUrl}">${loginUrl}</a> i kliknij „Nie pamiętasz hasła?", podając ten adres e-mail - wyślemy nowy link.</p>`
     : `
       <p>Twoje konto na platformie jest już przygotowane (login: <strong>${escapeHtml(order.email)}</strong>).
         Wejdź na <a href="${loginUrl}">${loginUrl}</a>, kliknij „Nie pamiętasz hasła?", podaj ten adres e-mail
@@ -163,7 +163,7 @@ export async function sendOrderConfirmationEmail(order) {
         Zapoznałeś się z <a href="${regulaminUrl}">Regulaminem</a> i <a href="${politykaUrl}">Polityką Prywatności</a>, które akceptowałeś w formularzu zamówienia; ich kopie w obowiązującej wersji znajdziesz w załącznikach do tej wiadomości.
         Wzór formularza odstąpienia (do celów informacyjnych) znajdziesz <a href="${wzorUrl}">w Regulaminie</a>.</p>
       <p>W razie pytań odpisz po prostu na tego maila.</p>
-      <p>— Zespół Lecimy po swoje<br/><span style="font-size:12px;color:#666;">PEEWEE Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 9452314380</span></p>
+      <p>- Zespół Lecimy po swoje<br/><span style="font-size:12px;color:#666;">PEEWEE Sp. z o.o., ul. Złota 7/28, 00-019 Warszawa, NIP 9452314380</span></p>
     </div>
   `;
 
@@ -173,7 +173,7 @@ export async function sendOrderConfirmationEmail(order) {
     to: order.email,
     replyTo: CONTACT_EMAIL,
     attachments: await legalAttachments(),
-    subject: `Twój dostęp do programu „${order.pakiet}” — Lecimy po swoje (zamówienie ${orderNumber(order)})`,
+    subject: `Twój dostęp do programu „${order.pakiet}” - Lecimy po swoje (zamówienie ${orderNumber(order)})`,
     html,
     text: htmlToText(html),
   });
@@ -205,7 +205,7 @@ export async function sendOwnerNotification({ order, accountError, mailError, ex
     <div style="font-family: sans-serif; max-width: 560px; color: #111; line-height: 1.5;">
       <h3>Nowe opłacone zamówienie ${orderNumber(order)}</h3>
       ${problems.length ? `<p style="background:#fff3cd;padding:10px;border-radius:6px;">${problems.join('<br/>')}</p>` : ''}
-      <p><strong>${escapeHtml(order.pakiet)}</strong>${order.addonMasterclass ? ' + Masterclass Wdrożeniowy' : ''} — ${fmtPln(order.amount)}</p>
+      <p><strong>${escapeHtml(order.pakiet)}</strong>${order.addonMasterclass ? ' + Masterclass Wdrożeniowy' : ''} - ${fmtPln(order.amount)}</p>
       <p>Klient: ${escapeHtml(order.imie)} ${escapeHtml(order.nazwisko)}, ${escapeHtml(order.email)}</p>
       ${order.ofertaPro ? `<p>Oferta indywidualna PRO: ${fmtPln(order.ofertaPro.cena * 100)}, sprzedawca: <strong>${escapeHtml(order.ofertaPro.sprzedawca || 'link z konsoli')}</strong></p>` : ''}
       ${faktura}
@@ -218,6 +218,36 @@ export async function sendOwnerNotification({ order, accountError, mailError, ex
     from,
     to,
     subject: `${problems.length ? '⚠️ ' : ''}Nowe zamówienie ${orderNumber(order)}: ${order.pakiet} (${fmtPln(order.amount)})`,
+    html,
+    text: htmlToText(html),
+  });
+}
+
+/** Powiadomienie właściciela o nowym zgłoszeniu z ankiety PRO (pro.html). */
+export async function sendLeadNotification({ lead, crmUrl }) {
+  const to = process.env.OWNER_EMAIL;
+  if (!to) return;
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const k = lead.kontakt;
+  const o = lead.odpowiedzi;
+  const SEGMENT = { pro: 'PRO (ma budżet)', downsell: 'Downsell (tańsza opcja)', brak_budzetu: 'Brak budżetu' };
+
+  const html = `
+    <div style="font-family: sans-serif; max-width: 560px; color: #111; line-height: 1.5;">
+      <h3>Nowe zgłoszenie PRO: ${escapeHtml(k.imie)} ${escapeHtml(k.nazwisko)}</h3>
+      <p><strong>Segment:</strong> ${escapeHtml(SEGMENT[lead.segment] || lead.segment)}<br/>
+      <strong>Budżet:</strong> ${escapeHtml(o.budzet)}<br/>
+      <strong>Start:</strong> ${escapeHtml(o.start)} · <strong>Gotowość:</strong> ${escapeHtml(o.gotowosc)}/10</p>
+      <p>Telefon: ${escapeHtml(k.telefon)}<br/>E-mail: ${escapeHtml(k.email)}${k.nick ? `<br/>IG/TikTok: ${escapeHtml(k.nick)}` : ''}</p>
+      <p><a href="${escapeHtml(crmUrl)}">Otwórz w CRM</a></p>
+    </div>
+  `;
+
+  const t = await getTransporter();
+  await t.sendMail({
+    from,
+    to,
+    subject: `Nowe zgłoszenie PRO: ${k.imie} ${k.nazwisko} (${SEGMENT[lead.segment] || lead.segment})`,
     html,
     text: htmlToText(html),
   });

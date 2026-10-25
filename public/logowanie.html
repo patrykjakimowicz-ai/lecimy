@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Zaloguj się – Lecimy po swoje</title>
+  <title>Zaloguj się - Lecimy po swoje</title>
   <meta name="description" content="Zaloguj się do platformy programu Lecimy po swoje." />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
@@ -18,7 +18,7 @@
   </style>
   <link rel="stylesheet" href="style.css" />
   <script src="tracking.js"></script>
-  <!-- Analityka bez cookies (Plausible) — nie wymaga zgody, więc nie ma banera -->
+  <!-- Analityka bez cookies (Plausible) - nie wymaga zgody, więc nie ma banera -->
   <script async src="https://plausible.io/js/pa-FJmUPwUSueTUbwNQCrnvE.js"></script>
   <script>
     window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
@@ -67,7 +67,7 @@
         <div class="auth__status" id="loginStatus"></div>
       </form>
 
-      <!-- Reset hasła — krok 1: wysyłka linku -->
+      <!-- Reset hasła - krok 1: wysyłka linku -->
       <form class="auth__form is-hidden" id="resetForm" novalidate>
         <h1>Reset hasła</h1>
         <p class="auth__sub">Podaj e-mail, na który wyślemy link do ustawienia nowego hasła.</p>
@@ -86,7 +86,7 @@
         <div class="auth__status" id="resetStatus"></div>
       </form>
 
-      <!-- Reset hasła — krok 2: ustawienie nowego hasła (po kliknięciu w link z maila) -->
+      <!-- Reset hasła - krok 2: ustawienie nowego hasła (po kliknięciu w link z maila) -->
       <form class="auth__form is-hidden" id="newPasswordForm" novalidate>
         <h1>Ustaw nowe hasło</h1>
         <p class="auth__sub">Wpisz nowe hasło do swojego konta.</p>
@@ -155,7 +155,7 @@
       function translateError(message) {
         var map = {
           'Invalid login credentials': 'Nieprawidłowy e-mail lub hasło.',
-          'Email not confirmed': 'Potwierdź swój adres e-mail — sprawdź skrzynkę odbiorczą.',
+          'Email not confirmed': 'Potwierdź swój adres e-mail - sprawdź skrzynkę odbiorczą.',
           'User not found': 'Nie znaleziono konta z tym adresem e-mail.',
           'Password should be at least 6 characters.': 'Hasło musi mieć co najmniej 8 znaków.',
         };
@@ -203,7 +203,7 @@
         showForm('login');
       });
 
-      // ── Reset hasła — krok 1: wysyłka linku ────
+      // ── Reset hasła - krok 1: wysyłka linku ────
       var resetStatus = document.getElementById('resetStatus');
       var resetSubmit = document.getElementById('resetSubmit');
       var resetSubmitLabel = document.getElementById('resetSubmitLabel');
@@ -232,7 +232,7 @@
           });
       });
 
-      // ── Reset hasła — krok 2: ustawienie nowego hasła ──
+      // ── Reset hasła - krok 2: ustawienie nowego hasła ──
       var newPasswordStatus = document.getElementById('newPasswordStatus');
       var newPasswordSubmit = document.getElementById('newPasswordSubmit');
       var newPasswordSubmitLabel = document.getElementById('newPasswordSubmitLabel');

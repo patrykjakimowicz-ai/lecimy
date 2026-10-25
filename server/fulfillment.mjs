@@ -1,4 +1,4 @@
-// Realizacja opłaconego zamówienia — wspólna dla wszystkich operatorów płatności (Przelewy24, Stripe).
+// Realizacja opłaconego zamówienia - wspólna dla wszystkich operatorów płatności (Przelewy24, Stripe).
 // Wywoływana dopiero PO zweryfikowaniu płatności przez dany operator.
 
 import { updateOrder, listOrders } from './orderStore.mjs';
@@ -9,9 +9,9 @@ import { EDITION } from './edition.mjs';
 
 /**
  * Oznacza zamówienie jako opłacone, zakłada konto klienta, wysyła maile (klient + właściciel).
- * Błędy konta/maila nie cofają płatności — są logowane i trafiają w alercie do właściciela.
+ * Błędy konta/maila nie cofają płatności - są logowane i trafiają w alercie do właściciela.
  * @param {{sessionId: string, order: object, siteUrl: string, patch?: object, tag: string}} p
- *   `patch` — dodatkowe pola do zapisu przy zamówieniu (np. orderId z P24, id płatności Stripe).
+ *   `patch` - dodatkowe pola do zapisu przy zamówieniu (np. orderId z P24, id płatności Stripe).
  */
 export async function fulfillPaidOrder({ sessionId, order, siteUrl, patch = {}, tag }) {
   await updateOrder(sessionId, { status: 'paid', ...patch });
@@ -32,12 +32,12 @@ export async function fulfillPaidOrder({ sessionId, order, siteUrl, patch = {}, 
     await sendOrderConfirmationEmail({ ...order, sessionId, setPasswordUrl });
   } catch (mailErr) {
     mailError = mailErr;
-    // Płatność jest już potwierdzona i zapisana — błąd maila nie powinien cofać tego faktu,
+    // Płatność jest już potwierdzona i zapisana - błąd maila nie powinien cofać tego faktu,
     // ale trzeba go głośno zalogować, żeby ręcznie dosłać dostęp klientowi.
     console.error(`[${tag}] płatność potwierdzona, ale wysyłka e-maila nie powiodła się:`, mailErr);
   }
 
-  // Płatność mogła dojść po czasie rezerwacji miejsca (np. przelew tradycyjny) — wtedy limit może zostać przekroczony.
+  // Płatność mogła dojść po czasie rezerwacji miejsca (np. przelew tradycyjny) - wtedy limit może zostać przekroczony.
   const extraProblems = [];
   const seatLimit = SEAT_LIMITS[order.pakiet];
   if (seatLimit) {

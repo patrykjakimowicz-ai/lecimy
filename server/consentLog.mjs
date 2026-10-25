@@ -1,4 +1,4 @@
-// Archiwum zgód (regulamin, treści cyfrowe, marketing) — niezależne od orders.json.
+// Archiwum zgód (regulamin, treści cyfrowe, marketing) - niezależne od orders.json.
 // Zapisywane w formacie JSON Lines (append-only, jeden wiersz = jedno zdarzenie),
 // żeby mieć twardy dowód "kto, kiedy, co zaznaczył" na wypadek sporu / kontroli RODO.
 // Wpisy nigdy nie są nadpisywane ani usuwane przez appendConsent.

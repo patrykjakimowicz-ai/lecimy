@@ -7,14 +7,14 @@ import { PRO_PACKAGE } from './products.mjs';
 
 const b64url = (buf) => Buffer.from(buf).toString('base64url');
 
-// Cena PRO (zł brutto) — stała, zapisana w regulaminie (pkt 3); zmiana ceny = nowa wersja regulaminu.
-// Ważność oferty — regulamin pkt 3: min. 24 godziny.
+// Cena PRO (zł brutto) - stała, zapisana w regulaminie (pkt 3); zmiana ceny = nowa wersja regulaminu.
+// Ważność oferty - regulamin pkt 3: min. 24 godziny.
 export const PRO_PRICE = 9997;
 export const PRO_VALIDITY_HOURS = [24, 72, 7 * 24, 14 * 24, 30 * 24];
 
 function secret() {
   const s = process.env.PRO_OFFER_SECRET;
-  if (!s || s.length < 32) throw new Error('Brak PRO_OFFER_SECRET (min. 32 znaki) — oferty PRO są wyłączone.');
+  if (!s || s.length < 32) throw new Error('Brak PRO_OFFER_SECRET (min. 32 znaki) - oferty PRO są wyłączone.');
   return s;
 }
 
