@@ -40,6 +40,7 @@ export const STATUSES = [
   'Rozmowa odbyta',
   'Follow-up',
   'Sprzedane PRO',
+  'Sprzedane Kompletny System',
   'Downsell',
   'Odrzucone',
 ];
@@ -124,7 +125,7 @@ function readSession(token) {
   return { name: o.n, expiresAt: o.x };
 }
 
-function requireSeller(req, res, next) {
+export function requireSeller(req, res, next) {
   const auth = String(req.headers.authorization || '');
   const session = readSession(auth.startsWith('Bearer ') ? auth.slice(7) : '');
   if (!session) return res.status(401).set('Cache-Control', 'no-store').json({ error: 'Sesja wygasła - zaloguj się ponownie.' });

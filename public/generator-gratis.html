@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generator: Masterclass gratis - Lecimy po swoje</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="edition.js"></script>
+  <style>
+    .gen { max-width: 640px; margin: 0 auto; padding: 7rem 16px 4rem; }
+    .gen h1 { font-size: 1.8rem; margin-bottom: .4rem; }
+    .gen__lead { opacity: .75; margin-bottom: 2rem; line-height: 1.5; }
+    .gen__grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 1rem; }
+    .gen__grid .order-form__row--full { grid-column: 1 / -1; }
+    @media (max-width: 560px) { .gen__grid { grid-template-columns: 1fr; } }
+    .gen__gift { display: flex; gap: .9rem; align-items: center; margin-bottom: 1.5rem; padding: 1rem 1.1rem; border-radius: 14px; border: 1px solid rgba(74,222,128,.45); background: rgba(74,222,128,.07); }
+    .gen__gift b { color: #4ade80; }
+    .gen__gift s { opacity: .6; }
+    .gen__out { margin-top: 2rem; padding: 1.25rem; border: 1px solid rgba(74,222,128,.45); border-radius: 14px; background: rgba(74,222,128,.05); }
+    .gen__out[hidden] { display: none; }
+    .gen__out h2 { font-size: 1.1rem; margin-bottom: .75rem; }
+    .gen__out textarea { width: 100%; min-height: 3.2rem; font: inherit; font-size: .9rem; padding: .7rem; border-radius: 10px; border: 1px solid rgba(255,255,255,.15); background: rgba(0,0,0,.25); color: inherit; resize: vertical; }
+    .gen__out textarea#genMail { min-height: 15rem; }
+    .gen__out textarea#genSms { min-height: 6rem; }
+    .gen__copy { margin: .5rem 0 1.25rem; }
+    .gen__remember { display: flex; gap: .5rem; align-items: center; font-size: .9rem; opacity: .8; margin: -.25rem 0 1.25rem; }
+  </style>
+</head>
+<body>
+  <main class="gen">
+    <h1>Generator: Masterclass gratis</h1>
+    <p class="gen__lead">Dla klienta po rozmowie, który się waha. Dostaje osobisty link do zamówienia, w którym Masterclass Wdrożeniowy jest za darmo. Link działa <b>24 godziny</b> i tylko z adresem e-mail klienta.</p>
+
+    <div class="gen__gift"><span aria-hidden="true">🎁</span><span>Masterclass Wdrożeniowy: <s>157 zł</s> <b>0 zł</b> · ważne 24 h od wygenerowania</span></div>
+
+    <form class="order-form" id="genForm" novalidate>
+      <div class="order-form__row">
+        <label for="haslo">Twoje hasło sprzedawcy *</label>
+        <input type="password" id="haslo" required autocomplete="current-password" />
+      </div>
+      <label class="gen__remember"><input type="checkbox" id="zapamietaj" /> Zapamiętaj hasło na tym urządzeniu</label>
+
+      <div class="gen__grid">
+        <div class="order-form__row">
+          <label for="imie">Imię klienta *</label>
+          <input type="text" id="imie" required maxlength="80" />
+        </div>
+        <div class="order-form__row">
+          <label for="nazwisko">Nazwisko klienta</label>
+          <input type="text" id="nazwisko" maxlength="80" />
+        </div>
+        <div class="order-form__row order-form__row--full">
+          <label for="email">E-mail klienta * (ten sam musi podać przy zamówieniu)</label>
+          <input type="email" id="email" required maxlength="254" />
+        </div>
+        <div class="order-form__row">
+          <label for="pakiet">Pakiet</label>
+          <select id="pakiet">
+            <option value="Kompletny System" selected>Kompletny System (1 597 zł)</option>
+            <option value="Fundament">Fundament (997 zł)</option>
+          </select>
+        </div>
+        <div class="order-form__row">
+          <label for="waznosc">Oferta ważna</label>
+          <input type="text" id="waznosc" value="24 godziny" readonly />
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--lg btn--full" id="genSubmit">Wygeneruj link</button>
+      <div class="order-form__status" id="genStatus"></div>
+    </form>
+
+    <section class="gen__out" id="genOut" hidden>
+      <h2>1. Link do zamówienia</h2>
+      <textarea id="genLink" readonly></textarea>
+      <button type="button" class="btn btn--pricing gen__copy" data-copy="genLink">Kopiuj link</button>
+
+      <h2>2. SMS / wiadomość</h2>
+      <textarea id="genSms" readonly></textarea>
+      <button type="button" class="btn btn--pricing gen__copy" data-copy="genSms">Kopiuj SMS</button>
+
+      <h2>3. Gotowy mail do klienta</h2>
+      <textarea id="genMail" readonly></textarea>
+      <button type="button" class="btn btn--pricing gen__copy" data-copy="genMail">Kopiuj mail</button>
+      <p class="gen__lead" style="margin:0">Najlepiej wyślij link jeszcze w trakcie rozmowy i zostań na linii, aż klient przejdzie do płatności. Po 24 godzinach link przestaje działać.</p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://lecimy-xlxt.onrender.com';
+      var KEY = 'lecimy_pro_haslo'; // to samo hasło co w generatorze ofert PRO
+      var $ = function (id) { return document.getElementById(id); };
+      var status = $('genStatus');
+
+      try {
+        var saved = localStorage.getItem(KEY);
+        if (saved) { $('haslo').value = saved; $('zapamietaj').checked = true; }
+      } catch (e) {}
+
+      // Dane klienta z karty leada w CRM (link „Generator: Masterclass gratis” w skrypcie KS).
+      var q = new URLSearchParams(location.search);
+      ['imie', 'nazwisko', 'email'].forEach(function (k) { if (q.get(k)) $(k).value = q.get(k).slice(0, 254); });
+      if (q.get('pakiet') === 'Fundament') $('pakiet').value = 'Fundament';
+
+      function show(msg, isError) {
+        status.textContent = msg;
+        status.classList.add('is-visible');
+        status.classList.toggle('is-error', !!isError);
+      }
+
+      function fmtDate(iso) {
+        return new Date(iso).toLocaleString('pl-PL', { timeZone: 'Europe/Warsaw', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+      }
+
+      function smsText(o) {
+        return 'Cześć ' + (o.imie || '') + ', tu ' + o.sprzedawca + ' z Lecimy po swoje. Tak jak mówiłem/am: jeśli dołączysz do pakietu ' + o.pakiet +
+          ' do ' + fmtDate(o.expiresAt) + ', Masterclass Wdrożeniowy (normalnie ' + o.cenaGratisu + ' zł) dostajesz za darmo. Twój link: ' + o.url;
+      }
+
+      function mailText(o) {
+        var ed = window.LECIMY_EDITION || {};
+        return 'Temat: Masterclass Wdrożeniowy gratis - tylko przez 24 godziny\n\n' +
+          'Cześć ' + (o.imie || '') + ',\n\n' +
+          'dzięki za rozmowę. Tak jak obiecałem/am: jeśli dołączysz do pakietu ' + o.pakiet + ' w ciągu 24 godzin, ' +
+          'Masterclass Wdrożeniowy dostajesz za darmo (normalnie ' + o.cenaGratisu + ' zł). To 14-dniowy protokół startowy od Barta, który krok po kroku przeprowadzi Cię przez pierwsze dwa tygodnie programu.\n\n' +
+          'Oferta ważna do: ' + fmtDate(o.expiresAt) + '.\n' +
+          (ed.startLabel ? 'Start programu: ' + ed.startLabel + '.\n' : '') + '\n' +
+          'Twój osobisty link do zamówienia (działa z adresem ' + o.email + '):\n' + o.url + '\n\n' +
+          'Możesz zapłacić od razu albo rozłożyć płatność na 3 raty 0% przez Klarnę.\n\n' +
+          'Przed płatnością zapoznaj się z Regulaminem: https://lecimyposwoje.pl/regulamin\n\n' +
+          'Pozdrawiam\n' + o.sprzedawca + '\nLecimy po swoje';
+      }
+
+      $('genForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        var body = {
+          haslo: $('haslo').value,
+          imie: $('imie').value.trim(),
+          nazwisko: $('nazwisko').value.trim(),
+          email: $('email').value.trim(),
+          pakiet: $('pakiet').value,
+        };
+        if (!body.haslo || !body.imie || !body.email) return show('Uzupełnij hasło, imię i e-mail.', true);
+        try {
+          if ($('zapamietaj').checked) localStorage.setItem(KEY, body.haslo); else localStorage.removeItem(KEY);
+        } catch (e2) {}
+        $('genSubmit').disabled = true;
+        status.classList.remove('is-visible', 'is-error');
+        fetch(API_BASE + '/api/oferta-gratis', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+          .then(function (r) { return r.json().then(function (d) { if (!r.ok) throw new Error(d.error || 'Błąd serwera.'); return d; }); })
+          .then(function (o) {
+            $('genLink').value = o.url;
+            $('genSms').value = smsText(o);
+            $('genMail').value = mailText(o);
+            $('genOut').hidden = false;
+            show('Gotowe: ' + o.pakiet + ' + Masterclass gratis dla ' + o.email + ', ważne do ' + fmtDate(o.expiresAt) + '.');
+            $('genOut').scrollIntoView({ behavior: 'smooth' });
+          })
+          .catch(function (err) { show(err.message, true); })
+          .then(function () { $('genSubmit').disabled = false; });
+      });
+
+      document.querySelectorAll('[data-copy]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var el = $(btn.dataset.copy);
+          el.select();
+          var done = function () { var t = btn.textContent; btn.textContent = 'Skopiowano ✓'; setTimeout(function () { btn.textContent = t; }, 1500); };
+          if (navigator.clipboard) navigator.clipboard.writeText(el.value).then(done, function () { document.execCommand('copy'); done(); });
+          else { document.execCommand('copy'); done(); }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

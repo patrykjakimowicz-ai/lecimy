@@ -73,3 +73,46 @@ export function sellerForPassword(password) {
   }
   return null;
 }
+
+// ── Oferta „Masterclass Wdrożeniowy gratis" (strona generator-gratis.html) ──
+// Sprzedawca po rozmowie (np. bezpłatnej konsultacji) wysyła osobisty link: wybrany pakiet z cennika + Masterclass
+// za 0 zł zamiast 157 zł, ważny 24 godziny, przypisany do e-maila klienta. Ten sam sekret co PRO, ale osobny prefiks
+// podpisu - token PRO nie przejdzie jako gratis i odwrotnie.
+export const GIFT_VALIDITY_HOURS = 24;
+export const GIFT_PACKAGES = ['Kompletny System', 'Fundament'];
+
+function signGift(payloadB64) {
+  return b64url(createHmac('sha256', secret()).update(`gratis:${payloadB64}`).digest());
+}
+
+export function createGiftOffer({ pakiet, email, imie, nazwisko, sprzedawca }) {
+  if (!GIFT_PACKAGES.includes(pakiet)) throw new Error(`Pakiet: ${GIFT_PACKAGES.join(' albo ')}.`);
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Podaj poprawny e-mail klienta.');
+  const payload = {
+    g: 'masterclass',
+    p: pakiet,
+    e: email.trim().toLowerCase(),
+    i: imie || undefined,
+    n: nazwisko || undefined,
+    s: sprzedawca || undefined,
+    x: Date.now() + GIFT_VALIDITY_HOURS * 60 * 60 * 1000,
+  };
+  const body = b64url(JSON.stringify(payload));
+  return `${body}.${signGift(body)}`;
+}
+
+/** Zwraca dane oferty gratis albo null (zły podpis, wygasła, brak sekretu). */
+export function readGiftOffer(token) {
+  if (typeof token !== 'string' || token.length > 1000) return null;
+  const [body, sig] = token.split('.');
+  if (!body || !sig) return null;
+  let expected;
+  try { expected = signGift(body); } catch { return null; }
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+  let o;
+  try { o = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')); } catch { return null; }
+  if (o.g !== 'masterclass' || !GIFT_PACKAGES.includes(o.p) || typeof o.e !== 'string' || !(o.x > Date.now())) return null;
+  return { pakiet: o.p, gratis: 'Masterclass Wdrożeniowy', email: o.e, imie: o.i || '', nazwisko: o.n || '', sprzedawca: o.s || '', expiresAt: new Date(o.x).toISOString() };
+}

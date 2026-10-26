@@ -9,6 +9,10 @@
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store
 
+/generator-gratis*
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-store
+
 /crm*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store

@@ -12,7 +12,7 @@ import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 import { PACKAGES, ADDONS, SEAT_LIMITS, MARKETING_CONSENT_DISCOUNT, PRO_PACKAGE, toGrosze } from './products.mjs';
-import { readProOffer, createProOffer, sellerForPassword, PRO_PRICE } from './proOffer.mjs';
+import { readProOffer, createProOffer, sellerForPassword, PRO_PRICE, createGiftOffer, readGiftOffer } from './proOffer.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
 import { createCheckoutSession, constructWebhookEvent } from './stripe.mjs';
 import { fulfillPaidOrder } from './fulfillment.mjs';
@@ -22,6 +22,7 @@ import { EDITION } from './edition.mjs';
 import { LEGAL_VERSIONS } from './legalVersions.mjs';
 import { legalFingerprint } from './legalDocs.mjs';
 import { crmRouter } from './crm.mjs';
+import { konsultacjaRouter } from './konsultacja.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Publicznie serwujemy WYŁĄCZNIE folder public/ - nigdy katalog główny projektu (server/, dane, .env itd.).
@@ -175,9 +176,16 @@ app.use(crmRouter({
   siteUrl: SITE_URL,
 }));
 
+// ── Bezpłatna konsultacja przed zakupem Kompletnego Systemu (konsultacja.html) → lead w CRM ──
+app.use(konsultacjaRouter({
+  clientIp,
+  limiter: (opts) => rateLimit({ keyGenerator: (req) => ipKeyGenerator(clientIp(req)), standardHeaders: true, legacyHeaders: false, ...opts }),
+  siteUrl: SITE_URL,
+}));
+
 // ── STATIC SITE ──────────────────────────────────────────────
-// /pro i /crm bez .html - tak samo jak serwuje je Cloudflare.
-app.get(['/pro', '/crm'], (req, res) => res.sendFile(path.join(ROOT, `${req.path.slice(1)}.html`)));
+// /pro, /crm i /konsultacja bez .html - tak samo jak serwuje je Cloudflare.
+app.get(['/pro', '/crm', '/konsultacja'], (req, res) => res.sendFile(path.join(ROOT, `${req.path.slice(1)}.html`)));
 app.use(express.static(ROOT));
 
 // ── API: utworzenie zamówienia + rejestracja transakcji w P24 ──
@@ -188,7 +196,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     if (Date.now() >= Date.parse(EDITION.salesCloseISO)) {
       return res.status(400).json({ error: `Sprzedaż tej edycji została zamknięta (${EDITION.salesCloseLabel}).` });
     }
-    const { pakiet, addonMasterclass: addonRaw, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura, zgodyTresc, oferta } = req.body || {};
+    const { pakiet, addonMasterclass: addonRaw, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura, zgodyTresc, oferta, prezent } = req.body || {};
     const telefon = MARKETING_ENABLED ? telefonRaw : null;
 
     // PRO kupuje się wyłącznie z osobistego linku po kwalifikacji - cena pochodzi z podpisanej oferty.
@@ -199,7 +207,16 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     if (!proOffer && (typeof pakiet !== 'string' || !Object.hasOwn(PACKAGES, pakiet))) {
       return res.status(400).json({ error: 'Nieznany pakiet.' });
     }
-    const addonMasterclass = !proOffer && !!addonRaw; // PRO zawiera pełny zakres, bez dodatków
+    // Osobisty link „Masterclass gratis" (generator-gratis.html): dodatek za 0 zł dla wskazanego pakietu i e-maila.
+    // Wygasły link blokuje zamówienie - klient nie może po cichu zapłacić za dodatek, który miał dostać za darmo.
+    const giftOffer = !proOffer && prezent ? readGiftOffer(prezent) : null;
+    if (!proOffer && prezent && !giftOffer) {
+      return res.status(400).json({ error: 'Link z darmowym Masterclass wygasł albo jest nieprawidłowy. Napisz do nas, a sprawdzimy, co da się zrobić.' });
+    }
+    if (giftOffer && pakiet !== giftOffer.pakiet) {
+      return res.status(400).json({ error: `Darmowy Masterclass dotyczy pakietu ${giftOffer.pakiet}.` });
+    }
+    const addonMasterclass = !proOffer && (!!addonRaw || !!giftOffer); // PRO zawiera pełny zakres, bez dodatków
     if (!imie || !nazwisko || !email) {
       return res.status(400).json({ error: 'Uzupełnij imię, nazwisko i e-mail.' });
     }
@@ -212,6 +229,9 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Podaj poprawny adres e-mail.' });
+    }
+    if (giftOffer && email.trim().toLowerCase() !== giftOffer.email) {
+      return res.status(400).json({ error: `Oferta jest przypisana do adresu ${giftOffer.email} - użyj tego adresu e-mail.` });
     }
     if (proOffer && email.trim().toLowerCase() !== proOffer.email) {
       return res.status(400).json({ error: `Oferta PRO jest przypisana do adresu ${proOffer.email} - użyj tego adresu e-mail.` });
@@ -257,13 +277,13 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       }
     }
 
-    let pricePln = (proOffer ? proOffer.cena : PACKAGES[pakiet]) + (addonMasterclass ? ADDONS.masterclass.price : 0);
+    let pricePln = (proOffer ? proOffer.cena : PACKAGES[pakiet]) + (addonMasterclass && !giftOffer ? ADDONS.masterclass.price : 0);
     if (marketingConsent) pricePln -= MARKETING_CONSENT_DISCOUNT;
     const amountGrosze = toGrosze(pricePln);
     const sessionId = randomUUID();
 
     const descriptionParts = [pakiet];
-    if (addonMasterclass) descriptionParts.push(ADDONS.masterclass.label);
+    if (addonMasterclass) descriptionParts.push(giftOffer ? `${ADDONS.masterclass.label} (gratis)` : ADDONS.masterclass.label);
     if (marketingConsent) descriptionParts.push(`rabat -${MARKETING_CONSENT_DISCOUNT}zł`);
     const description = descriptionParts.join(' + ');
 
@@ -271,6 +291,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       pakiet,
       addonMasterclass,
       ofertaPro: proOffer ? { cena: proOffer.cena, wazna: proOffer.expiresAt, sprzedawca: proOffer.sprzedawca } : null,
+      masterclassGratis: giftOffer ? { wazna: giftOffer.expiresAt, sprzedawca: giftOffer.sprzedawca } : null,
       imie,
       nazwisko,
       email,
@@ -453,6 +474,27 @@ app.post('/api/pro-offer', proLinkLimiter, (req, res) => {
     const offer = readProOffer(token);
     console.log(`[pro-offer] ${sprzedawca} -> ${offer.email}, ${offer.cena} zł, ważna do ${offer.expiresAt}`);
     res.set('Cache-Control', 'no-store').json({ url: `${SITE_URL}/zamowienie.html?oferta=${token}`, ...offer });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ── API: oferta „Masterclass gratis" - odczyt na stronie zamówienia i generowanie linku (generator-gratis.html) ──
+app.get('/api/oferta-gratis', readLimiter, (req, res) => {
+  const offer = readGiftOffer(req.query.t);
+  if (!offer) return res.status(404).set('Cache-Control', 'no-store').json({ error: 'Oferta nieprawidłowa albo wygasła.' });
+  res.set('Cache-Control', 'no-store').json({ ...offer, cenaGratisu: ADDONS.masterclass.price });
+});
+app.post('/api/oferta-gratis', proLinkLimiter, (req, res) => {
+  const { haslo, pakiet, imie, nazwisko, email } = req.body || {};
+  const sprzedawca = sellerForPassword(haslo);
+  if (!sprzedawca) return res.status(401).json({ error: 'Nieprawidłowe hasło sprzedawcy.' });
+  const clean = (v) => (typeof v === 'string' ? v.trim().slice(0, 80) : '');
+  try {
+    const token = createGiftOffer({ pakiet, email: clean(email), imie: clean(imie), nazwisko: clean(nazwisko), sprzedawca });
+    const offer = readGiftOffer(token);
+    console.log(`[oferta-gratis] ${sprzedawca} -> ${offer.email}, ${offer.pakiet} + Masterclass gratis, ważna do ${offer.expiresAt}`);
+    res.set('Cache-Control', 'no-store').json({ url: `${SITE_URL}/zamowienie.html?pakiet=${encodeURIComponent(offer.pakiet)}&prezent=${token}`, ...offer, cenaGratisu: ADDONS.masterclass.price });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

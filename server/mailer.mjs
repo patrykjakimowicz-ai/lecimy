@@ -125,7 +125,7 @@ export async function sendOrderConfirmationEmail(order) {
   const wzorUrl = `${siteUrl}/regulamin.html#wzor-odstapienia`;
 
   const addonLine = order.addonMasterclass
-    ? '<li>Masterclass Wdrożeniowy (+157 zł) - dostęp do niego udostępnimy w panelu programu najpóźniej w dniu startu edycji.</li>'
+    ? `<li>Masterclass Wdrożeniowy (${order.masterclassGratis ? 'gratis, zamiast 157 zł' : '+157 zł'}) - dostęp do niego udostępnimy w panelu programu najpóźniej w dniu startu edycji.</li>`
     : '';
 
   const accessBlock = order.setPasswordUrl
@@ -205,7 +205,7 @@ export async function sendOwnerNotification({ order, accountError, mailError, ex
     <div style="font-family: sans-serif; max-width: 560px; color: #111; line-height: 1.5;">
       <h3>Nowe opłacone zamówienie ${orderNumber(order)}</h3>
       ${problems.length ? `<p style="background:#fff3cd;padding:10px;border-radius:6px;">${problems.join('<br/>')}</p>` : ''}
-      <p><strong>${escapeHtml(order.pakiet)}</strong>${order.addonMasterclass ? ' + Masterclass Wdrożeniowy' : ''} - ${fmtPln(order.amount)}</p>
+      <p><strong>${escapeHtml(order.pakiet)}</strong>${order.addonMasterclass ? ` + Masterclass Wdrożeniowy${order.masterclassGratis ? ` (GRATIS, link od: ${escapeHtml(order.masterclassGratis.sprzedawca || '-')})` : ''}` : ''} - ${fmtPln(order.amount)}</p>
       <p>Klient: ${escapeHtml(order.imie)} ${escapeHtml(order.nazwisko)}, ${escapeHtml(order.email)}</p>
       ${order.ofertaPro ? `<p>Oferta indywidualna PRO: ${fmtPln(order.ofertaPro.cena * 100)}, sprzedawca: <strong>${escapeHtml(order.ofertaPro.sprzedawca || 'link z konsoli')}</strong></p>` : ''}
       ${faktura}
@@ -251,6 +251,51 @@ export async function sendLeadNotification({ lead, crmUrl }) {
     html,
     text: htmlToText(html),
   });
+}
+
+/**
+ * Rezerwacja bezpłatnej konsultacji (konsultacja.html): potwierdzenie dla klienta + powiadomienie właściciela.
+ * Oba maile są niezależne - błąd jednego nie blokuje drugiego.
+ */
+export async function sendConsultationEmails({ lead, crmUrl, przesuniecie }) {
+  const from = process.env.SMTP_FROM || process.env.SMTP_USER;
+  const k = lead.kontakt;
+  // Blok godzin, np. „wtorek, 27 października, 12:00-15:00" (czas polski).
+  const c = lead.konsultacja;
+  const godz = (iso) => new Date(iso).toLocaleTimeString('pl-PL', { timeZone: 'Europe/Warsaw', hour: '2-digit', minute: '2-digit' });
+  const kiedy = new Date(c.termin).toLocaleDateString('pl-PL', { timeZone: 'Europe/Warsaw', weekday: 'long', day: 'numeric', month: 'long' }) +
+    `, ${godz(c.termin)}${c.koniec ? `-${godz(c.koniec)}` : ''}`;
+  const t = await getTransporter();
+  const jobs = [];
+
+  const clientHtml = `
+    <div style="font-family: sans-serif; max-width: 560px; color: #111; line-height: 1.5;">
+      <h3>Cześć ${escapeHtml(k.imie)}, rozmowa jest umówiona</h3>
+      <p><strong>${escapeHtml(kiedy)}</strong> (czas polski)<br/>W tych godzinach zadzwonimy na numer <strong>${escapeHtml(k.telefon)}</strong>. Rozmowa trwa 10-15 minut i jest bezpłatna.</p>
+      <p>Przygotuj pytania, które masz przed dołączeniem do Lecimy. Powiemy Ci, od czego zacząć i który pakiet ma sens. Jeśli program nie będzie dla Ciebie, powiemy to wprost.</p>
+      <p>Nie pasuje Ci ten termin? Odpisz na tego maila albo zarezerwuj nowy na stronie, a stary zwolnimy.</p>
+      <p>Do usłyszenia,<br/>Zespół Lecimy po swoje</p>
+    </div>
+  `;
+  jobs.push(t.sendMail({ from, to: k.email, replyTo: CONTACT_EMAIL, subject: `Rozmowa umówiona: ${kiedy}`, html: clientHtml, text: htmlToText(clientHtml) }));
+
+  const owner = process.env.OWNER_EMAIL;
+  if (owner) {
+    const ownerHtml = `
+      <div style="font-family: sans-serif; max-width: 560px; color: #111; line-height: 1.5;">
+        <h3>${przesuniecie ? 'Przesunięta' : 'Nowa'} konsultacja (${escapeHtml(lead.pakiet)}): ${escapeHtml(k.imie)}</h3>
+        <p><strong>Termin:</strong> ${escapeHtml(kiedy)}</p>
+        <p>Telefon: ${escapeHtml(k.telefon)}<br/>E-mail: ${escapeHtml(k.email)}</p>
+        ${lead.konsultacja.pytanie ? `<p><strong>Co go wstrzymuje:</strong><br/>${escapeHtml(lead.konsultacja.pytanie)}</p>` : ''}
+        <p><a href="${escapeHtml(crmUrl)}">Otwórz w CRM</a></p>
+      </div>
+    `;
+    jobs.push(t.sendMail({ from, to: owner, subject: `${przesuniecie ? 'Przesunięta' : 'Nowa'} konsultacja: ${k.imie}, ${kiedy}`, html: ownerHtml, text: htmlToText(ownerHtml) }));
+  }
+
+  const results = await Promise.allSettled(jobs);
+  const failed = results.filter((r) => r.status === 'rejected');
+  if (failed.length) throw new Error(failed.map((r) => r.reason && r.reason.message).join('; '));
 }
 
 function escapeHtml(str) {

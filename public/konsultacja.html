@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bezpłatna rozmowa - Lecimy po swoje</title>
+  <meta name="description" content="Umów bezpłatną rozmowę (10-15 minut) przed dołączeniem do Lecimy po swoje. Odpowiemy na każde pytanie." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <style>
+    @font-face {
+      font-family: 'SF Pro Text';
+      src: local('SF Pro Text Medium'), url('/Library/Fonts/SF-Pro-Text-Medium.otf') format('opentype');
+      font-weight: 500;
+      font-style: normal;
+      font-display: swap;
+    }
+  </style>
+  <link rel="stylesheet" href="style.css" />
+  <script src="tracking.js"></script>
+  <!-- Analityka bez cookies (Plausible) - nie wymaga zgody, więc nie ma banera -->
+  <script async src="https://plausible.io/js/pa-FJmUPwUSueTUbwNQCrnvE.js"></script>
+  <script>
+    window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};
+    plausible.init()
+  </script>
+  <style>
+    .k { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; }
+    .k__top { padding: 22px 16px 0; display: flex; justify-content: center; }
+    .k__top img { height: 26px; width: auto; }
+    .k__main { flex: 1; display: flex; justify-content: center; padding: 40px 16px 64px; }
+    .k__box { width: 100%; max-width: 640px; }
+
+    .k__eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .3em; color: var(--clr-gold); text-transform: uppercase; margin-bottom: 1rem; }
+    .k__title { font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 800; line-height: 1.12; }
+    .k__lead { margin-top: 1rem; font-size: 1.05rem; line-height: 1.55; color: #d4d4d4; }
+    .k__points { margin-top: 1.25rem; display: flex; flex-direction: column; gap: .6rem; }
+    .k__points li { display: flex; gap: .65rem; align-items: flex-start; color: #bdbdbd; line-height: 1.45; }
+    .k__points svg { flex-shrink: 0; margin-top: 2px; color: var(--clr-gold); }
+
+    .k__card { margin-top: 2rem; padding: 1.5rem; border-radius: 18px; border: 1px solid var(--clr-border); background: var(--clr-bg-card); }
+    .k__h { font-size: 1.05rem; font-weight: 700; display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+    .k__h small { font-size: .75rem; font-weight: 500; color: #8a8a8a; }
+    .k__step { color: var(--clr-gold); margin-right: .35rem; }
+
+    .k__days { margin-top: 1rem; display: flex; gap: .5rem; overflow-x: auto; padding-bottom: .4rem; scrollbar-width: thin; }
+    .k__day { flex: 0 0 auto; min-width: 74px; padding: .65rem .5rem; border-radius: 12px; border: 1px solid var(--clr-border); background: #141414; text-align: center; line-height: 1.2; transition: border-color var(--dur-fast), background var(--dur-fast); }
+    .k__day b { display: block; font-size: 1.15rem; color: #fff; }
+    .k__day span { font-size: .72rem; color: #9a9a9a; text-transform: uppercase; letter-spacing: .06em; }
+    .k__day:hover { border-color: rgba(232,120,12,.6); }
+    .k__day.is-active { border-color: var(--clr-gold); background: rgba(232,120,12,.12); }
+
+    .k__slots { margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .5rem; }
+    .k__slot { padding: .8rem .5rem; border-radius: 10px; border: 1px solid var(--clr-border); background: #141414; font-size: 1.05rem; font-weight: 700; color: #e5e5e5; line-height: 1.25; transition: border-color var(--dur-fast), background var(--dur-fast); }
+    .k__slot:hover { border-color: rgba(232,120,12,.6); }
+    .k__slot.is-active { background: var(--clr-gold); border-color: var(--clr-gold); color: #0d0d0d; }
+    .k__empty { margin-top: 1rem; font-size: .9rem; color: #8a8a8a; }
+
+    .k__field { margin-top: 1rem; display: flex; flex-direction: column; gap: 6px; }
+    .k__field label { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: #a3a3a3; font-weight: 600; }
+    .k__input, .k__select, .k__textarea { width: 100%; background: #141414; border: 1px solid var(--clr-border); border-radius: 12px; padding: .85rem 1rem; font: inherit; font-size: 1rem; color: #fff; transition: border-color var(--dur-fast); }
+    .k__input:focus, .k__select:focus, .k__textarea:focus { outline: none; border-color: var(--clr-gold); }
+    .k__input.is-invalid { border-color: #ef4444; }
+    .k__textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
+    .k__phone { display: flex; gap: .5rem; }
+    .k__phone .k__select { width: auto; flex-shrink: 0; padding-right: .5rem; }
+    .k__err { font-size: .75rem; color: #f87171; }
+    .k__consent { margin-top: 1.25rem; display: flex; gap: .75rem; align-items: flex-start; font-size: .88rem; line-height: 1.5; color: #a3a3a3; cursor: pointer; }
+    .k__consent input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--clr-gold); flex-shrink: 0; }
+    .k__consent a { color: var(--clr-gold); text-decoration: underline; text-underline-offset: 2px; }
+    .k__picked { margin-top: 1.5rem; padding: .8rem 1rem; border-radius: 12px; background: rgba(232,120,12,.08); border: 1px solid rgba(232,120,12,.35); font-size: .95rem; }
+    .k__picked[hidden] { display: none; }
+    .k__status { margin-top: 1rem; padding: .75rem 1rem; border-radius: 10px; background: rgba(220,38,38,.1); border: 1px solid rgba(220,38,38,.4); font-size: .9rem; color: #fff; }
+    .k__status[hidden] { display: none; }
+    .k .btn[disabled] { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    .k__done { text-align: center; padding-top: 2rem; }
+    .k__done .k__lead { max-width: 520px; margin-inline: auto; }
+    .k__when { margin: 1.75rem auto 0; display: inline-block; padding: 1rem 1.5rem; border-radius: 14px; border: 1px solid rgba(232,120,12,.45); background: rgba(232,120,12,.08); font-size: 1.15rem; font-weight: 700; }
+    .k__when small { display: block; margin-top: .25rem; font-size: .8rem; font-weight: 500; color: #a3a3a3; }
+    .k__back { margin-top: 2rem; display: inline-block; color: #a3a3a3; text-decoration: underline; text-underline-offset: 3px; }
+    @media (max-width: 560px) { .k__card { padding: 1.1rem; } }
+  </style>
+</head>
+<body>
+  <div class="k">
+    <header class="k__top"><a href="index.html"><img src="brand_assets/logo.png" alt="Lecimy po swoje" /></a></header>
+    <main class="k__main"><div class="k__box" id="app">
+      <p class="k__eyebrow">Bezpłatna rozmowa</p>
+      <h1 class="k__title">Chcesz wejść, ale coś cię jeszcze wstrzymuje?</h1>
+      <p class="k__lead">Umów bezpłatną rozmowę (10 do 15 minut). Odpowiemy na każde pytanie.</p>
+      <ul class="k__points">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Rozmowa jest dla osób, które chcą dołączyć do Lecimy i potrzebują rozwiać ostatnie wątpliwości</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Dowiesz się, od czego zacząć i który pakiet ma sens</span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span>Jeśli program nie będzie dla ciebie, powiemy to wprost</span></li>
+      </ul>
+
+      <section class="k__card">
+        <h2 class="k__h"><span><span class="k__step">1.</span>Wybierz, kiedy mamy zadzwonić</span><small>czas polski</small></h2>
+        <div id="cal"><p class="k__empty">Wczytuję wolne terminy…</p></div>
+      </section>
+
+      <form class="k__card" id="form" novalidate>
+        <h2 class="k__h"><span><span class="k__step">2.</span>Gdzie mamy zadzwonić?</span></h2>
+        <div class="k__field"><label for="imie">Imię</label><input class="k__input" id="imie" maxlength="60" autocomplete="given-name" /><span class="k__err" data-err="imie"></span></div>
+        <div class="k__field"><label for="telefon">Telefon</label><div class="k__phone"><select class="k__select" id="kraj" aria-label="Kierunkowy"></select><input class="k__input" id="telefon" type="tel" inputmode="tel" maxlength="30" autocomplete="tel-national" placeholder="np. 512 345 678" /></div><span class="k__err" data-err="telefon"></span></div>
+        <div class="k__field"><label for="email">E-mail (wyślemy potwierdzenie)</label><input class="k__input" id="email" type="email" maxlength="254" autocomplete="email" /><span class="k__err" data-err="email"></span></div>
+        <div class="k__field"><label for="pytanie">Co cię wstrzymuje? (opcjonalnie)</label><textarea class="k__textarea" id="pytanie" maxlength="1000" placeholder="Np. nie wiem, czy znajdę czas, nie wiem, który pakiet wybrać…"></textarea></div>
+        <label class="k__consent"><input type="checkbox" id="zgoda" /><span>Akceptuję <a href="regulamin.html" target="_blank" rel="noopener">regulamin</a> i <a href="polityka-prywatnosci.html" target="_blank" rel="noopener">politykę prywatności</a> oraz zgadzam się na kontakt telefoniczny i mailowy w sprawie bezpłatnej konsultacji i oferty Lecimy po swoje.</span></label>
+        <span class="k__err" data-err="zgoda"></span>
+        <div class="k__picked" id="picked" hidden></div>
+        <div class="k__status" id="status" hidden></div>
+        <button type="submit" class="btn btn--primary btn--lg btn--full" id="send" style="margin-top:1.5rem" disabled>Umów bezpłatną rozmowę</button>
+      </form>
+    </div></main>
+  </div>
+
+  <script>
+  (function () {
+    'use strict';
+    // Lokalnie ten sam host, na produkcji backend na Render (jak w pro.html i zamowienie.html).
+    var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://lecimy-xlxt.onrender.com';
+    var TZ = 'Europe/Warsaw';
+    var COUNTRIES = [['PL', '+48'], ['DE', '+49'], ['GB', '+44'], ['NL', '+31'], ['IE', '+353'], ['NO', '+47'], ['SE', '+46'], ['BE', '+32'], ['FR', '+33'], ['ES', '+34'], ['IT', '+39'], ['CZ', '+420'], ['UA', '+380'], ['US', '+1']];
+    var $ = function (id) { return document.getElementById(id); };
+    // slots: bloki z wolnymi miejscami z serwera { start, koniec }, termin: start wybranego bloku.
+    var S = { slots: [], day: null, termin: null };
+
+    $('kraj').innerHTML = COUNTRIES.map(function (c) { return '<option value="' + c[1] + '">' + c[0] + ' ' + c[1] + '</option>'; }).join('');
+
+    // Daty pokazujemy w czasie polskim, niezależnie od strefy urządzenia (rozmowy prowadzimy z Polski).
+    function fmt(iso, opts) { return new Date(iso).toLocaleString('pl-PL', Object.assign({ timeZone: TZ }, opts)); }
+    function dayKey(iso) { return fmt(iso, { year: 'numeric', month: '2-digit', day: '2-digit' }); }
+    function hour(iso) { return fmt(iso, { hour: '2-digit', minute: '2-digit' }); }
+    function blockOf(start) { return S.slots.filter(function (b) { return b.start === start; })[0]; }
+    function whenLong(start, koniec) { return fmt(start, { weekday: 'long', day: 'numeric', month: 'long' }) + ', ' + hour(start) + '-' + hour(koniec); }
+
+    function loadSlots(msg) {
+      return fetch(API_BASE + '/api/konsultacja/terminy').then(function (r) { return r.json(); }).then(function (j) {
+        if (!j.terminy) throw new Error(j.error);
+        S.slots = j.terminy;
+        if (S.termin && !blockOf(S.termin)) S.termin = null;
+        var days = groups();
+        if (!S.day || !days[S.day]) S.day = Object.keys(days)[0] || null;
+        renderCal(msg);
+      }).catch(function (err) {
+        $('cal').innerHTML = '<p class="k__empty">' + (err && err.message ? err.message : 'Nie udało się wczytać kalendarza.') + ' <a href="#" data-retry style="color:var(--clr-gold)">Spróbuj ponownie</a></p>';
+      });
+    }
+    function groups() {
+      var g = {};
+      S.slots.forEach(function (b) { var k = dayKey(b.start); (g[k] = g[k] || []).push(b); });
+      return g;
+    }
+    function renderCal(msg) {
+      var g = groups(), keys = Object.keys(g);
+      if (!keys.length) {
+        $('cal').innerHTML = '<p class="k__empty">Wszystkie miejsca na najbliższe dwa tygodnie są zajęte. Napisz do nas: <a href="mailto:lecimyposwoje2020@gmail.com" style="color:var(--clr-gold)">lecimyposwoje2020@gmail.com</a>.</p>';
+        return updatePicked();
+      }
+      $('cal').innerHTML = (msg ? '<div class="k__status" style="margin-top:1rem">' + msg + '</div>' : '') +
+        '<div class="k__days" role="tablist">' + keys.map(function (k) {
+          var first = g[k][0].start;
+          return '<button type="button" class="k__day' + (k === S.day ? ' is-active' : '') + '" data-day="' + k + '"><span>' + fmt(first, { weekday: 'short' }) + '</span><b>' + fmt(first, { day: 'numeric' }) + '</b><span>' + fmt(first, { month: 'short' }) + '</span></button>';
+        }).join('') + '</div>' +
+        '<div class="k__slots">' + g[S.day].map(function (b) {
+          return '<button type="button" class="k__slot' + (b.start === S.termin ? ' is-active' : '') + '" data-slot="' + b.start + '">' + hour(b.start) + '-' + hour(b.koniec) + '</button>';
+        }).join('') + '</div>';
+      updatePicked();
+    }
+    function updatePicked() {
+      $('picked').hidden = !S.termin;
+      if (S.termin) { var b = blockOf(S.termin); $('picked').innerHTML = 'Zadzwonimy: <strong>' + whenLong(b.start, b.koniec) + '</strong>'; }
+      $('send').disabled = !S.termin;
+    }
+
+    $('cal').addEventListener('click', function (e) {
+      var t = e.target.closest('[data-day], [data-slot], [data-retry]');
+      if (!t) return;
+      e.preventDefault();
+      if (t.hasAttribute('data-retry')) return loadSlots();
+      if (t.hasAttribute('data-day')) { S.day = t.getAttribute('data-day'); return renderCal(); }
+      S.termin = t.getAttribute('data-slot');
+      renderCal();
+      if (window.innerWidth < 760) $('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+
+    $('form').addEventListener('input', function (e) {
+      var err = document.querySelector('[data-err="' + e.target.id + '"]');
+      if (err) err.textContent = '';
+      e.target.classList.remove('is-invalid');
+    });
+
+    // Numer w formacie międzynarodowym: +48512345678. Wpisany z „+" lub „00" - zostaje jak jest.
+    function fullPhone(kraj, raw) {
+      var v = String(raw || '').replace(/[\s().-]/g, '');
+      if (/^00\d/.test(v)) v = '+' + v.slice(2);
+      if (v.charAt(0) !== '+') v = kraj + v.replace(/^0+/, '');
+      return v;
+    }
+    function zrodlo() {
+      var z = window.lecimyAttribution ? window.lecimyAttribution() : {};
+      if (document.referrer && document.referrer.indexOf(location.host) === -1) z.referrer = document.referrer;
+      return z;
+    }
+
+    $('form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!S.termin) return;
+      var kraj = $('kraj').value, phone = fullPhone(kraj, $('telefon').value);
+      var errs = {};
+      if ($('imie').value.trim().length < 2) errs.imie = 'Podaj imię';
+      if (!/^\+\d{8,15}$/.test(phone) || (kraj === '+48' && phone.indexOf('+48') === 0 && phone.length !== 12)) errs.telefon = 'Podaj poprawny numer telefonu';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($('email').value.trim())) errs.email = 'Podaj poprawny e-mail';
+      if (!$('zgoda').checked) errs.zgoda = 'Zaznacz zgodę';
+      document.querySelectorAll('[data-err]').forEach(function (el) {
+        var id = el.getAttribute('data-err');
+        el.textContent = errs[id] || '';
+        var input = $(id);
+        if (input && input.classList.contains('k__input')) input.classList.toggle('is-invalid', !!errs[id]);
+      });
+      if (Object.keys(errs).length) return;
+
+      var btn = $('send'), status = $('status');
+      btn.disabled = true;
+      btn.textContent = 'Rezerwuję…';
+      status.hidden = true;
+      fetch(API_BASE + '/api/konsultacja', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ termin: S.termin, kontakt: { imie: $('imie').value.trim(), telefon: phone, email: $('email').value.trim() }, pytanie: $('pytanie').value.trim(), zgoda: true, zrodlo: zrodlo() })
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; }).then(function (j) {
+          if (r.status === 409) { S.termin = null; loadSlots(j.error); throw new Error('Wybierz inny blok powyżej.'); }
+          if (!r.ok || !j.ok) throw new Error(j.error || 'Nie udało się zarezerwować rozmowy. Spróbuj ponownie.');
+          return j;
+        });
+      }).then(function (j) {
+        if (window.plausible) try { window.plausible('Konsultacja umówiona', { props: { pakiet: 'Kompletny System' } }); } catch (x) { /* analityka */ }
+        $('app').innerHTML = '<div class="k__done"><p class="k__eyebrow">Gotowe</p><h1 class="k__title">Rozmowa umówiona</h1>' +
+          '<div class="k__when">' + whenLong(j.termin, j.koniec) + '<small>czas polski · rozmowa 10-15 minut</small></div>' +
+          '<p class="k__lead">W tych godzinach zadzwonimy na numer <strong>' + phone + '</strong>. Potwierdzenie wysłaliśmy na e-mail. Przygotuj pytania, które masz przed dołączeniem.</p>' +
+          '<a class="k__back" href="index.html#pricing">Wróć do cennika</a></div>';
+        window.scrollTo(0, 0);
+      }).catch(function (err) {
+        status.textContent = err && err.message && err.message !== 'Failed to fetch' ? err.message : 'Nie udało się zarezerwować rozmowy. Sprawdź internet i spróbuj ponownie.';
+        status.hidden = false;
+        btn.textContent = 'Umów bezpłatną rozmowę';
+        updatePicked();
+      });
+    });
+
+    loadSlots();
+  })();
+  </script>
+</body>
+</html>

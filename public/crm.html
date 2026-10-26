@@ -50,8 +50,8 @@
     }
     .crm { max-width: 1440px; margin: 0 auto; padding: 1.25rem 16px 4rem; }
 
-    .stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: .75rem; }
-    @media (max-width: 1100px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+    .stats { display: grid; grid-template-columns: repeat(7, 1fr); gap: .75rem; }
+    @media (max-width: 1100px) { .stats { grid-template-columns: repeat(4, 1fr); } }
     @media (max-width: 560px) { .stats { grid-template-columns: repeat(2, 1fr); } }
     .stat { background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 14px; padding: .9rem 1rem; }
     .stat__v { font-size: 1.6rem; font-weight: 700; color: #fff; line-height: 1.1; font-variant-numeric: tabular-nums; }
@@ -64,7 +64,7 @@
     .pipe button.is-active { border-color: var(--clr-gold); background: rgba(232,120,12,.12); }
 
     .filters { display: grid; grid-template-columns: 2fr repeat(6, 1fr); gap: .5rem; align-items: center; }
-    .filters__more { display: grid; grid-template-columns: repeat(4, 1fr) auto auto auto; gap: .5rem; align-items: center; margin-top: .5rem; }
+    .filters__more { display: grid; grid-template-columns: repeat(5, 1fr) auto auto auto; gap: .5rem; align-items: center; margin-top: .5rem; }
     @media (max-width: 1100px) { .filters, .filters__more { grid-template-columns: repeat(2, 1fr); } .filters > :first-child { grid-column: 1 / -1; } }
     .filters__date { display: flex; gap: .35rem; align-items: center; font-size: .8rem; color: #8a8a8a; }
     .filters__bar { display: flex; justify-content: space-between; align-items: center; gap: .75rem; margin: 1rem 0 .6rem; flex-wrap: wrap; font-size: .82rem; color: #8a8a8a; }
@@ -192,6 +192,26 @@
     /* Stary CRM (import z Lovable) */
     .crm-tabs button small { font-size: .7rem; opacity: .7; margin-left: .2rem; }
     .tag--old { background: rgba(148,163,184,.12); color: #cbd5e1; border: 1px dashed #64748b; }
+    .gk-info { color: #a3a3a3; font-size: .88rem; line-height: 1.5; margin-bottom: 1rem; max-width: 760px; }
+    .gk-day { background: var(--clr-bg-card); border: 1px solid var(--clr-border); border-radius: 14px; padding: .9rem 1rem; margin-bottom: .75rem; }
+    .gk-day.is-off { opacity: .75; }
+    .gk-day__head { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .7rem; }
+    .gk-day__head h3 { font-size: .95rem; font-weight: 700; }
+    .gk-day__head h3::first-letter { text-transform: uppercase; }
+    .gk-blocks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .6rem; }
+    @media (max-width: 760px) { .gk-blocks { grid-template-columns: 1fr; } }
+    .gk-block { border: 1px solid var(--clr-border); border-radius: 12px; padding: .7rem .8rem; background: #0e0e0e; display: flex; flex-direction: column; gap: .45rem; }
+    .gk-block.is-off { background: repeating-linear-gradient(135deg, #0e0e0e 0 8px, #141414 8px 16px); border-style: dashed; }
+    .gk-block.is-full { border-color: rgba(250,204,21,.35); }
+    .gk-block__row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+    .gk-block__time { font-size: 1.05rem; font-weight: 700; }
+    .gk-pill { font-size: .72rem; font-weight: 600; padding: .2rem .55rem; border-radius: 99px; border: 1px solid; white-space: nowrap; }
+    .gk-pill--on { color: #4ade80; border-color: rgba(74,222,128,.35); background: rgba(74,222,128,.08); }
+    .gk-pill--full { color: #facc15; border-color: rgba(250,204,21,.35); background: rgba(250,204,21,.08); }
+    .gk-pill--off { color: #f87171; border-color: rgba(248,113,113,.35); background: rgba(248,113,113,.08); }
+    .gk-who { font-size: .8rem; color: #a3a3a3; line-height: 1.5; }
+    .gk-who a { color: #e5e5e5; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+    .tag--kons { background: rgba(167,139,250,.12); color: #c4b5fd; border-color: rgba(167,139,250,.35); }
     .old-bar { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: .75rem; }
     .old-bar .inp { max-width: 340px; }
     .old-bar .sel { width: auto; min-width: 170px; }
@@ -255,6 +275,7 @@
         <nav class="crm-tabs" id="tabs">
           <button type="button" data-tab="leads" class="is-active">Leady</button>
           <button type="button" data-tab="cal">Kalendarz</button>
+          <button type="button" data-tab="grafik">Grafik konsultacji</button>
           <button type="button" data-tab="old">Stary CRM <small id="oldCount"></small></button>
         </nav>
         <div class="crm-top__right">
@@ -291,6 +312,7 @@
           <select class="sel" id="fGot"><option value="">Gotowość: każda</option><option value="8">8-10 (gorący)</option><option value="5">5-10</option><option value="-4">1-4 (zimny)</option></select>
         </div>
         <div class="filters__more">
+          <select class="sel" id="fTyp"><option value="">Typ: wszystkie</option><option value="ankieta">Ankieta PRO</option><option value="konsultacja">Konsultacja KS</option></select>
           <select class="sel" id="fOpiekun"><option value="">Opiekun: każdy</option><option value="-">Bez opiekuna</option></select>
           <select class="sel" id="fKontakt"><option value="">Kontakt: wszystkie</option><option value="dzis">Do kontaktu dziś</option><option value="zalegle">Zaległe kontakty</option><option value="brak">Bez terminu kontaktu</option></select>
           <div class="filters__date">od <input class="inp" id="fOd" type="date" /></div>
@@ -330,6 +352,12 @@
           </table>
           <div class="empty" id="oEmpty" hidden>Brak leadów ze starego CRM. Kliknij „Importuj CSV” i wybierz plik eksportu.</div>
         </div>
+      </section>
+
+      <!-- Widok: grafik bezpłatnych konsultacji (konsultacja.html) - zapisy w blokach i wyłączanie terminów -->
+      <section id="view-grafik" hidden>
+        <p class="gk-info">Bloki, w których klienci mogą umówić bezpłatną rozmowę (najwcześniej na jutro, 14 dni do przodu). Wyłączony blok znika ze strony zapisów. Osoby, które już się zapisały, zostają w CRM - zadzwoń do nich albo przełóż termin w karcie leada.</p>
+        <div id="gkList"><p class="muted">Wczytuję grafik…</p></div>
       </section>
 
       <!-- Widok: kalendarz -->
@@ -379,7 +407,7 @@
     ];
     var BUDZET = { ma: 'Ma środki', raty: 'W ratach', tansza: 'Tańsza opcja', brak: 'Brak budżetu' };
     var SEGMENT = { pro: 'Segment PRO', downsell: 'Downsell', brak_budzetu: 'Brak budżetu' };
-    var WON = ['Sprzedane PRO', 'Downsell'];
+    var WON = ['Sprzedane PRO', 'Sprzedane Kompletny System', 'Downsell'];
 
     var state = { token: null, name: '', leads: [], statuses: [], survey: {}, sellers: [], tab: 'leads', calMonth: startOfMonth(new Date()), calSel: dayKey(new Date()), openId: null, scope: readScope(), dTab: 'karta', drafts: {}, seatsLeft: null };
     var $ = function (id) { return document.getElementById(id); };
@@ -405,6 +433,9 @@
     function scoped() { return state.leads.filter(inScope); }
     function isOld(l) { return !!l.stary; }
     function oldTag() { return '<span class="tag tag--old">Stary CRM</span>'; }
+    // Rezerwacja bezpłatnej konsultacji przed zakupem Kompletnego Systemu (konsultacja.html) - bez ankiety PRO.
+    function isKons(l) { return l.typ === 'konsultacja'; }
+    function konsTag() { return '<span class="tag tag--kons">Konsultacja KS</span>'; }
 
     // ── Pomocnicze ──
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -512,7 +543,7 @@
       });
       $('fOpiekun').insertAdjacentHTML('beforeend', state.sellers.map(function (s) { return '<option>' + esc(s) + '</option>'; }).join(''));
     }
-    var FILTER_IDS = ['fQ', 'fBudzet', 'fStatus', 'fStart', 'fWiek', 'fZajecie', 'fGot', 'fOpiekun', 'fKontakt', 'fOd', 'fDo', 'fNied', 'fSort'];
+    var FILTER_IDS = ['fQ', 'fBudzet', 'fStatus', 'fStart', 'fWiek', 'fZajecie', 'fGot', 'fTyp', 'fOpiekun', 'fKontakt', 'fOd', 'fDo', 'fNied', 'fSort'];
     FILTER_IDS.forEach(function (id) { $(id).addEventListener(id === 'fQ' ? 'input' : 'change', renderLeads); });
     $('fReset').addEventListener('click', function () {
       FILTER_IDS.forEach(function (id) { var el = $(id); if (el.type === 'checkbox') el.checked = false; else el.value = id === 'fSort' ? 'new' : ''; });
@@ -522,7 +553,7 @@
     function filtered() {
       var q = $('fQ').value.trim().toLowerCase();
       var qDigits = q.replace(/\D/g, '');
-      var f = { budzet: $('fBudzet').value, status: $('fStatus').value, start: $('fStart').value, wiek: $('fWiek').value, zaj: $('fZajecie').value, got: $('fGot').value, op: $('fOpiekun').value, kontakt: $('fKontakt').value, od: $('fOd').value, do: $('fDo').value, nied: $('fNied').checked };
+      var f = { budzet: $('fBudzet').value, status: $('fStatus').value, start: $('fStart').value, wiek: $('fWiek').value, zaj: $('fZajecie').value, got: $('fGot').value, typ: $('fTyp').value, op: $('fOpiekun').value, kontakt: $('fKontakt').value, od: $('fOd').value, do: $('fDo').value, nied: $('fNied').checked };
       var today = dayKey(new Date());
       var out = scoped().filter(function (l) {
         if (isOld(l)) return false;
@@ -540,6 +571,7 @@
         if (f.wiek && o.wiek !== f.wiek) return false;
         if (f.zaj && o.zajecie !== f.zaj) return false;
         if (f.got) { var g = Number(o.gotowosc || 0), n = Number(f.got); if (n > 0 ? g < n : (g === 0 || g > -n)) return false; }
+        if (f.typ && (f.typ === 'konsultacja') !== isKons(l)) return false;
         if (f.op === '-' ? l.przypisany : f.op && l.przypisany !== f.op) return false;
         if (f.kontakt === 'dzis' && !(l.nastepnyKontakt && dayKey(new Date(l.nastepnyKontakt)) === today)) return false;
         if (f.kontakt === 'zalegle' && !isOverdue(l)) return false;
@@ -603,6 +635,8 @@
       var todayN = done.filter(function (l) { return dayKey(new Date(leadDate(l))) === today; }).length;
       var budget = done.filter(function (l) { return l.budzet === 'ma' || l.budzet === 'raty'; }).length;
       var sold = done.filter(function (l) { return l.status === 'Sprzedane PRO'; }).length;
+      var kons = done.filter(isKons);
+      var konsSold = kons.filter(function (l) { return l.status === 'Sprzedane Kompletny System'; }).length;
       var calls = done.filter(function (l) { return l.nastepnyKontakt && dayKey(new Date(l.nastepnyKontakt)) === today; }).length;
       var overdue = done.filter(isOverdue).length;
       var open = all.length - done.length;
@@ -611,6 +645,7 @@
         [done.length, 'Zgłoszenia', todayN + ' dziś · ' + week + ' w 7 dni'],
         [budget, 'Z budżetem (gotówka + raty)', pct(budget) + ' zgłoszeń'],
         [sold, 'Sprzedane PRO', pct(sold) + ' zgłoszeń'],
+        [kons.length, 'Konsultacje KS', konsSold + ' sprzedanych'],
         [calls, 'Kontakty na dziś', ''],
         [overdue, 'Zaległe kontakty', ''],
         [open, 'Niedokończone ankiety', '']
@@ -643,7 +678,7 @@
         var got = Number(o.gotowosc || 0);
         return '<tr data-id="' + l.id + '"' + (l.przypisany ? ' class="own"' + ownAttr(l) : '') + '>' +
           '<td class="num" data-l="Zgłoszenie">' + fmtRel(leadDate(l)) + '</td>' +
-          '<td><div class="name">' + esc(fullName(l)) + (l.niepelnoletni ? ' <span class="tag tag--warn">&lt;18</span>' : '') + '</div>' + (k.nick ? '<div class="sub">' + esc(k.nick) + '</div>' : (o.wiek ? '<div class="sub">' + esc(o.wiek) + ' · ' + esc(o.zajecie || '') + '</div>' : '')) + '</td>' +
+          '<td><div class="name">' + esc(fullName(l)) + (isKons(l) ? ' ' + konsTag() : '') + (l.niepelnoletni ? ' <span class="tag tag--warn">&lt;18</span>' : '') + '</div>' + (k.nick ? '<div class="sub">' + esc(k.nick) + '</div>' : (o.wiek ? '<div class="sub">' + esc(o.wiek) + ' · ' + esc(o.zajecie || '') + '</div>' : '')) + '</td>' +
           '<td>' + (k.telefon ? '<div class="num">' + esc(k.telefon) + '</div><div class="sub">' + esc(k.email) + '</div>' : '-') + '</td>' +
           '<td>' + budzetTag(l) + '</td>' +
           '<td class="num" data-l="Gotowość">' + (got ? '<b style="color:' + (got >= 8 ? '#4ade80' : got >= 5 ? '#facc15' : '#f87171') + '">' + got + '</b>/10' : '-') + '</td>' +
@@ -728,7 +763,7 @@
           var txt = h.zmiana.replace(/następny kontakt: (\S+)/, function (m, iso) { return 'następny kontakt: ' + fmtDT(iso); });
           return { at: h.at, html: '<div class="tl tl--sys">' + esc(h.autor) + ' · ' + fmtDT(h.at) + ' · ' + esc(txt) + '</div>' };
         }))
-        .concat([{ at: l.createdAt, html: '<div class="tl tl--sys">' + fmtDT(l.createdAt) + ' · rozpoczęcie ankiety' + (l.wyslanoAt ? ' · wysłana ' + fmtDT(l.wyslanoAt) : '') + '</div>' }])
+        .concat([{ at: l.createdAt, html: '<div class="tl tl--sys">' + fmtDT(l.createdAt) + (isKons(l) ? ' · pierwsza rezerwacja konsultacji' : ' · rozpoczęcie ankiety' + (l.wyslanoAt ? ' · wysłana ' + fmtDT(l.wyslanoAt) : '')) + '</div>' }])
         .sort(function (a, b) { return String(b.at).localeCompare(String(a.at)); })
         .map(function (x) { return x.html; }).join('');
 
@@ -738,11 +773,11 @@
       $('drawer').className = 'drawer' + (l.przypisany ? ' own' : '');
       $('drawer').style.setProperty('--oc', l.przypisany ? ownerColor(l.przypisany) : '');
       $('drawer').innerHTML =
-        '<div class="drawer__head"><div><h2>' + esc(fullName(l)) + '</h2><div class="tags">' + (isOld(l) ? oldTag() : '') + (l.ukonczona ? ownerTag(l) : '') + statusTag(l) + (isOld(l) ? '' : budzetTag(l)) +
+        '<div class="drawer__head"><div><h2>' + esc(fullName(l)) + '</h2><div class="tags">' + (isOld(l) ? oldTag() : '') + (isKons(l) ? konsTag() : '') + (l.ukonczona ? ownerTag(l) : '') + statusTag(l) + (isOld(l) || isKons(l) ? '' : budzetTag(l)) +
           (l.segment ? '<span class="tag tag--none">' + esc(SEGMENT[l.segment]) + '</span>' : '') +
           (l.niepelnoletni ? '<span class="tag tag--warn">Niepełnoletni - sprzedaż tylko za zgodą rodzica/opiekuna</span>' : '') + '</div></div>' +
           '<button type="button" class="drawer__x" data-close aria-label="Zamknij">×</button></div>' +
-        (l.ukonczona ? '<nav class="dtabs">' + [['karta', 'Karta leada'], ['setter', 'Skrypt settera'], ['closer', 'Skrypt closera']].map(function (t) {
+        (l.ukonczona ? '<nav class="dtabs">' + (isKons(l) ? [['karta', 'Karta leada'], ['ks', 'Skrypt rozmowy KS']] : [['karta', 'Karta leada'], ['setter', 'Skrypt settera'], ['closer', 'Skrypt closera']]).map(function (t) {
           return '<button type="button" data-dtab="' + t[0] + '" class="' + (state.dTab === t[0] ? 'is-active' : '') + '">' + t[1] + '</button>';
         }).join('') + '</nav>' : '') +
         (l.ukonczona && state.dTab !== 'karta' ? scriptBody(l) :
@@ -764,11 +799,11 @@
             '<div class="full"><label for="eNote" style="display:flex;justify-content:space-between">Nowa notatka <button type="button" class="muted" style="font-size:.75rem;text-decoration:underline" data-template>wstaw szablon</button></label><textarea class="inp" id="eNote" placeholder="Sytuacja klienta, obiekcje, ustalenia z rozmowy…"></textarea></div>' +
             '<div class="full" style="display:flex;justify-content:flex-end"><button type="button" class="b b--gold" data-save>Zapisz</button></div>' +
           '</div></div>' : '') +
-          (isOld(l) ? oldSection(l) : '<div class="sec"><h3>Odpowiedzi z ankiety</h3>' + answers + '</div>') +
+          (isOld(l) ? oldSection(l) : isKons(l) ? konsSection(l) : '<div class="sec"><h3>Odpowiedzi z ankiety</h3>' + answers + '</div>') +
           '<div class="sec"><h3>Historia i notatki</h3><div class="timeline">' + feed + '</div></div>' +
           '<div class="sec"><h3>Szczegóły</h3><dl class="kv">' +
-            '<dt>Rozpoczęcie ankiety</dt><dd>' + fmtDT(l.createdAt) + '</dd>' +
-            '<dt>Wysłanie</dt><dd>' + (l.wyslanoAt ? fmtDT(l.wyslanoAt) : 'nie wysłano') + '</dd>' +
+            '<dt>' + (isKons(l) ? 'Pierwsza rezerwacja' : 'Rozpoczęcie ankiety') + '</dt><dd>' + fmtDT(l.createdAt) + '</dd>' +
+            '<dt>' + (isKons(l) ? 'Ostatnia rezerwacja' : 'Wysłanie') + '</dt><dd>' + (l.wyslanoAt ? fmtDT(l.wyslanoAt) : 'nie wysłano') + '</dd>' +
             '<dt>Źródło</dt><dd>' + (Object.keys(z).length ? Object.keys(z).map(function (key) { return esc(key) + ': ' + esc(z[key]); }).join('<br/>') : 'wejście bezpośrednie') + '</dd>' +
             (l.zgoda ? '<dt>Zgoda</dt><dd>' + fmtDT(l.zgoda.at) + ', IP ' + esc(l.zgoda.ip) + '<br/><span class="muted">' + esc(l.zgoda.tresc) + '</span></dd>' : '') +
             '<dt>ID</dt><dd class="muted">' + esc(l.id) + '</dd>' +
@@ -788,6 +823,16 @@
       return '<div class="drawer__body"><div class="sc">' + sc[state.dTab] +
         '<div class="sc-actions"><button type="button" class="b b--gold" data-template>Wstaw szablon notatki</button><button type="button" class="b" data-dtab="karta">← Wróć do karty</button></div>' +
         '</div></div>';
+    }
+
+    function konsSection(l) {
+      var c = l.konsultacja || {};
+      return '<div class="sec"><h3>Bezpłatna konsultacja</h3><dl class="kv">' +
+        '<dt>Pakiet</dt><dd>' + esc(l.pakiet || 'Kompletny System') + '</dd>' +
+        '<dt>Blok wybrany przez klienta</dt><dd>' + fmtDT(c.termin) + (c.koniec ? '-' + new Date(c.koniec).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }) : '') + '</dd>' +
+        (c.rezerwacje > 1 ? '<dt>Rezerwacje</dt><dd>' + c.rezerwacje + '× (przesuwał termin)</dd>' : '') +
+        '<dt>Co go wstrzymuje</dt><dd>' + (c.pytanie ? esc(c.pytanie) : '<span class="muted">nie napisał</span>') + '</dd>' +
+        '</dl><p class="muted" style="margin-top:.8rem;font-size:.85rem">Zadzwoń w wybranym bloku godzin. Rozmowa 10-15 minut. Cel: rozwiać wątpliwości i domknąć Kompletny System (1 597 zł, Klarna 3×0%). Po opłaceniu ustaw status „Sprzedane Kompletny System”. Skrypt rozmowy jest w zakładce „Skrypt rozmowy KS”.</p></div>';
     }
 
     function oldSection(l) {
@@ -905,7 +950,7 @@
       if (t.hasAttribute('data-dtab') || t.hasAttribute('data-template')) {
         if ($('eNote')) state.drafts[state.openId] = $('eNote').value;
         if (t.hasAttribute('data-template')) {
-          var tpl = window.CRM_SKRYPTY ? window.CRM_SKRYPTY.noteTemplate : '';
+          var tpl = window.CRM_SKRYPTY ? (isKons(byId(state.openId) || {}) ? window.CRM_SKRYPTY.noteTemplateKs : window.CRM_SKRYPTY.noteTemplate) : '';
           var cur = state.drafts[state.openId] || '';
           if (cur.indexOf(tpl) === -1) state.drafts[state.openId] = cur ? cur + '\n\n' + tpl : tpl;
           state.dTab = 'karta';
@@ -961,7 +1006,57 @@
       $('view-leads').hidden = state.tab !== 'leads';
       $('view-cal').hidden = state.tab !== 'cal';
       $('view-old').hidden = state.tab !== 'old';
+      $('view-grafik').hidden = state.tab !== 'grafik';
+      if (state.tab === 'grafik') loadGrafik();
       renderAll();
+    });
+
+    // ── Grafik konsultacji ──
+    // Godziny zawsze w czasie polskim (tak jak widzi je klient na stronie zapisów).
+    function plTime(iso) { return new Date(iso).toLocaleTimeString('pl-PL', { timeZone: 'Europe/Warsaw', hour: '2-digit', minute: '2-digit' }); }
+    function plDay(iso) { return new Date(iso).toLocaleDateString('pl-PL', { timeZone: 'Europe/Warsaw', weekday: 'long', day: 'numeric', month: 'long' }); }
+    function loadGrafik() {
+      api('GET', '/api/crm/konsultacje/grafik').then(renderGrafik).catch(function (err) {
+        $('gkList').innerHTML = '<div class="warnbox">' + esc(err.message) + '</div>';
+      });
+    }
+    function renderGrafik(g) {
+      state.grafik = g;
+      var days = [], byDay = {};
+      g.bloki.forEach(function (b) { var k = plDay(b.start); if (!byDay[k]) { byDay[k] = []; days.push(k); } byDay[k].push(b); });
+      $('gkList').innerHTML = days.map(function (d) {
+        var bl = byDay[d], allOff = bl.every(function (b) { return b.wylaczony; });
+        var starts = bl.map(function (b) { return b.start; }).join(',');
+        return '<div class="gk-day' + (allOff ? ' is-off' : '') + '"><div class="gk-day__head"><h3>' + esc(d) + '</h3>' +
+          '<button type="button" class="b' + (allOff ? '' : ' b--danger') + '" data-gk="' + starts + '" data-off="' + (allOff ? '0' : '1') + '">' + (allOff ? 'Włącz cały dzień' : 'Wyłącz cały dzień') + '</button></div>' +
+          '<div class="gk-blocks">' + bl.map(function (b) {
+            var n = b.zapisani.length, full = n >= g.limit;
+            var pill = b.wylaczony ? '<span class="gk-pill gk-pill--off">Wyłączony</span>' : full ? '<span class="gk-pill gk-pill--full">Pełny</span>' : '<span class="gk-pill gk-pill--on">Otwarty</span>';
+            return '<div class="gk-block' + (b.wylaczony ? ' is-off' : full ? ' is-full' : '') + '">' +
+              '<div class="gk-block__row"><span class="gk-block__time">' + plTime(b.start) + '-' + plTime(b.koniec) + '</span>' + pill + '</div>' +
+              '<div class="gk-who">Zapisani: ' + n + '/' + g.limit + (n ? ' · ' + b.zapisani.map(function (z) { return '<a data-open="' + esc(z.id) + '">' + esc(z.imie || 'bez imienia') + '</a>'; }).join(', ') : '') +
+              (b.wylaczony ? '<br/><span class="muted">wyłączył: ' + esc(b.wylaczony.autor) + ', ' + fmtDT(b.wylaczony.at) + '</span>' : '') + '</div>' +
+              '<button type="button" class="b' + (b.wylaczony ? ' b--gold' : '') + '" data-gk="' + b.start + '" data-off="' + (b.wylaczony ? '0' : '1') + '">' + (b.wylaczony ? 'Włącz blok' : 'Wyłącz blok') + '</button>' +
+            '</div>';
+          }).join('') + '</div></div>';
+      }).join('') || '<p class="muted">Brak bloków w grafiku.</p>';
+    }
+    $('gkList').addEventListener('click', function (e) {
+      var o = e.target.closest('[data-open]');
+      if (o) return openLead(o.getAttribute('data-open'));
+      var t = e.target.closest('[data-gk]');
+      if (!t) return;
+      var starty = t.getAttribute('data-gk').split(','), off = t.getAttribute('data-off') === '1';
+      if (off) {
+        var zapisani = (state.grafik ? state.grafik.bloki : []).filter(function (b) { return starty.indexOf(b.start) > -1; })
+          .reduce(function (n, b) { return n + b.zapisani.length; }, 0);
+        if (zapisani && !confirm('W tym terminie jest już zapisanych osób: ' + zapisani + '.\nWyłączenie nie odwołuje ich rozmów - zadzwoń do nich albo przełóż termin w karcie leada.\n\nWyłączyć?')) return;
+      }
+      t.disabled = true;
+      api('POST', '/api/crm/konsultacje/grafik', { starty: starty, wylaczony: off }).then(function (g) {
+        renderGrafik(g);
+        toast(off ? 'Wyłączone - klienci nie zobaczą tego terminu' : 'Włączone - termin wrócił na stronę zapisów');
+      }).catch(function (err) { toast(err.message); t.disabled = false; });
     });
 
     // ── Kalendarz ──

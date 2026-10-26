@@ -187,7 +187,7 @@
               </div>
               <div class="order-summary__line order-summary__addon" id="sumAddonLine">
                 <span>Masterclass Wdrożeniowy</span>
-                <span>+157 zł</span>
+                <span id="sumAddonPrice">+157 zł</span>
               </div>
               <div class="order-summary__line order-summary__discount" id="sumDiscountLine">
                 <span>Rabat za zgodę marketingową</span>
@@ -281,6 +281,68 @@
         })
         .catch(function () {});
 
+      // Osobisty link „Masterclass gratis" (generator-gratis.html): ?prezent=<token>. Pakiet z linku, Masterclass za 0 zł,
+      // e-mail zablokowany, licznik do końca 24 godzin. Wygasły link - serwer odrzuca zamówienie.
+      var giftToken = new URLSearchParams(window.location.search).get('prezent');
+      var giftOffer = null;
+      function applyGiftOffer(offer) {
+        giftOffer = offer;
+        var esc = function (t) { var d = document.createElement('div'); d.textContent = t; return d.innerHTML; };
+        var list = document.getElementById('orderPackages');
+        var keep = list.querySelector('.order-package[data-package="' + offer.pakiet + '"]');
+        if (keep) {
+          list.querySelectorAll('.order-package').forEach(function (el) { if (el !== keep) el.remove(); });
+          keep.querySelector('input').checked = true;
+          packageLabels = list.querySelectorAll('.order-package');
+        }
+        var old = offer.cenaGratisu || parseInt(addonCheckbox.dataset.price, 10);
+        addonCheckbox.checked = true;
+        // Gratisu nie da się odznaczyć (klik nic nie zmienia), ale checkbox zostaje aktywny, żeby był wyraźnie zielony.
+        addonCheckbox.addEventListener('click', function (e) { e.preventDefault(); });
+        orderBump.classList.add('order-bump--gift');
+        orderBump.querySelector('.order-bump__badge').textContent = '🎁 Gratis - tylko dla Ciebie';
+        orderBump.querySelector('.order-bump__price').innerHTML = '<s>' + old + ' zł</s> <b class="order-bump__free">0 zł · ZA DARMO</b>';
+        orderBump.querySelector('.order-bump__row > div').insertAdjacentHTML('beforeend',
+          '<p class="order-bump__gift-note">Masterclass jest już dodany do Twojego zamówienia za darmo. Oszczędzasz ' + old + ' zł. Najniższa cena z 30 dni przed obniżką: ' + old + ' zł.</p>');
+        document.getElementById('sumAddonPrice').innerHTML = '<s>' + old + ' zł</s> <b class="order-summary__free">0 zł</b>';
+        document.querySelector('.order-summary__vat').insertAdjacentHTML('afterend', '<p class="order-summary__saving">🎁 Oszczędzasz ' + old + ' zł - Masterclass gratis</p>');
+
+        var emailInput = document.getElementById('email');
+        emailInput.value = offer.email;
+        emailInput.readOnly = true;
+        if (offer.imie && !document.getElementById('imie').value) document.getElementById('imie').value = offer.imie;
+        if (offer.nazwisko && !document.getElementById('nazwisko').value) document.getElementById('nazwisko').value = offer.nazwisko;
+
+        var expires = Date.parse(offer.expiresAt);
+        var note = document.getElementById('proOfferNote');
+        note.classList.add('order-form__offer-note--gift');
+        note.innerHTML = '<strong>Twoja osobista oferta:</strong> ' + esc(offer.pakiet) + ' + Masterclass Wdrożeniowy <strong>za darmo</strong> (zamiast ' + old + ' zł). Ważna do ' +
+          new Date(expires).toLocaleString('pl-PL', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + '.';
+        note.hidden = false;
+        refreshSummary();
+
+        // Licznik do końca 24 godzin. Po czasie blokujemy zakup z gratisem i podsuwamy zwykłe zamówienie.
+        var timer = document.createElement('div');
+        timer.className = 'pro-timer pro-timer--gift';
+        timer.innerHTML = '<span class="pro-timer__label">Masterclass gratis wygasa za</span><span class="pro-timer__value" id="giftTimer"></span>';
+        note.insertAdjacentElement('afterend', timer);
+        var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+        var tick = function () {
+          var left = Math.max(0, Math.floor((expires - Date.now()) / 1000));
+          document.getElementById('giftTimer').textContent = pad(Math.floor(left / 3600)) + ':' + pad(Math.floor(left % 3600 / 60)) + ':' + pad(left % 60);
+          if (left === 0) {
+            clearInterval(iv);
+            timer.classList.add('is-expired');
+            timer.firstChild.textContent = 'Oferta wygasła';
+            submitBtn.disabled = true;
+            status.innerHTML = 'Oferta z darmowym Masterclass wygasła. <a href="zamowienie.html?pakiet=' + encodeURIComponent(offer.pakiet) + '">Złóż zwykłe zamówienie</a> albo napisz do swojego opiekuna.';
+            status.classList.add('is-visible', 'is-error');
+          }
+        };
+        var iv = setInterval(tick, 1000);
+        tick();
+      }
+
       // Oferta indywidualna PRO: ?oferta=<token z tools/link_pro.mjs>. Bez linku pakietu PRO nie da się wybrać.
       var proToken = new URLSearchParams(window.location.search).get('oferta');
       var proOffer = null;
@@ -360,7 +422,7 @@
 
         var total = price;
         if (addonCheckbox.checked) {
-          total += parseInt(addonCheckbox.dataset.price, 10);
+          if (!giftOffer) total += parseInt(addonCheckbox.dataset.price, 10);
           sumAddonLine.classList.add('is-visible');
           orderBump.classList.add('is-selected');
         } else {
@@ -408,6 +470,16 @@
       addonCheckbox.addEventListener('change', refreshSummary);
       marketingCheckbox.addEventListener('change', refreshSummary);
       refreshSummary();
+
+      if (giftToken && !proToken) {
+        fetch(API_BASE + '/api/oferta-gratis?t=' + encodeURIComponent(giftToken))
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(applyGiftOffer)
+          .catch(function () {
+            giftToken = null;
+            showStatus('Link z darmowym Masterclass wygasł albo jest nieprawidłowy. Możesz złożyć zwykłe zamówienie poniżej albo napisać do swojego opiekuna.', true);
+          });
+      }
 
       if (proToken) {
         fetch(API_BASE + '/api/pro-offer?t=' + encodeURIComponent(proToken))
@@ -479,6 +551,7 @@
             cyfrowa: (document.querySelector('label[for="zgodaCyfrowa"]') || {}).textContent || '',
           },
           oferta: proOffer ? proToken : undefined,
+          prezent: giftOffer ? giftToken : undefined,
           faktura: fakturaCheckbox.checked ? {
             firma: document.getElementById('fakturaFirma').value.trim(),
             nip: document.getElementById('fakturaNip').value.trim(),

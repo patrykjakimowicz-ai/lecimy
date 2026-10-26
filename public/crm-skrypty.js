@@ -181,11 +181,79 @@
         tip('NIE, ale chce zacząć → Kompletny System / Fundament, status „Downsell”. Zastanawia się → konkretny termin follow-upu (24-48 h), status „Follow-up”.')) +
       '<div class="sc-box"><h4>Po rozmowie</h4><p class="sc-goal">Zaktualizuj status, ustaw następny kontakt i zapisz notatkę: sytuacja, obiekcje, najważniejszy filar, poziom entuzjazmu.</p></div>';
 
-    return { setter: setter, closer: closer };
+    return { setter: setter, closer: closer, ks: buildKs(lead, ctx, { esc: esc, imie: imie, ja: ja, start: start, koniec: koniec, clip: clip, say: say, ask: ask, tip: tip, fromSurvey: fromSurvey, step: step, check: check }) };
+  }
+
+  // ── Bezpłatna konsultacja przed zakupem Kompletnego Systemu (lead z konsultacja.html) ──
+  // Klient sam umówił 10-15 minut, bo chce dołączyć, ale coś go wstrzymuje. Cel: rozwiać wątpliwość i domknąć KS na rozmowie.
+  function buildKs(lead, ctx, h) {
+    var esc = h.esc, say = h.say, ask = h.ask, tip = h.tip, step = h.step, check = h.check;
+    var k = lead.kontakt || {};
+    var c = lead.konsultacja || {};
+    var ed = ctx.edition || {};
+    var przedPodwyzka = ed.priceRiseISO && Date.now() < Date.parse(ed.priceRiseISO);
+    var podwyzkaLabel = ed.priceRiseISO ? new Date(ed.priceRiseISO).toLocaleDateString('pl-PL', { timeZone: 'Europe/Warsaw', day: 'numeric', month: 'long' }) : '';
+    var zamkniecie = ed.salesCloseLabel || h.start;
+    var link = location.origin + '/zamowienie.html?pakiet=Kompletny%20System';
+    var filary = Object.keys(BLOKADA_FILAR).map(function (b) { return '<li><b>' + esc(b) + '</b> → ' + esc(BLOKADA_FILAR[b][0]) + ': ' + esc(BLOKADA_FILAR[b][1]) + '</li>'; }).join('');
+
+    return '<p class="sc-intro">Cel rozmowy: <b>rozwiać wątpliwość i domknąć Kompletny System</b> na tej rozmowie. 10-15 minut. Klient sam się zapisał, więc chce wejść - Twoja rola to usunąć to, co go wstrzymuje.</p>' +
+      (ctx.lastNote ? '<div class="sc-box"><h4>Notatka z poprzedniej rozmowy (' + esc(ctx.lastNote.autor) + ')</h4><p class="sc-note">' + esc(ctx.lastNote.tekst) + '</p></div>' : '') +
+      step(1, 'Otwarcie', 'Krótko i ciepło. Odwołaj się do tego, że sam(a) się umówił(a).',
+        say('„Cześć ' + h.imie + ', tu ' + h.ja + ' z Lecimy po swoje. Umówiłeś/aś się z nami na krótką rozmowę o programie - masz teraz 10 minut?”') +
+        tip('Nie może teraz? Ustal konkretną godzinę w tym samym bloku albo jutro i wpisz ją w „Następny kontakt”.')) +
+      step(2, 'Ramka', 'Klient ma wiedzieć, jak to się skończy - to zdejmuje presję.',
+        say('„Plan jest prosty: powiesz mi, co Cię jeszcze wstrzymuje, odpowiem na każde pytanie i razem ustalimy, czy i od którego pakietu zacząć. Jeśli program nie będzie dla Ciebie, powiem Ci to wprost. Pasuje?”')) +
+      step(3, 'Co go wstrzymuje', 'Najważniejszy punkt rozmowy. Dopytuj, aż dojdziesz do prawdziwego powodu.',
+        h.fromSurvey('Napisał(a) przy zapisie', c.pytanie ? '„' + h.clip(c.pytanie) + '”' : '') +
+        (c.pytanie
+          ? say('„Przy zapisie napisałeś/aś: „' + h.clip(c.pytanie) + '”. Opowiedz mi o tym więcej.”')
+          : say('„Co sprawia, że jeszcze się nie zapisałeś/aś? Co Cię wstrzymuje?”')) +
+        ask('„Czy to jedyna rzecz, czy jest coś jeszcze?”') +
+        tip('Zwykle to jedno z pięciu: cena, czas, „czy to zadziała u mnie”, wybór pakietu, decyzja z partnerem. Gotowe odpowiedzi są w kroku 6.')) +
+      step(4, 'Szybka diagnoza', 'Dwa-trzy pytania, żeby dopasować program do jego/jej sytuacji. Nie przesłuchuj.',
+        ask('„Co najbardziej chcesz zmienić w ciągu tych 90 dni?”') +
+        ask('„Co już próbowałeś/aś i dlaczego nie zadziałało?”') +
+        ask('„Co się stanie, jeśli za 3 miesiące będzie dokładnie tak jak dziś?”') +
+        '<ul class="sc-list">' + filary + '</ul>' +
+        tip('Powiąż to, co mówi, z filarem z listy - użyjesz tego w kroku 5.')) +
+      step(5, 'Kompletny System dopasowany do niego/niej', 'Mów o tym, co rozwiązuje JEGO/JEJ problem. Nie czytaj całej listy.',
+        say('„W Kompletnym Systemie przechodzisz przez wszystkie 4 filary: Dyscyplinę, Szczęście, Finanse i Duchowość. U Ciebie najważniejszy będzie [filar z kroku 4], bo [jego/jej słowa].”') +
+        '<ul class="sc-list"><li><b>90 dni prowadzenia</b> od ' + esc(h.start) + ' do ' + esc(h.koniec) + ' - zawsze wiesz, co robić dalej</li>' +
+        '<li><b>22 lekcje wideo</b> w czterech etapach + karty pracy</li>' +
+        '<li><b>Wyzwania w grupie</b> - ok. 15 minut dziennie</li>' +
+        '<li><b>Społeczność „Lecimy”</b> i <b>comiesięczne spotkania na żywo z Bartem</b></li>' +
+        '<li><b>Gotowy Zestaw Narzędzi Wdrożeniowych</b> i <b>praca z podświadomością</b>: hipnozy, medytacje prowadzone, afirmacje</li></ul>' +
+        ask('„Jak to brzmi w kontekście tego, co mi powiedziałeś/aś?”')) +
+      step(6, 'Cena, gwarancja i obiekcje', 'Powiedz cenę spokojnie i zamilknij.',
+        say('„Kompletny System to 1 597 zł brutto. Możesz zapłacić od razu albo rozłożyć na 3 raty 0% przez Klarnę - wychodzi ok. 532 zł miesięcznie. Jest też opcja „zapłać za 30 dni”.”') +
+        say('„I jeszcze jedno: Kompletny System ma gwarancję zwrotu. Jeśli przejdziesz cały program i uznasz, że nic Ci nie dał, oddajemy całe pieniądze.”') +
+        tip('Warunki gwarancji (regulamin pkt 6a): obejrzane wszystkie lekcje i ukończone wszystkie wyzwania w grupie, zgłoszenie mailem do 14 dni po końcu edycji. Gwarancja jest tylko na Kompletny System, nie na Fundament.') +
+        (przedPodwyzka ? tip('Do ' + esc(podwyzkaLabel) + ' obowiązuje obecna cena, potem rośnie. Zapisy zamykamy ' + esc(zamkniecie) + '. Mów o tym jako o fakcie, nie jako o presji.') : tip('Zapisy do tej edycji zamykamy ' + esc(zamkniecie) + '.')) +
+        '<dl class="sc-obj">' +
+        '<dt>„To za drogo”</dt><dd>„Rozumiem. Za drogo w porównaniu z czym?” Potem raty: „To ok. 532 zł miesięcznie przez 3 miesiące, bez odsetek, a jeśli przejdziesz program i nic Ci nie da - oddajemy pieniądze.” Jeśli naprawdę nie da rady - Fundament (krok 7).</dd>' +
+        '<dt>„Nie wiem, czy znajdę czas”</dt><dd>„Wyzwania to ok. 15 minut dziennie, lekcje oglądasz, kiedy Ci pasuje. Ile czasu dziennie tracisz dziś na [to, co go blokuje]?”</dd>' +
+        '<dt>„Czy to zadziała u mnie?”</dt><dd>„Zadziała, jeśli zrobisz swoją część - 15 minut dziennie. A żeby ryzyko było po naszej stronie, masz gwarancję zwrotu.”</dd>' +
+        '<dt>„Muszę się zastanowić”</dt><dd>„Jasne. Nad czym dokładnie - cena, czas, czy to, czy to dla Ciebie?” Rozbij na jeden konkret i odpowiedz na niego.</dd>' +
+        '<dt>„Muszę zapytać partnera”</dt><dd>„Super, że decydujecie razem. Co Twoim zdaniem powie? Mogę zadzwonić jutro, kiedy będziecie razem - o której?”</dd>' +
+        '<dt>„Fundament czy Kompletny System?”</dt><dd>„Fundament to tylko Dyscyplina, bez społeczności i spotkań z Bartem, i bez gwarancji. Jeśli chcesz zmienić coś więcej niż nawyki, Kompletny System - różnica to ok. 200 zł miesięcznie w ratach.”</dd>' +
+        '</dl>') +
+      step(7, 'Zamknięcie', 'Zapytaj o decyzję wprost i zostań na linii do płatności.',
+        say('„Z tego, co mówisz, Kompletny System jest dla Ciebie. Wchodzimy w to?”') +
+        tip('TAK → wyślij link SMS-em albo mailem na <b>' + esc(k.email || '') + '</b> i zostań na linii, aż przejdzie do płatności: <button type="button" class="b" data-copy="' + esc(link) + '" style="margin-top:.35rem">Kopiuj link do zamówienia</button>') +
+        tip('Po opłaceniu: status <b>„Sprzedane Kompletny System”</b>.') +
+        tip('Cena jest dla niego/niej barierą nawet w ratach → Fundament 997 zł (Klarna 3×0% ok. 332 zł/mies.), status „Downsell”.') +
+        tip('Chce, ale się waha → daj mu powód, żeby zdecydować dziś: <b>Masterclass Wdrożeniowy gratis</b> (zamiast 157 zł), ważne 24 h. <a href="generator-gratis.html?imie=' + encodeURIComponent(k.imie || '') + '&email=' + encodeURIComponent(k.email || '') + '" target="_blank" rel="noopener">Wygeneruj link z gratisem →</a>') +
+        tip('Zastanawia się → konkretny termin (24-48 h) w „Następny kontakt”, status „Follow-up”. Nie pasuje → powiedz to wprost, status „Odrzucone”.')) +
+      '<div class="sc-box"><h4>Zaznacz w trakcie</h4>' +
+        check('Wiem, co go/ją wstrzymywało') + check('Odpowiedziałem/am na to wprost') + check('Powiązałem/am program z jego/jej problemem') +
+        check('Padła cena i raty') + check('Padła gwarancja zwrotu') + check('Zapytałem/am o decyzję') +
+        '<p class="sc-goal" style="margin-top:.5rem">Po rozmowie: status, następny kontakt i notatka (co wstrzymywało, co przekonało, ustalenia).</p></div>';
   }
 
   // Szablon notatki po rozmowie (przycisk „Wstaw szablon notatki").
   var NOTE_TEMPLATE = 'Sytuacja klienta:\nObiekcje:\nNajważniejszy filar (dyscyplina / szczęście / finanse / duchowość):\nBudżet / raty (kwota miesięczna):\nKto decyduje:\nPoziom entuzjazmu (1-10):\nUstalenia / następny krok:';
+  var NOTE_TEMPLATE_KS = 'Co go/ją wstrzymywało:\nCo przekonało / co nie:\nNajważniejszy filar:\nPłatność (jednorazowo / Klarna raty / za 30 dni):\nKto decyduje:\nUstalenia / następny krok:';
 
-  window.CRM_SKRYPTY = { build: build, noteTemplate: NOTE_TEMPLATE };
+  window.CRM_SKRYPTY = { build: build, noteTemplate: NOTE_TEMPLATE, noteTemplateKs: NOTE_TEMPLATE_KS };
 })();

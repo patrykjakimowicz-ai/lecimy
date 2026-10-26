@@ -26,7 +26,7 @@
   }
   window.lecimyAttribution = readAttribution;
 
-  // Przenieś UTM do linków prowadzących do zamówienia, żeby źródło nie zginęło po drodze.
+  // Przenieś UTM do linków prowadzących do zamówienia i konsultacji, żeby źródło nie zginęło po drodze.
   function propagateAttribution() {
     var attr = readAttribution();
     var keys = Object.keys(attr);
@@ -34,7 +34,7 @@
     var links = document.querySelectorAll('a[href]');
     for (var i = 0; i < links.length; i++) {
       var href = links[i].getAttribute('href');
-      if (!href || !/^(\/?zamowienie\.html)(\?|#|$)/.test(href)) continue;
+      if (!href || !/^(\/?(zamowienie|konsultacja)\.html)(\?|#|$)/.test(href)) continue;
       var url = new URL(href, window.location.href);
       keys.forEach(function (k) { if (!url.searchParams.has(k)) url.searchParams.set(k, attr[k]); });
       links[i].setAttribute('href', url.pathname.replace(/^\//, '') + url.search + url.hash);

@@ -28,3 +28,12 @@ create table if not exists public.leads (
 );
 create index if not exists leads_created_at_idx on public.leads (created_at desc);
 alter table public.leads enable row level security;
+
+-- Ustawienia z panelu CRM (np. wyłączone bloki bezpłatnych konsultacji). Dodane później - jeśli pozostałe tabele
+-- już istnieją, wystarczy uruchomić tylko ten fragment.
+create table if not exists public.ustawienia (
+  klucz      text primary key,
+  data       jsonb not null,
+  updated_at timestamptz not null default now()
+);
+alter table public.ustawienia enable row level security;
