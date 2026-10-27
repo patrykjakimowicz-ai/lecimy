@@ -3,6 +3,7 @@
 // Klient wybiera blok godzin (np. 12:00-15:00), w którym do niego zadzwonimy, i zostawia kontakt. W bloku jest
 // ograniczona liczba miejsc - pełny blok znika z listy. Rezerwacja ląduje w CRM (crm.html) jako lead z typem
 // „konsultacja", statusem „Umówiona rozmowa" i początkiem bloku w „Następny kontakt" (widać ją w kalendarzu panelu).
+// Spotkania umówione ręcznie w CRM też zajmują miejsce w bloku, w który wypada ich godzina.
 // W zakładce „Grafik konsultacji" panelu sprzedawca może wyłączyć pojedynczy blok albo cały dzień.
 //
 // Id leada liczone z e-maila - ta sama osoba rezerwująca drugi raz przesuwa swoją rozmowę zamiast tworzyć duplikat.
@@ -68,17 +69,36 @@ function scheduleBlocks(now = Date.now()) {
   return out;
 }
 
-// Liczba aktywnych rezerwacji w każdym bloku (klucz = początek bloku).
+// Kto zajmuje każdy blok (klucz = początek bloku): rezerwacje klientów ze strony zapisów (aktywne, status
+// „Umówiona rozmowa") oraz spotkania umówione w CRM (lead.spotkania), których godzina wypada w bloku.
+// Jedna osoba liczy się w danym bloku raz, nawet jeśli ma i rezerwację, i spotkanie.
 const ACTIVE = ['Umówiona rozmowa'];
-async function bookedPerBlock(exceptId) {
-  const leads = await listLeads();
-  const counts = new Map();
+function occupancy(leads, blocks, exceptId) {
+  const out = new Map(blocks.map((b) => [b.start, []]));
+  const blockOf = (iso) => {
+    const t = Date.parse(iso);
+    const b = blocks.find((x) => t >= Date.parse(x.start) && t < Date.parse(x.koniec));
+    return b ? b.start : null;
+  };
   for (const l of leads) {
-    if (l.typ !== 'konsultacja' || l.id === exceptId || !ACTIVE.includes(l.status) || !l.konsultacja || !l.konsultacja.termin) continue;
-    const k = new Date(l.konsultacja.termin).toISOString();
-    counts.set(k, (counts.get(k) || 0) + 1);
+    if (l.id === exceptId) continue;
+    const imie = l.kontakt && l.kontakt.imie;
+    const seen = new Set();
+    const push = (start, entry) => {
+      if (!start || !out.has(start) || seen.has(start)) return; // bloki z przeszłości nie są w grafiku
+      seen.add(start);
+      out.get(start).push({ id: l.id, imie, ...entry });
+    };
+    if (l.typ === 'konsultacja' && ACTIVE.includes(l.status) && l.konsultacja && l.konsultacja.termin) {
+      push(new Date(l.konsultacja.termin).toISOString(), { zrodlo: 'zapis' });
+    }
+    for (const m of l.spotkania || []) push(blockOf(m.at), { zrodlo: 'crm', at: m.at, kto: m.kto });
   }
-  return counts;
+  return out;
+}
+async function bookedPerBlock(exceptId) {
+  const occ = occupancy(await listLeads(), scheduleBlocks(), exceptId);
+  return new Map([...occ].map(([k, v]) => [k, v.length]));
 }
 
 // Bloki wyłączone w panelu CRM: { [początek bloku ISO]: { autor, at } }.
@@ -187,14 +207,9 @@ export function konsultacjaRouter({ clientIp, limiter, siteUrl }) {
 
   async function grafik() {
     const [leads, off] = await Promise.all([listLeads(), disabledBlocks({ strict: true })]);
-    const zapisani = new Map();
-    for (const l of leads) {
-      if (l.typ !== 'konsultacja' || !ACTIVE.includes(l.status) || !l.konsultacja || !l.konsultacja.termin) continue;
-      const k = new Date(l.konsultacja.termin).toISOString();
-      if (!zapisani.has(k)) zapisani.set(k, []);
-      zapisani.get(k).push({ id: l.id, imie: l.kontakt && l.kontakt.imie });
-    }
-    const bloki = scheduleBlocks().map((b) => ({ ...b, wylaczony: off[b.start] || null, zapisani: zapisani.get(b.start) || [] }));
+    const blocks = scheduleBlocks();
+    const zapisani = occupancy(leads, blocks, null);
+    const bloki = blocks.map((b) => ({ ...b, wylaczony: off[b.start] || null, zapisani: zapisani.get(b.start) || [] }));
     return { bloki, limit: MIEJSC_W_BLOKU };
   }
 

@@ -185,6 +185,7 @@
     .drawer.own { border-left: 5px solid var(--oc); }
     .drawer.own .drawer__head { background: color-mix(in srgb, var(--oc) 12%, #0b0b0b); }
     .ev--meet { background: rgba(232,120,12,.16); color: #ffd1a3; box-shadow: inset 3px 0 0 var(--clr-gold); font-weight: 600; }
+    .ev--blok { background: rgba(167,139,250,.16); color: #ddd6fe; box-shadow: inset 3px 0 0 #a78bfa; }
     .ev--meet.own { background: color-mix(in srgb, var(--oc) 30%, transparent); color: #fff; box-shadow: inset 3px 0 0 var(--oc), inset 0 0 0 1px rgba(255,255,255,.18); }
     .tag--manual { background: rgba(96,165,250,.1); color: #93c5fd; border-color: rgba(96,165,250,.35); }
     .crm-new { display: inline-flex; }
@@ -391,7 +392,7 @@
 
       <!-- Widok: grafik bezpłatnych konsultacji (konsultacja.html) - zapisy w blokach i wyłączanie terminów -->
       <section id="view-grafik" hidden>
-        <p class="gk-info">Bloki, w których klienci mogą umówić bezpłatną rozmowę (najwcześniej na jutro, 14 dni do przodu). Wyłączony blok znika ze strony zapisów. Osoby, które już się zapisały, zostają w CRM - zadzwoń do nich albo przełóż termin w karcie leada.</p>
+        <p class="gk-info">Bloki, w których klienci mogą umówić bezpłatną rozmowę (najwcześniej na jutro, 14 dni do przodu). Wyłączony blok znika ze strony zapisów. Osoby, które już się zapisały, zostają w CRM - zadzwoń do nich albo przełóż termin w karcie leada. Spotkania umówione w CRM też zajmują miejsce w bloku, w który wypada ich godzina.</p>
         <div id="gkList"><p class="muted">Wczytuję grafik…</p></div>
       </section>
 
@@ -405,6 +406,7 @@
         </div>
         <div class="cal-legend">
           <span><i class="dot" style="background:var(--clr-gold)"></i> Spotkanie</span>
+          <span><i class="dot" style="background:#a78bfa"></i> Zapis na konsultację (blok)</span>
           <span>Kontakty w kolorze opiekuna</span>
           <span><i class="dot" style="box-shadow:inset 0 0 0 1px #8a8a8a"></i> Kontakt bez opiekuna</span>
           <span><i class="dot" style="background:#525252"></i> Nowe zgłoszenie</span>
@@ -858,6 +860,14 @@
     }
 
     // ── Spotkania ──
+    // Zapis klienta w bloku konsultacji (konsultacja.html) pokazujemy jak spotkanie: cały blok, np. 15:00-18:00.
+    function bookingMeet(l) {
+      var c = l.konsultacja;
+      if (!isKons(l) || !c || !c.termin || l.status !== 'Umówiona rozmowa') return null;
+      var czas = c.koniec ? Math.round((Date.parse(c.koniec) - Date.parse(c.termin)) / 60000) : 180;
+      return { id: 'blok', blok: true, at: new Date(c.termin).toISOString(), czas: czas, tytul: 'Bezpłatna konsultacja (zapis z bloku)', rodzaj: 'Telefon', kto: l.przypisany || 'do przydzielenia', opis: c.problem || '' };
+    }
+    function allMeets(l) { var b = bookingMeet(l); return (b ? [b] : []).concat(l.spotkania || []); }
     function meetFields(prefix, d) {
       d = d || {};
       var day = d.day || dayKey(new Date());
@@ -887,13 +897,13 @@
     function placeHtml(v) { return /^https?:\/\//i.test(v) ? '<a href="' + esc(v) + '" target="_blank" rel="noopener">' + esc(v) + '</a>' : esc(v); }
     function meetSection(l) {
       var now = Date.now();
-      var list = (l.spotkania || []).slice().sort(function (a, b) { return a.at.localeCompare(b.at); });
+      var list = allMeets(l).sort(function (a, b) { return a.at.localeCompare(b.at); });
       var rows = list.map(function (m) {
         var d = new Date(m.at), end = new Date(d.getTime() + m.czas * 60000);
         return '<div class="meet' + (end.getTime() < now ? ' is-past' : '') + '"><div class="meet__date"><b>' + d.getDate() + '</b><small>' + d.toLocaleDateString('pl-PL', { month: 'short' }) + '</small></div>' +
           '<div class="meet__body"><strong>' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + '-' + pad(end.getHours()) + ':' + pad(end.getMinutes()) + ' · ' + esc(m.tytul) + '</strong>' +
           '<div class="sub">' + esc(m.rodzaj) + ' · prowadzi ' + esc(m.kto) + '</div>' + (m.miejsce ? '<div class="sub">' + placeHtml(m.miejsce) + '</div>' : '') + (m.opis ? '<div class="sub">' + esc(m.opis) + '</div>' : '') + '</div>' +
-          '<div class="meet__act"><a href="' + esc(gcalUrl(l, m)) + '" target="_blank" rel="noopener">Google Calendar</a><button type="button" data-meet-del="' + esc(m.id) + '">Usuń</button></div></div>';
+          '<div class="meet__act"><a href="' + esc(gcalUrl(l, m)) + '" target="_blank" rel="noopener">Google Calendar</a>' + (m.blok ? '<span class="muted" style="font-size:.7rem">klient sam wybrał blok</span>' : '<button type="button" data-meet-del="' + esc(m.id) + '">Usuń</button>') + '</div></div>';
       }).join('');
       return '<div class="sec"><h3>Spotkania</h3><div class="meets">' + (rows || '<p class="muted">Brak spotkań.</p>') + '</div>' +
         '<button type="button" class="b" style="margin-top:.6rem" data-meet-toggle>+ Dodaj spotkanie</button>' +
@@ -1264,7 +1274,7 @@
             var pill = b.wylaczony ? '<span class="gk-pill gk-pill--off">Wyłączony</span>' : full ? '<span class="gk-pill gk-pill--full">Pełny</span>' : '<span class="gk-pill gk-pill--on">Otwarty</span>';
             return '<div class="gk-block' + (b.wylaczony ? ' is-off' : full ? ' is-full' : '') + '">' +
               '<div class="gk-block__row"><span class="gk-block__time">' + plTime(b.start) + '-' + plTime(b.koniec) + '</span>' + pill + '</div>' +
-              '<div class="gk-who">Zapisani: ' + n + '/' + g.limit + (n ? ' · ' + b.zapisani.map(function (z) { return '<a data-open="' + esc(z.id) + '">' + esc(z.imie || 'bez imienia') + '</a>'; }).join(', ') : '') +
+              '<div class="gk-who">Zapisani: ' + n + '/' + g.limit + (n ? ' · ' + b.zapisani.map(function (z) { return '<a data-open="' + esc(z.id) + '">' + esc(z.imie || 'bez imienia') + '</a>' + (z.zrodlo === 'crm' ? ' <span class="muted">(spotkanie ' + plTime(z.at) + (z.kto ? ', ' + esc(z.kto) : '') + ')</span>' : ''); }).join(', ') : '') +
               (b.wylaczony ? '<br/><span class="muted">wyłączył: ' + esc(b.wylaczony.autor) + ', ' + fmtDT(b.wylaczony.at) + '</span>' : '') + '</div>' +
               '<button type="button" class="b' + (b.wylaczony ? ' b--gold' : '') + '" data-gk="' + b.start + '" data-off="' + (b.wylaczony ? '0' : '1') + '">' + (b.wylaczony ? 'Włącz blok' : 'Wyłącz blok') + '</button>' +
             '</div>';
@@ -1296,7 +1306,7 @@
       scoped().forEach(function (l) {
         if (!l.ukonczona) return;
         var meetAt = {};
-        (l.spotkania || []).forEach(function (m) { meetAt[m.at] = 1; add(dayKey(new Date(m.at)), { type: 'meet', at: m.at, lead: l, meet: m }); });
+        allMeets(l).forEach(function (m) { meetAt[m.at] = 1; add(dayKey(new Date(m.at)), { type: 'meet', at: m.at, lead: l, meet: m }); });
         // Kontakt o tej samej godzinie co spotkanie - pokazujemy tylko spotkanie
         if (l.nastepnyKontakt && !meetAt[l.nastepnyKontakt]) add(dayKey(new Date(l.nastepnyKontakt)), { type: 'call', at: l.nastepnyKontakt, lead: l });
         if (!isOld(l)) add(dayKey(new Date(leadDate(l))), { type: 'new', at: leadDate(l), lead: l });
@@ -1333,7 +1343,11 @@
         var news = list.filter(function (x) { return x.type === 'new'; });
         var chips = calls.slice(0, 3).map(function (x) {
           var d = new Date(x.at);
-          if (x.type === 'meet') return '<button type="button" class="ev ev--meet' + (x.lead.przypisany ? ' own' : '') + '"' + ownAttr(x.lead) + ' data-open="' + x.lead.id + '" title="' + esc(x.meet.tytul + ' · ' + fullName(x.lead) + ' · ' + x.meet.rodzaj + ' · prowadzi ' + x.meet.kto) + '">' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ' + esc(x.lead.kontakt.imie) + '</button>';
+          if (x.type === 'meet') {
+            var e2 = new Date(d.getTime() + x.meet.czas * 60000);
+            var lbl = x.meet.blok ? pad(d.getHours()) + '-' + pad(e2.getHours()) : pad(d.getHours()) + ':' + pad(d.getMinutes());
+            return '<button type="button" class="ev ev--meet' + (x.meet.blok ? ' ev--blok' : '') + (x.lead.przypisany ? ' own' : '') + '"' + ownAttr(x.lead) + ' data-open="' + x.lead.id + '" title="' + esc(x.meet.tytul + ' · ' + fullName(x.lead) + ' · ' + x.meet.rodzaj + ' · prowadzi ' + x.meet.kto) + '">' + lbl + ' ' + esc(x.lead.kontakt.imie) + '</button>';
+          }
           return '<button type="button" class="ev ev--call' + (x.lead.przypisany ? ' own' : '') + (isOld(x.lead) ? ' ev--old' : '') + '"' + ownAttr(x.lead) + ' data-open="' + x.lead.id + '" title="' + esc(fullName(x.lead) + ' · ' + (x.lead.przypisany || 'bez opiekuna')) + '">' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ' + esc(x.lead.kontakt.imie) + '</button>';
         }).join('');
         if (calls.length > 3) chips += '<span class="ev ev--more">+' + (calls.length - 3) + ' więcej</span>';
@@ -1358,7 +1372,8 @@
       var hm = function (iso) { var t = new Date(iso); return pad(t.getHours()) + ':' + pad(t.getMinutes()); };
       var meetItem = function (x) {
         var l = x.lead, m = x.meet;
-        return '<button type="button" class="item' + (l.przypisany ? ' own' : '') + '"' + ownAttr(l) + ' data-open="' + l.id + '"><b>' + hm(m.at) + ' · ' + esc(m.tytul) + '</b><div class="sub" style="margin:.2rem 0">' + esc(fullName(l)) + '</div><div class="sub">' + esc(m.rodzaj) + ' · ' + m.czas + ' min · prowadzi ' + esc(m.kto) + '</div></button>';
+        var endT = new Date(Date.parse(m.at) + m.czas * 60000).toISOString();
+        return '<button type="button" class="item' + (l.przypisany ? ' own' : '') + '"' + ownAttr(l) + ' data-open="' + l.id + '"><b>' + hm(m.at) + (m.blok ? '-' + hm(endT) : '') + ' · ' + esc(m.tytul) + '</b><div class="sub" style="margin:.2rem 0">' + esc(fullName(l)) + '</div><div class="sub">' + esc(m.rodzaj) + ' · ' + (m.blok ? 'w dowolnym momencie bloku' : m.czas + ' min') + ' · prowadzi ' + esc(m.kto) + '</div></button>';
       };
       var overdue = scoped().filter(isOverdue).sort(function (a, b) { return a.nastepnyKontakt.localeCompare(b.nastepnyKontakt); });
       $('calSide').innerHTML = '<h3>' + d.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' }) + '</h3>' +
