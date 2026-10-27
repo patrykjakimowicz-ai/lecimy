@@ -70,6 +70,13 @@
     .k__consent a { color: var(--clr-gold); text-decoration: underline; text-underline-offset: 2px; }
     .k__picked { margin-top: 1.5rem; padding: .8rem 1rem; border-radius: 12px; background: rgba(232,120,12,.08); border: 1px solid rgba(232,120,12,.35); font-size: .95rem; }
     .k__picked[hidden] { display: none; }
+    .k__picked--missing { background: rgba(248,113,113,.08); border-color: rgba(248,113,113,.4); color: #fecaca; }
+    .k__picked--missing a { color: #fff; text-decoration: underline; cursor: pointer; }
+    .k__hint { margin-top: .9rem; font-size: .9rem; color: #a3a3a3; }
+    .k__hint.is-error { color: #f87171; font-weight: 600; animation: kShake .4s; }
+    @keyframes kShake { 0%,100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+    .k__slots.is-error .k__slot { border-color: rgba(248,113,113,.6); }
+    #send.is-waiting { opacity: .55; }
     .k__status { margin-top: 1rem; padding: .75rem 1rem; border-radius: 10px; background: rgba(220,38,38,.1); border: 1px solid rgba(220,38,38,.4); font-size: .9rem; color: #fff; }
     .k__status[hidden] { display: none; }
     .k .btn[disabled] { opacity: .35; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -166,14 +173,27 @@
         }).join('') + '</div>' +
         '<div class="k__slots">' + g[S.day].map(function (b) {
           return '<button type="button" class="k__slot' + (b.start === S.termin ? ' is-active' : '') + '" data-slot="' + b.start + '">' + hour(b.start) + '-' + hour(b.koniec) + '</button>';
-        }).join('') + '</div>';
+        }).join('') + '</div>' +
+        (S.termin ? '' : '<p class="k__hint" id="pickHint">Wybierz godzinę, w której mamy do ciebie zadzwonić.</p>');
       updatePicked();
     }
     function updatePicked() {
-      $('picked').hidden = !S.termin;
-      if (S.termin) { var b = blockOf(S.termin); $('picked').innerHTML = 'Zadzwonimy: <strong>' + whenLong(b.start, b.koniec) + '</strong>'; }
-      $('send').disabled = !S.termin;
+      var p = $('picked');
+      p.hidden = false;
+      p.classList.toggle('k__picked--missing', !S.termin);
+      if (S.termin) { var b = blockOf(S.termin); p.innerHTML = 'Zadzwonimy: <strong>' + whenLong(b.start, b.koniec) + '</strong>'; }
+      else p.innerHTML = 'Nie wybrano jeszcze godziny połączenia. <a data-pick>Wybierz ją w kroku 1 ↑</a>';
+      // Bez godziny przycisk jest przygaszony, ale klikalny - pokazuje, czego brakuje, zamiast nic nie robić.
+      $('send').disabled = !S.slots.length;
+      $('send').classList.toggle('is-waiting', !S.termin);
     }
+    function askForTime() {
+      $('cal').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var hint = $('pickHint'), slots = document.querySelector('.k__slots');
+      if (hint) { hint.textContent = 'Najpierw wybierz godzinę połączenia - kliknij jeden z przedziałów powyżej.'; hint.classList.remove('is-error'); void hint.offsetWidth; hint.classList.add('is-error'); }
+      if (slots) slots.classList.add('is-error');
+    }
+    $('picked').addEventListener('click', function (e) { if (e.target.closest('[data-pick]')) askForTime(); });
 
     $('cal').addEventListener('click', function (e) {
       var t = e.target.closest('[data-day], [data-slot], [data-retry]');
@@ -207,7 +227,7 @@
 
     $('form').addEventListener('submit', function (e) {
       e.preventDefault();
-      if (!S.termin) return;
+      if (!S.termin) return askForTime();
       var kraj = $('kraj').value, phone = fullPhone(kraj, $('telefon').value);
       var errs = {};
       if ($('imie').value.trim().length < 2) errs.imie = 'Podaj imię';
