@@ -321,19 +321,34 @@
         note.hidden = false;
         refreshSummary();
 
-        // Licznik do końca 24 godzin. Po czasie blokujemy zakup z gratisem i podsuwamy zwykłe zamówienie.
+        // Duży licznik 24 h nad formularzem. Po czasie blokujemy zakup z gratisem i podsuwamy zwykłe zamówienie.
+        var total = 24 * 3600 * 1000;
         var timer = document.createElement('div');
-        timer.className = 'pro-timer pro-timer--gift';
-        timer.innerHTML = '<span class="pro-timer__label">Masterclass gratis wygasa za</span><span class="pro-timer__value" id="giftTimer"></span>';
-        note.insertAdjacentElement('afterend', timer);
+        timer.className = 'gift-countdown';
+        timer.setAttribute('role', 'timer');
+        var unit = function (k, l) { return '<div class="gift-countdown__unit"><b data-u="' + k + '">00</b><small>' + l + '</small></div>'; };
+        timer.innerHTML =
+          '<span class="gift-countdown__badge">🎁 Oferta tylko dla Ciebie</span>' +
+          '<p class="gift-countdown__title">Masterclass Wdrożeniowy <b>za darmo</b> wygasa za</p>' +
+          '<div class="gift-countdown__units">' + unit('h', 'godzin') + '<i>:</i>' + unit('m', 'minut') + '<i>:</i>' + unit('s', 'sekund') + '</div>' +
+          '<div class="gift-countdown__bar" aria-hidden="true"><span></span></div>' +
+          '<p class="gift-countdown__foot">Po tym czasie Masterclass wraca do ceny ' + old + ' zł, a link przestaje działać.</p>';
+        document.querySelector('.order__layout').insertAdjacentElement('beforebegin', timer);
         var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+        var cells = { h: timer.querySelector('[data-u="h"]'), m: timer.querySelector('[data-u="m"]'), s: timer.querySelector('[data-u="s"]') };
+        var bar = timer.querySelector('.gift-countdown__bar span');
         var tick = function () {
-          var left = Math.max(0, Math.floor((expires - Date.now()) / 1000));
-          document.getElementById('giftTimer').textContent = pad(Math.floor(left / 3600)) + ':' + pad(Math.floor(left % 3600 / 60)) + ':' + pad(left % 60);
+          var ms = Math.max(0, expires - Date.now());
+          var left = Math.floor(ms / 1000);
+          cells.h.textContent = pad(Math.floor(left / 3600));
+          cells.m.textContent = pad(Math.floor(left % 3600 / 60));
+          cells.s.textContent = pad(left % 60);
+          bar.style.width = Math.min(100, ms / total * 100) + '%';
+          timer.classList.toggle('is-urgent', ms < 3600 * 1000);
           if (left === 0) {
             clearInterval(iv);
             timer.classList.add('is-expired');
-            timer.firstChild.textContent = 'Oferta wygasła';
+            timer.querySelector('.gift-countdown__title').textContent = 'Oferta z darmowym Masterclass wygasła';
             submitBtn.disabled = true;
             status.innerHTML = 'Oferta z darmowym Masterclass wygasła. <a href="zamowienie.html?pakiet=' + encodeURIComponent(offer.pakiet) + '">Złóż zwykłe zamówienie</a> albo napisz do swojego opiekuna.';
             status.classList.add('is-visible', 'is-error');

@@ -60,7 +60,7 @@
     .k__field label { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: #a3a3a3; font-weight: 600; }
     .k__input, .k__select, .k__textarea { width: 100%; background: #141414; border: 1px solid var(--clr-border); border-radius: 12px; padding: .85rem 1rem; font: inherit; font-size: 1rem; color: #fff; transition: border-color var(--dur-fast); }
     .k__input:focus, .k__select:focus, .k__textarea:focus { outline: none; border-color: var(--clr-gold); }
-    .k__input.is-invalid { border-color: #ef4444; }
+    .k__input.is-invalid, .k__textarea.is-invalid { border-color: #ef4444; }
     .k__textarea { min-height: 96px; resize: vertical; line-height: 1.5; }
     .k__phone { display: flex; gap: .5rem; }
     .k__phone .k__select { width: auto; flex-shrink: 0; padding-right: .5rem; }
@@ -105,7 +105,8 @@
         <div class="k__field"><label for="imie">Imię</label><input class="k__input" id="imie" maxlength="60" autocomplete="given-name" /><span class="k__err" data-err="imie"></span></div>
         <div class="k__field"><label for="telefon">Telefon</label><div class="k__phone"><select class="k__select" id="kraj" aria-label="Kierunkowy"></select><input class="k__input" id="telefon" type="tel" inputmode="tel" maxlength="30" autocomplete="tel-national" placeholder="np. 512 345 678" /></div><span class="k__err" data-err="telefon"></span></div>
         <div class="k__field"><label for="email">E-mail (wyślemy potwierdzenie)</label><input class="k__input" id="email" type="email" maxlength="254" autocomplete="email" /><span class="k__err" data-err="email"></span></div>
-        <div class="k__field"><label for="pytanie">Co cię wstrzymuje? (opcjonalnie)</label><textarea class="k__textarea" id="pytanie" maxlength="1000" placeholder="Np. nie wiem, czy znajdę czas, nie wiem, który pakiet wybrać…"></textarea></div>
+        <div class="k__field"><label for="problem">Co jest dziś twoim największym problemem?</label><textarea class="k__textarea" id="problem" maxlength="1000" placeholder="Np. ciągle odkładam rzeczy na później, brakuje mi energii, stresuję się pieniędzmi…"></textarea><span class="k__err" data-err="problem"></span></div>
+        <div class="k__field"><label for="pytanie">Co cię wstrzymuje przed dołączeniem?</label><textarea class="k__textarea" id="pytanie" maxlength="1000" placeholder="Np. nie wiem, czy znajdę czas, nie wiem, który pakiet wybrać…"></textarea><span class="k__err" data-err="pytanie"></span></div>
         <label class="k__consent"><input type="checkbox" id="zgoda" /><span>Akceptuję <a href="regulamin.html" target="_blank" rel="noopener">regulamin</a> i <a href="polityka-prywatnosci.html" target="_blank" rel="noopener">politykę prywatności</a> oraz zgadzam się na kontakt telefoniczny i mailowy w sprawie bezpłatnej konsultacji i oferty Lecimy po swoje.</span></label>
         <span class="k__err" data-err="zgoda"></span>
         <div class="k__picked" id="picked" hidden></div>
@@ -212,12 +213,14 @@
       if ($('imie').value.trim().length < 2) errs.imie = 'Podaj imię';
       if (!/^\+\d{8,15}$/.test(phone) || (kraj === '+48' && phone.indexOf('+48') === 0 && phone.length !== 12)) errs.telefon = 'Podaj poprawny numer telefonu';
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($('email').value.trim())) errs.email = 'Podaj poprawny e-mail';
+      if ($('problem').value.trim().length < 5) errs.problem = 'Napisz w kilku słowach, z czym masz największy problem';
+      if ($('pytanie').value.trim().length < 5) errs.pytanie = 'Napisz w kilku słowach, co cię wstrzymuje';
       if (!$('zgoda').checked) errs.zgoda = 'Zaznacz zgodę';
       document.querySelectorAll('[data-err]').forEach(function (el) {
         var id = el.getAttribute('data-err');
         el.textContent = errs[id] || '';
         var input = $(id);
-        if (input && input.classList.contains('k__input')) input.classList.toggle('is-invalid', !!errs[id]);
+        if (input && (input.classList.contains('k__input') || input.classList.contains('k__textarea'))) input.classList.toggle('is-invalid', !!errs[id]);
       });
       if (Object.keys(errs).length) return;
 
@@ -228,7 +231,7 @@
       fetch(API_BASE + '/api/konsultacja', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ termin: S.termin, kontakt: { imie: $('imie').value.trim(), telefon: phone, email: $('email').value.trim() }, pytanie: $('pytanie').value.trim(), zgoda: true, zrodlo: zrodlo() })
+        body: JSON.stringify({ termin: S.termin, kontakt: { imie: $('imie').value.trim(), telefon: phone, email: $('email').value.trim() }, pytanie: $('pytanie').value.trim(), problem: $('problem').value.trim(), zgoda: true, zrodlo: zrodlo() })
       }).then(function (r) {
         return r.json().catch(function () { return {}; }).then(function (j) {
           if (r.status === 409) { S.termin = null; loadSlots(j.error); throw new Error('Wybierz inny blok powyżej.'); }

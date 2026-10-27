@@ -184,6 +184,34 @@
     @media (min-width: 901px) { .tbl tbody tr.own td:first-child { padding-left: 1.1rem; } }
     .drawer.own { border-left: 5px solid var(--oc); }
     .drawer.own .drawer__head { background: color-mix(in srgb, var(--oc) 12%, #0b0b0b); }
+    .ev--meet { background: rgba(232,120,12,.16); color: #ffd1a3; box-shadow: inset 3px 0 0 var(--clr-gold); font-weight: 600; }
+    .ev--meet.own { background: color-mix(in srgb, var(--oc) 30%, transparent); color: #fff; box-shadow: inset 3px 0 0 var(--oc), inset 0 0 0 1px rgba(255,255,255,.18); }
+    .tag--manual { background: rgba(96,165,250,.1); color: #93c5fd; border-color: rgba(96,165,250,.35); }
+    .crm-new { display: inline-flex; }
+    .meets { display: flex; flex-direction: column; gap: .45rem; }
+    .meet { display: flex; gap: .7rem; align-items: flex-start; padding: .65rem .75rem; border-radius: 10px; border: 1px solid var(--clr-border); background: var(--clr-bg-card); }
+    .meet.is-past { opacity: .55; }
+    .meet__date { flex-shrink: 0; width: 52px; text-align: center; border-radius: 8px; padding: .3rem 0; background: rgba(232,120,12,.12); color: #ffd1a3; line-height: 1.1; }
+    .meet__date b { display: block; font-size: 1.05rem; color: #fff; }
+    .meet__date small { font-size: .65rem; text-transform: uppercase; letter-spacing: .05em; }
+    .meet__body { flex: 1; min-width: 0; font-size: .85rem; }
+    .meet__body strong { color: #fff; }
+    .meet__body .sub { font-size: .75rem; color: #8a8a8a; margin-top: .15rem; overflow-wrap: anywhere; }
+    .meet__body .sub a { color: var(--clr-gold-light); text-decoration: underline; }
+    .meet__act { display: flex; flex-direction: column; gap: .3rem; align-items: flex-end; }
+    .meet__act a, .meet__act button { font-size: .72rem; color: #a3a3a3; text-decoration: underline; }
+    .meet__act button:hover, .meet__act a:hover { color: #fff; }
+    .meet-form { margin-top: .6rem; padding: .8rem; border-radius: 12px; border: 1px dashed #3a3a3a; }
+    .meet-form[hidden] { display: none; }
+    .form-head { padding: 1.1rem 1.25rem; border-bottom: 1px solid var(--clr-border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #0b0b0b; z-index: 2; }
+    .form-head h2 { font-size: 1.15rem; }
+    .form-err { color: #fca5a5; font-size: .82rem; min-height: 1em; }
+    .seg-pick { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; }
+    .seg-pick label { display: flex; flex-direction: column; gap: .15rem; padding: .6rem .7rem; border-radius: 10px; border: 1px solid var(--clr-border); background: #0c0c0c; cursor: pointer; font-size: .85rem; color: #fff; margin: 0; }
+    .seg-pick label small { color: #8a8a8a; font-size: .72rem; }
+    .seg-pick input { display: none; }
+    .seg-pick label:has(input:checked) { border-color: var(--clr-gold); background: rgba(232,120,12,.08); }
+    .side-actions { display: flex; gap: .4rem; flex-wrap: wrap; margin: -.25rem 0 .5rem; }
     .ev--call { background: transparent; color: #d4d4d4; box-shadow: inset 0 0 0 1px #3a3a3a; }
     .ev--call.own { background: color-mix(in srgb, var(--oc) 40%, transparent); color: #fff; box-shadow: inset 3px 0 0 var(--oc); }
     .item.own { border-left: 4px solid var(--oc); background: color-mix(in srgb, var(--oc) 8%, #0d0d0d); }
@@ -248,6 +276,12 @@
     .sc-note { white-space: pre-wrap; font-size: .85rem; color: #e5e5e5; }
     .sc-warn { padding: .7rem .9rem; border-radius: 10px; font-size: .85rem; background: rgba(248,113,113,.08); border: 1px solid rgba(248,113,113,.3); color: #fecaca; }
     .sc-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+    .sc-gift { margin-top: .35rem; padding: .7rem .8rem; border-radius: 10px; background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.3); display: flex; flex-direction: column; gap: .5rem; }
+    .sc-gift__title { color: #bbf7d0; font-size: .85rem; font-weight: 600; }
+    .sc-gift-out { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; }
+    .sc-gift-out[hidden] { display: none; }
+    .sc-gift-out .inp { flex: 1 1 260px; min-width: 0; font-size: .78rem; }
+    .sc-gift-out .muted { flex-basis: 100%; font-size: .75rem; }
 
     .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #1a1a1a; border: 1px solid var(--clr-border); color: #fff; padding: .6rem 1rem; border-radius: 99px; font-size: .85rem; z-index: 60; }
   </style>
@@ -279,6 +313,7 @@
           <button type="button" data-tab="old">Stary CRM <small id="oldCount"></small></button>
         </nav>
         <div class="crm-top__right">
+          <button type="button" class="b b--gold crm-new" id="newLead">+ Nowy lead</button>
           <span id="who"></span>
           <button type="button" class="b" id="refresh" title="Odśwież dane">↻ Odśwież</button>
           <button type="button" class="b" id="logout">Wyloguj</button>
@@ -312,7 +347,7 @@
           <select class="sel" id="fGot"><option value="">Gotowość: każda</option><option value="8">8-10 (gorący)</option><option value="5">5-10</option><option value="-4">1-4 (zimny)</option></select>
         </div>
         <div class="filters__more">
-          <select class="sel" id="fTyp"><option value="">Typ: wszystkie</option><option value="ankieta">Ankieta PRO</option><option value="konsultacja">Konsultacja KS</option></select>
+          <select class="sel" id="fTyp"><option value="">Typ: wszystkie</option><option value="ankieta">Ankieta PRO</option><option value="konsultacja">Konsultacja KS</option><option value="reczne">Dodane ręcznie</option></select>
           <select class="sel" id="fOpiekun"><option value="">Opiekun: każdy</option><option value="-">Bez opiekuna</option></select>
           <select class="sel" id="fKontakt"><option value="">Kontakt: wszystkie</option><option value="dzis">Do kontaktu dziś</option><option value="zalegle">Zaległe kontakty</option><option value="brak">Bez terminu kontaktu</option></select>
           <div class="filters__date">od <input class="inp" id="fOd" type="date" /></div>
@@ -369,6 +404,7 @@
           <button type="button" class="b" data-cal="1">→</button>
         </div>
         <div class="cal-legend">
+          <span><i class="dot" style="background:var(--clr-gold)"></i> Spotkanie</span>
           <span>Kontakty w kolorze opiekuna</span>
           <span><i class="dot" style="box-shadow:inset 0 0 0 1px #8a8a8a"></i> Kontakt bez opiekuna</span>
           <span><i class="dot" style="background:#525252"></i> Nowe zgłoszenie</span>
@@ -409,7 +445,7 @@
     var SEGMENT = { pro: 'Segment PRO', downsell: 'Downsell', brak_budzetu: 'Brak budżetu' };
     var WON = ['Sprzedane PRO', 'Sprzedane Kompletny System', 'Downsell'];
 
-    var state = { token: null, name: '', leads: [], statuses: [], survey: {}, sellers: [], tab: 'leads', calMonth: startOfMonth(new Date()), calSel: dayKey(new Date()), openId: null, scope: readScope(), dTab: 'karta', drafts: {}, seatsLeft: null };
+    var state = { token: null, name: '', leads: [], statuses: [], survey: {}, sellers: [], tab: 'leads', calMonth: startOfMonth(new Date()), calSel: dayKey(new Date()), openId: null, scope: readScope(), dTab: 'karta', drafts: {}, seatsLeft: null, meetingTypes: ['Telefon', 'Wideo (Zoom / Meet)', 'Na żywo'], sources: ['Telefon', 'Instagram', 'TikTok', 'Facebook', 'Polecenie', 'Wydarzenie', 'Inne'], form: null };
     var $ = function (id) { return document.getElementById(id); };
     function readScope() { try { return localStorage.getItem(SCOPE_KEY) || 'all'; } catch (e) { return 'all'; } }
 
@@ -436,6 +472,7 @@
     // Rezerwacja bezpłatnej konsultacji przed zakupem Kompletnego Systemu (konsultacja.html) - bez ankiety PRO.
     function isKons(l) { return l.typ === 'konsultacja'; }
     function konsTag() { return '<span class="tag tag--kons">Konsultacja KS</span>'; }
+    function manualTag(l) { return l.reczny ? '<span class="tag tag--manual">Dodany ręcznie</span>' : ''; }
 
     // ── Pomocnicze ──
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -519,6 +556,8 @@
         state.statuses = r.statuses || [];
         state.survey = r.survey || {};
         state.sellers = r.sellers || [];
+        if (r.meetingTypes) state.meetingTypes = r.meetingTypes;
+        if (r.sources) state.sources = r.sources;
         state.name = res[1].name;
         $('who').innerHTML = ownerTag({ przypisany: state.name });
         fillFilterOptions();
@@ -571,7 +610,7 @@
         if (f.wiek && o.wiek !== f.wiek) return false;
         if (f.zaj && o.zajecie !== f.zaj) return false;
         if (f.got) { var g = Number(o.gotowosc || 0), n = Number(f.got); if (n > 0 ? g < n : (g === 0 || g > -n)) return false; }
-        if (f.typ && (f.typ === 'konsultacja') !== isKons(l)) return false;
+        if (f.typ === 'reczne' ? !l.reczny : f.typ && (f.typ === 'konsultacja') !== isKons(l)) return false;
         if (f.op === '-' ? l.przypisany : f.op && l.przypisany !== f.op) return false;
         if (f.kontakt === 'dzis' && !(l.nastepnyKontakt && dayKey(new Date(l.nastepnyKontakt)) === today)) return false;
         if (f.kontakt === 'zalegle' && !isOverdue(l)) return false;
@@ -678,7 +717,7 @@
         var got = Number(o.gotowosc || 0);
         return '<tr data-id="' + l.id + '"' + (l.przypisany ? ' class="own"' + ownAttr(l) : '') + '>' +
           '<td class="num" data-l="Zgłoszenie">' + fmtRel(leadDate(l)) + '</td>' +
-          '<td><div class="name">' + esc(fullName(l)) + (isKons(l) ? ' ' + konsTag() : '') + (l.niepelnoletni ? ' <span class="tag tag--warn">&lt;18</span>' : '') + '</div>' + (k.nick ? '<div class="sub">' + esc(k.nick) + '</div>' : (o.wiek ? '<div class="sub">' + esc(o.wiek) + ' · ' + esc(o.zajecie || '') + '</div>' : '')) + '</td>' +
+          '<td><div class="name">' + esc(fullName(l)) + (isKons(l) ? ' ' + konsTag() : '') + (l.reczny ? ' ' + manualTag(l) : '') + (l.niepelnoletni ? ' <span class="tag tag--warn">&lt;18</span>' : '') + '</div>' + (k.nick ? '<div class="sub">' + esc(k.nick) + '</div>' : (o.wiek ? '<div class="sub">' + esc(o.wiek) + ' · ' + esc(o.zajecie || '') + '</div>' : '')) + '</td>' +
           '<td>' + (k.telefon ? '<div class="num">' + esc(k.telefon) + '</div><div class="sub">' + esc(k.email) + '</div>' : '-') + '</td>' +
           '<td>' + budzetTag(l) + '</td>' +
           '<td class="num" data-l="Gotowość">' + (got ? '<b style="color:' + (got >= 8 ? '#4ade80' : got >= 5 ? '#facc15' : '#f87171') + '">' + got + '</b>/10' : '-') + '</td>' +
@@ -737,13 +776,14 @@
     }
     function closeLead() {
       state.openId = null;
+      state.form = null;
       $('drawer').hidden = true;
       $('drawerBg').hidden = true;
       document.body.style.overflow = '';
       if (location.hash) history.replaceState(null, '', location.pathname + location.search);
     }
     $('drawerBg').addEventListener('click', closeLead);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && state.openId) closeLead(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && (state.openId || state.form)) closeLead(); });
 
     function renderLead() {
       var l = byId(state.openId);
@@ -760,10 +800,10 @@
 
       var feed = (l.notatki || []).map(function (n) { return { at: n.at, html: '<div class="tl"><div class="tl__meta">' + esc(n.autor) + ' · ' + fmtDT(n.at) + '</div><div class="tl__txt">' + esc(n.tekst) + '</div></div>' }; })
         .concat((l.historia || []).map(function (h) {
-          var txt = h.zmiana.replace(/następny kontakt: (\S+)/, function (m, iso) { return 'następny kontakt: ' + fmtDT(iso); });
+          var txt = h.zmiana.replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z/g, function (iso) { return fmtDT(iso); });
           return { at: h.at, html: '<div class="tl tl--sys">' + esc(h.autor) + ' · ' + fmtDT(h.at) + ' · ' + esc(txt) + '</div>' };
         }))
-        .concat([{ at: l.createdAt, html: '<div class="tl tl--sys">' + fmtDT(l.createdAt) + (isKons(l) ? ' · pierwsza rezerwacja konsultacji' : ' · rozpoczęcie ankiety' + (l.wyslanoAt ? ' · wysłana ' + fmtDT(l.wyslanoAt) : '')) + '</div>' }])
+        .concat([{ at: l.createdAt, html: '<div class="tl tl--sys">' + fmtDT(l.createdAt) + (l.reczny ? ' · dodany ręcznie przez ' + esc(l.reczny.autor) : isKons(l) ? ' · pierwsza rezerwacja konsultacji' : ' · rozpoczęcie ankiety' + (l.wyslanoAt ? ' · wysłana ' + fmtDT(l.wyslanoAt) : '')) + '</div>' }])
         .sort(function (a, b) { return String(b.at).localeCompare(String(a.at)); })
         .map(function (x) { return x.html; }).join('');
 
@@ -773,7 +813,7 @@
       $('drawer').className = 'drawer' + (l.przypisany ? ' own' : '');
       $('drawer').style.setProperty('--oc', l.przypisany ? ownerColor(l.przypisany) : '');
       $('drawer').innerHTML =
-        '<div class="drawer__head"><div><h2>' + esc(fullName(l)) + '</h2><div class="tags">' + (isOld(l) ? oldTag() : '') + (isKons(l) ? konsTag() : '') + (l.ukonczona ? ownerTag(l) : '') + statusTag(l) + (isOld(l) || isKons(l) ? '' : budzetTag(l)) +
+        '<div class="drawer__head"><div><h2>' + esc(fullName(l)) + '</h2><div class="tags">' + (isOld(l) ? oldTag() : '') + (isKons(l) ? konsTag() : '') + manualTag(l) + (l.ukonczona ? ownerTag(l) : '') + statusTag(l) + (isOld(l) || isKons(l) ? '' : budzetTag(l)) +
           (l.segment ? '<span class="tag tag--none">' + esc(SEGMENT[l.segment]) + '</span>' : '') +
           (l.niepelnoletni ? '<span class="tag tag--warn">Niepełnoletni - sprzedaż tylko za zgodą rodzica/opiekuna</span>' : '') + '</div></div>' +
           '<button type="button" class="drawer__x" data-close aria-label="Zamknij">×</button></div>' +
@@ -799,7 +839,8 @@
             '<div class="full"><label for="eNote" style="display:flex;justify-content:space-between">Nowa notatka <button type="button" class="muted" style="font-size:.75rem;text-decoration:underline" data-template>wstaw szablon</button></label><textarea class="inp" id="eNote" placeholder="Sytuacja klienta, obiekcje, ustalenia z rozmowy…"></textarea></div>' +
             '<div class="full" style="display:flex;justify-content:flex-end"><button type="button" class="b b--gold" data-save>Zapisz</button></div>' +
           '</div></div>' : '') +
-          (isOld(l) ? oldSection(l) : isKons(l) ? konsSection(l) : '<div class="sec"><h3>Odpowiedzi z ankiety</h3>' + answers + '</div>') +
+          (l.ukonczona ? meetSection(l) : '') +
+          (isOld(l) ? oldSection(l) : l.reczny ? manualSection(l) : isKons(l) ? konsSection(l) : '<div class="sec"><h3>Odpowiedzi z ankiety</h3>' + answers + '</div>') +
           '<div class="sec"><h3>Historia i notatki</h3><div class="timeline">' + feed + '</div></div>' +
           '<div class="sec"><h3>Szczegóły</h3><dl class="kv">' +
             '<dt>' + (isKons(l) ? 'Pierwsza rezerwacja' : 'Rozpoczęcie ankiety') + '</dt><dd>' + fmtDT(l.createdAt) + '</dd>' +
@@ -816,6 +857,168 @@
       if (note && state.drafts[l.id]) note.value = state.drafts[l.id];
     }
 
+    // ── Spotkania ──
+    function meetFields(prefix, d) {
+      d = d || {};
+      var day = d.day || dayKey(new Date());
+      var opt = function (list, sel) { return list.map(function (x) { var v = Array.isArray(x) ? x[0] : x, t = Array.isArray(x) ? x[1] : x; return '<option value="' + esc(v) + '"' + (String(v) === String(sel) ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join(''); };
+      return '<div class="edit">' +
+        '<div class="full"><label for="' + prefix + 'Tytul">Tytuł</label><input class="inp" id="' + prefix + 'Tytul" value="' + esc(d.tytul || 'Rozmowa') + '" maxlength="120" /></div>' +
+        '<div><label for="' + prefix + 'Dzien">Dzień</label><input class="inp" type="date" id="' + prefix + 'Dzien" value="' + esc(day) + '" /></div>' +
+        '<div><label for="' + prefix + 'Godz">Godzina</label><input class="inp" type="time" id="' + prefix + 'Godz" value="' + esc(d.godz || '18:00') + '" step="300" /></div>' +
+        '<div><label for="' + prefix + 'Czas">Długość</label><select class="sel" id="' + prefix + 'Czas">' + opt([[15, '15 min'], [30, '30 min'], [45, '45 min'], [60, '1 godz.'], [90, '1,5 godz.']], d.czas || 30) + '</select></div>' +
+        '<div><label for="' + prefix + 'Rodzaj">Rodzaj</label><select class="sel" id="' + prefix + 'Rodzaj">' + opt(state.meetingTypes, d.rodzaj) + '</select></div>' +
+        '<div><label for="' + prefix + 'Kto">Prowadzi</label><select class="sel" id="' + prefix + 'Kto">' + opt(state.sellers.length ? state.sellers : [state.name], d.kto || state.name) + '</select></div>' +
+        '<div><label for="' + prefix + 'Miejsce">Link / miejsce</label><input class="inp" id="' + prefix + 'Miejsce" placeholder="np. link do Meet albo adres" maxlength="300" /></div>' +
+        '<div class="full"><label for="' + prefix + 'Opis">Opis (opcjonalnie)</label><textarea class="inp" id="' + prefix + 'Opis" style="min-height:60px" maxlength="1000"></textarea></div>' +
+      '</div>';
+    }
+    function readMeet(prefix) {
+      var day = $(prefix + 'Dzien').value, godz = $(prefix + 'Godz').value;
+      if (!day || !godz) return null;
+      return { tytul: $(prefix + 'Tytul').value, at: new Date(day + 'T' + godz).toISOString(), czas: Number($(prefix + 'Czas').value), rodzaj: $(prefix + 'Rodzaj').value, kto: $(prefix + 'Kto').value, miejsce: $(prefix + 'Miejsce').value, opis: $(prefix + 'Opis').value };
+    }
+    function gcalUrl(l, m) {
+      var f = function (d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); };
+      var a = new Date(m.at), b = new Date(a.getTime() + (m.czas || 30) * 60000), k = l.kontakt || {};
+      var details = [fullName(l), k.telefon, k.email, m.opis].filter(Boolean).join('\n');
+      return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(m.tytul + ' - ' + fullName(l)) + '&dates=' + f(a) + '/' + f(b) + '&details=' + encodeURIComponent(details) + (m.miejsce ? '&location=' + encodeURIComponent(m.miejsce) : '');
+    }
+    function placeHtml(v) { return /^https?:\/\//i.test(v) ? '<a href="' + esc(v) + '" target="_blank" rel="noopener">' + esc(v) + '</a>' : esc(v); }
+    function meetSection(l) {
+      var now = Date.now();
+      var list = (l.spotkania || []).slice().sort(function (a, b) { return a.at.localeCompare(b.at); });
+      var rows = list.map(function (m) {
+        var d = new Date(m.at), end = new Date(d.getTime() + m.czas * 60000);
+        return '<div class="meet' + (end.getTime() < now ? ' is-past' : '') + '"><div class="meet__date"><b>' + d.getDate() + '</b><small>' + d.toLocaleDateString('pl-PL', { month: 'short' }) + '</small></div>' +
+          '<div class="meet__body"><strong>' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + '-' + pad(end.getHours()) + ':' + pad(end.getMinutes()) + ' · ' + esc(m.tytul) + '</strong>' +
+          '<div class="sub">' + esc(m.rodzaj) + ' · prowadzi ' + esc(m.kto) + '</div>' + (m.miejsce ? '<div class="sub">' + placeHtml(m.miejsce) + '</div>' : '') + (m.opis ? '<div class="sub">' + esc(m.opis) + '</div>' : '') + '</div>' +
+          '<div class="meet__act"><a href="' + esc(gcalUrl(l, m)) + '" target="_blank" rel="noopener">Google Calendar</a><button type="button" data-meet-del="' + esc(m.id) + '">Usuń</button></div></div>';
+      }).join('');
+      return '<div class="sec"><h3>Spotkania</h3><div class="meets">' + (rows || '<p class="muted">Brak spotkań.</p>') + '</div>' +
+        '<button type="button" class="b" style="margin-top:.6rem" data-meet-toggle>+ Dodaj spotkanie</button>' +
+        '<div class="meet-form" id="meetForm" hidden>' + meetFields('m', { day: dayKey(new Date(Date.now() + 864e5)) }) +
+          '<label class="chk" style="margin-top:.6rem"><input type="checkbox" id="mNext" checked /> Ustaw też jako „Następny kontakt”</label>' +
+          '<div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:.6rem"><button type="button" class="b" data-meet-toggle>Anuluj</button><button type="button" class="b b--gold" data-meet-save>Zapisz spotkanie</button></div></div></div>';
+    }
+    function manualSection(l) {
+      var z = l.zrodlo || {};
+      return '<div class="sec"><h3>Lead dodany ręcznie</h3><dl class="kv"><dt>Dodał(a)</dt><dd>' + esc(l.reczny.autor) + ', ' + fmtDT(l.reczny.at) + '</dd>' +
+        '<dt>Źródło</dt><dd>' + esc(z.kanal || '-') + '</dd><dt>Rozmowa o</dt><dd>' + (isKons(l) ? 'Kompletny System (skrypt rozmowy KS)' : 'PRO (skrypty settera i closera)') + '</dd></dl>' +
+        '<p class="muted" style="margin-top:.8rem;font-size:.85rem">Bez ankiety - pytania kwalifikacyjne zadajesz na głos, skrypt ma je w kolejnych krokach.</p></div>';
+    }
+
+    // ── Formularze w panelu bocznym: nowy lead i nowe spotkanie z kalendarza ──
+    function openForm(kind, opts) {
+      opts = opts || {};
+      state.openId = null;
+      state.form = kind;
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+      $('drawer').className = 'drawer';
+      $('drawer').style.removeProperty('--oc');
+      $('drawer').innerHTML = kind === 'lead' ? leadFormHtml(opts) : meetFormHtml(opts);
+      $('drawer').hidden = false;
+      $('drawerBg').hidden = false;
+      $('drawer').scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+      var first = $('drawer').querySelector('input:not([type=hidden]):not([type=radio]):not([type=checkbox])');
+      if (first) first.focus();
+    }
+    function leadFormHtml(o) {
+      var sellers = state.sellers.length ? state.sellers : [state.name];
+      return '<div class="form-head"><h2>Nowy lead</h2><button type="button" class="drawer__x" data-close aria-label="Zamknij">×</button></div>' +
+        '<form class="drawer__body" id="leadForm" novalidate>' +
+          '<div class="sec"><h3>Osoba</h3><div class="edit">' +
+            '<div><label for="nImie">Imię *</label><input class="inp" id="nImie" required maxlength="60" autocomplete="off" /></div>' +
+            '<div><label for="nNazwisko">Nazwisko</label><input class="inp" id="nNazwisko" maxlength="80" autocomplete="off" /></div>' +
+            '<div><label for="nTel">Telefon</label><input class="inp" id="nTel" type="tel" placeholder="600 100 200" maxlength="30" autocomplete="off" /></div>' +
+            '<div><label for="nEmail">E-mail</label><input class="inp" id="nEmail" type="email" maxlength="254" autocomplete="off" /></div>' +
+            '<div class="full"><label for="nNick">IG / TikTok (opcjonalnie)</label><input class="inp" id="nNick" maxlength="60" autocomplete="off" /></div>' +
+          '</div><p class="muted" style="font-size:.75rem;margin-top:.4rem">Wymagane: imię oraz telefon albo e-mail.</p></div>' +
+          '<div class="sec"><h3>Rozmowa o</h3><div class="seg-pick">' +
+            '<label><input type="radio" name="nRodzaj" value="pro" checked /><b>PRO</b><small>Skrypty settera i closera</small></label>' +
+            '<label><input type="radio" name="nRodzaj" value="ks" /><b>Kompletny System</b><small>Skrypt rozmowy KS + link z gratisem</small></label>' +
+          '</div></div>' +
+          '<div class="sec"><h3>Obsługa</h3><div class="edit">' +
+            '<div><label for="nZrodlo">Skąd jest lead</label><select class="sel" id="nZrodlo">' + state.sources.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('') + '</select></div>' +
+            '<div><label for="nStatus">Status</label><select class="sel" id="nStatus">' + state.statuses.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join('') + '</select></div>' +
+            '<div class="full"><label for="nOp">Opiekun</label><select class="sel" id="nOp"><option value="">- brak -</option>' + sellers.map(function (x) { return '<option' + (x === state.name ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('') + '</select></div>' +
+            '<div class="full"><label for="nNote">Notatka (opcjonalnie)</label><textarea class="inp" id="nNote" placeholder="Skąd się wziął, o czym rozmawialiście, ustalenia…"></textarea></div>' +
+          '</div></div>' +
+          '<div class="sec"><label class="chk" style="font-size:.95rem;color:#fff"><input type="checkbox" id="nMeetOn"' + (o.day ? ' checked' : '') + ' /> Umów od razu spotkanie</label>' +
+            '<div class="meet-form" id="nMeet"' + (o.day ? '' : ' hidden') + '>' + meetFields('nm', { day: o.day || dayKey(new Date(Date.now() + 864e5)) }) + '</div></div>' +
+          '<p class="form-err" id="formErr"></p>' +
+          '<div style="display:flex;justify-content:flex-end;gap:.5rem"><button type="button" class="b" data-close>Anuluj</button><button type="submit" class="b b--gold">Dodaj lead</button></div>' +
+        '</form>';
+    }
+    function meetFormHtml(o) {
+      var options = state.leads.filter(function (l) { return l.ukonczona && l.kontakt; })
+        .sort(function (a, b) { return fullName(a).localeCompare(fullName(b), 'pl'); })
+        .map(function (l) { return '<option value="' + esc(fullName(l) + ' · ' + (l.kontakt.telefon || l.kontakt.email)) + '"></option>'; }).join('');
+      return '<div class="form-head"><h2>Nowe spotkanie</h2><button type="button" class="drawer__x" data-close aria-label="Zamknij">×</button></div>' +
+        '<form class="drawer__body" id="meetNewForm" novalidate>' +
+          '<div class="sec"><h3>Z kim</h3><input class="inp" id="mfLead" list="mfLeads" placeholder="Zacznij pisać imię, nazwisko albo telefon…" autocomplete="off" /><datalist id="mfLeads">' + options + '</datalist>' +
+            '<p class="muted" style="font-size:.8rem;margin-top:.5rem">Nie ma tej osoby w CRM? <button type="button" style="color:var(--clr-gold-light);text-decoration:underline" data-form-lead="' + esc(o.day || '') + '">Dodaj nowego leada ze spotkaniem</button></p></div>' +
+          '<div class="sec"><h3>Kiedy i jak</h3>' + meetFields('mf', { day: o.day }) +
+            '<label class="chk" style="margin-top:.6rem"><input type="checkbox" id="mfNext" checked /> Ustaw też jako „Następny kontakt” leada</label></div>' +
+          '<p class="form-err" id="formErr"></p>' +
+          '<div style="display:flex;justify-content:flex-end;gap:.5rem"><button type="button" class="b" data-close>Anuluj</button><button type="submit" class="b b--gold">Zapisz spotkanie</button></div>' +
+        '</form>';
+    }
+    function leadFromPicker(v) {
+      v = String(v || '').trim();
+      var hit = state.leads.filter(function (l) { return l.ukonczona && l.kontakt && fullName(l) + ' · ' + (l.kontakt.telefon || l.kontakt.email) === v; });
+      return hit[0] || null;
+    }
+    $('newLead').addEventListener('click', function () { openForm('lead'); });
+    $('drawer').addEventListener('change', function (e) {
+      if (e.target.id === 'nMeetOn') $('nMeet').hidden = !e.target.checked;
+    });
+    $('drawer').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var err = $('formErr'), btn = e.target.querySelector('[type=submit]');
+      err.textContent = '';
+      if (e.target.id === 'leadForm') {
+        var body = {
+          imie: $('nImie').value, nazwisko: $('nNazwisko').value, telefon: $('nTel').value, email: $('nEmail').value, nick: $('nNick').value,
+          rodzaj: e.target.querySelector('[name=nRodzaj]:checked').value, zrodlo: $('nZrodlo').value, status: $('nStatus').value,
+          przypisany: $('nOp').value || null, notatka: $('nNote').value
+        };
+        if (body.imie.trim().length < 2) { err.textContent = 'Podaj imię.'; return; }
+        if (!body.telefon.trim() && !body.email.trim()) { err.textContent = 'Podaj telefon albo e-mail.'; return; }
+        if ($('nMeetOn').checked) { body.spotkanie = readMeet('nm'); if (!body.spotkanie) { err.textContent = 'Podaj dzień i godzinę spotkania.'; return; } }
+        var tel = body.telefon.replace(/\D/g, '').slice(-9), mail = body.email.trim().toLowerCase();
+        var dup = state.leads.filter(function (l) { var k = l.kontakt || {}; return (tel.length === 9 && String(k.telefon || '').replace(/\D/g, '').slice(-9) === tel) || (mail && k.email === mail); })[0];
+        if (dup && !confirm('W CRM jest już ' + fullName(dup) + ' z tym telefonem lub e-mailem. Dodać mimo to?\n\n(Anuluj = otwórz istniejącego leada)')) return openLead(dup.id);
+        btn.disabled = true;
+        api('POST', '/api/crm/nowy-lead', body).then(function (r) {
+          state.leads.unshift(r.lead);
+          state.form = null;
+          renderAll();
+          openLead(r.lead.id);
+          toast('Dodano leada');
+        }).catch(function (x) { err.textContent = x.message; btn.disabled = false; });
+      }
+      if (e.target.id === 'meetNewForm') {
+        var lead = leadFromPicker($('mfLead').value);
+        if (!lead) { err.textContent = 'Wybierz osobę z listy podpowiedzi albo dodaj nowego leada.'; return; }
+        var m = readMeet('mf');
+        if (!m) { err.textContent = 'Podaj dzień i godzinę.'; return; }
+        var patch = { spotkanie: m };
+        if ($('mfNext').checked) patch.nastepnyKontakt = m.at;
+        btn.disabled = true;
+        api('POST', '/api/crm/leads/' + lead.id, patch).then(function (r) {
+          replaceLead(r.lead);
+          state.form = null;
+          state.calSel = dayKey(new Date(m.at));
+          state.calMonth = startOfMonth(new Date(m.at));
+          closeLead();
+          renderAll();
+          toast('Spotkanie zapisane');
+        }).catch(function (x) { err.textContent = x.message; btn.disabled = false; });
+      }
+    });
+
     function scriptBody(l) {
       var notes = l.notatki || [];
       var sc = window.CRM_SKRYPTY ? window.CRM_SKRYPTY.build(l, { esc: esc, seller: state.name, seatsLeft: state.seatsLeft, edition: window.LECIMY_EDITION, lastNote: notes[notes.length - 1] }) : null;
@@ -831,6 +1034,7 @@
         '<dt>Pakiet</dt><dd>' + esc(l.pakiet || 'Kompletny System') + '</dd>' +
         '<dt>Blok wybrany przez klienta</dt><dd>' + fmtDT(c.termin) + (c.koniec ? '-' + new Date(c.koniec).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' }) : '') + '</dd>' +
         (c.rezerwacje > 1 ? '<dt>Rezerwacje</dt><dd>' + c.rezerwacje + '× (przesuwał termin)</dd>' : '') +
+        '<dt>Największy problem</dt><dd>' + (c.problem ? esc(c.problem) : '<span class="muted">nie napisał</span>') + '</dd>' +
         '<dt>Co go wstrzymuje</dt><dd>' + (c.pytanie ? esc(c.pytanie) : '<span class="muted">nie napisał</span>') + '</dd>' +
         '</dl><p class="muted" style="margin-top:.8rem;font-size:.85rem">Zadzwoń w wybranym bloku godzin. Rozmowa 10-15 minut. Cel: rozwiać wątpliwości i domknąć Kompletny System (1 597 zł, Klarna 3×0%). Po opłaceniu ustaw status „Sprzedane Kompletny System”. Skrypt rozmowy jest w zakładce „Skrypt rozmowy KS”.</p></div>';
     }
@@ -945,7 +1149,7 @@
     });
 
     $('drawer').addEventListener('click', function (e) {
-      var t = e.target.closest('[data-close],[data-open],[data-copy],[data-quick],[data-clear],[data-save],[data-delete],[data-take],[data-dtab],[data-template]');
+      var t = e.target.closest('[data-close],[data-open],[data-copy],[data-quick],[data-clear],[data-save],[data-delete],[data-take],[data-dtab],[data-template],[data-gift-link],[data-meet-toggle],[data-meet-save],[data-meet-del],[data-form-lead]');
       if (!t) return;
       if (t.hasAttribute('data-dtab') || t.hasAttribute('data-template')) {
         if ($('eNote')) state.drafts[state.openId] = $('eNote').value;
@@ -966,8 +1170,34 @@
         return cur.przypisany ? save({ przypisany: state.name }) : takeLead(cur.id);
       }
       if (t.hasAttribute('data-close')) return closeLead();
+      if (t.hasAttribute('data-form-lead')) return openForm('lead', { day: t.getAttribute('data-form-lead') || dayKey(new Date(Date.now() + 864e5)) });
+      if (t.hasAttribute('data-meet-toggle')) { var mf = $('meetForm'); mf.hidden = !mf.hidden; if (!mf.hidden) $('mTytul').focus(); return; }
+      if (t.hasAttribute('data-meet-save')) {
+        var mm = readMeet('m');
+        if (!mm) return toast('Podaj dzień i godzinę spotkania.');
+        var mp = { spotkanie: mm };
+        if ($('mNext').checked) mp.nastepnyKontakt = mm.at;
+        return save(mp);
+      }
+      if (t.hasAttribute('data-meet-del')) { if (confirm('Usunąć to spotkanie?')) save({ usunSpotkanie: t.getAttribute('data-meet-del') }); return; }
       if (t.hasAttribute('data-open')) return openLead(t.getAttribute('data-open'));
       if (t.hasAttribute('data-copy')) { navigator.clipboard.writeText(t.getAttribute('data-copy')).then(function () { toast('Skopiowano'); }); return; }
+      // Skrypt KS: osobisty link „Kompletny System + Masterclass gratis" (24 h) na e-mail leada
+      if (t.hasAttribute('data-gift-link')) {
+        var out = t.parentNode.querySelector('.sc-gift-out');
+        t.disabled = true; t.textContent = 'Generuję…';
+        api('POST', '/api/crm/leads/' + state.openId + '/link-gratis').then(function (j) {
+          var until = new Date(j.expiresAt).toLocaleString('pl-PL', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+          out.innerHTML = '<input class="inp" readonly value="' + esc(j.url) + '" onclick="this.select()" />' +
+            '<button type="button" class="b" data-copy="' + esc(j.url) + '">Kopiuj ponownie</button>' +
+            '<span class="muted">Ważny do ' + esc(until) + '. Zapisano w historii leada.</span>';
+          out.hidden = false;
+          t.textContent = 'Wygeneruj nowy link';
+          navigator.clipboard.writeText(j.url).then(function () { toast('Link skopiowany - ważny 24 h'); }, function () { toast('Link gotowy - skopiuj go z pola poniżej'); });
+        }).catch(function (err) { toast(err.message); t.textContent = 'Spróbuj ponownie'; })
+          .then(function () { t.disabled = false; });
+        return;
+      }
       if (t.hasAttribute('data-quick')) { var d = new Date(); d.setDate(d.getDate() + 1); d.setHours(10, 0, 0, 0); $('eNext').value = toLocalInput(d.toISOString()); return; }
       if (t.hasAttribute('data-clear')) return save({ nastepnyKontakt: null });
       if (t.hasAttribute('data-save')) {
@@ -1065,11 +1295,15 @@
       function add(key, ev) { (map[key] = map[key] || []).push(ev); }
       scoped().forEach(function (l) {
         if (!l.ukonczona) return;
-        if (l.nastepnyKontakt) add(dayKey(new Date(l.nastepnyKontakt)), { type: 'call', at: l.nastepnyKontakt, lead: l });
+        var meetAt = {};
+        (l.spotkania || []).forEach(function (m) { meetAt[m.at] = 1; add(dayKey(new Date(m.at)), { type: 'meet', at: m.at, lead: l, meet: m }); });
+        // Kontakt o tej samej godzinie co spotkanie - pokazujemy tylko spotkanie
+        if (l.nastepnyKontakt && !meetAt[l.nastepnyKontakt]) add(dayKey(new Date(l.nastepnyKontakt)), { type: 'call', at: l.nastepnyKontakt, lead: l });
         if (!isOld(l)) add(dayKey(new Date(leadDate(l))), { type: 'new', at: leadDate(l), lead: l });
       });
       Object.keys(map).forEach(function (k) {
-        map[k].sort(function (a, b) { return a.type === b.type ? String(a.at).localeCompare(String(b.at)) : a.type === 'call' ? -1 : 1; });
+        var order = { meet: 0, call: 1, new: 2 };
+        map[k].sort(function (a, b) { return a.type === b.type ? String(a.at).localeCompare(String(b.at)) : order[a.type] - order[b.type]; });
       });
       return map;
     }
@@ -1095,13 +1329,14 @@
       for (var i = 0; i < 42; i++) {
         var key = dayKey(cur);
         var list = ev[key] || [];
-        var calls = list.filter(function (x) { return x.type === 'call'; });
+        var calls = list.filter(function (x) { return x.type === 'call' || x.type === 'meet'; });
         var news = list.filter(function (x) { return x.type === 'new'; });
         var chips = calls.slice(0, 3).map(function (x) {
           var d = new Date(x.at);
+          if (x.type === 'meet') return '<button type="button" class="ev ev--meet' + (x.lead.przypisany ? ' own' : '') + '"' + ownAttr(x.lead) + ' data-open="' + x.lead.id + '" title="' + esc(x.meet.tytul + ' · ' + fullName(x.lead) + ' · ' + x.meet.rodzaj + ' · prowadzi ' + x.meet.kto) + '">' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ' + esc(x.lead.kontakt.imie) + '</button>';
           return '<button type="button" class="ev ev--call' + (x.lead.przypisany ? ' own' : '') + (isOld(x.lead) ? ' ev--old' : '') + '"' + ownAttr(x.lead) + ' data-open="' + x.lead.id + '" title="' + esc(fullName(x.lead) + ' · ' + (x.lead.przypisany || 'bez opiekuna')) + '">' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ' ' + esc(x.lead.kontakt.imie) + '</button>';
         }).join('');
-        if (calls.length > 3) chips += '<span class="ev ev--more">+' + (calls.length - 3) + ' kontaktów</span>';
+        if (calls.length > 3) chips += '<span class="ev ev--more">+' + (calls.length - 3) + ' więcej</span>';
         if (news.length) chips += '<span class="ev ev--new">' + news.length + ' ' + (news.length === 1 ? 'zgłoszenie' : news.length < 5 ? 'zgłoszenia' : 'zgłoszeń') + '</span>';
         html += '<div class="cal__day' + (cur.getMonth() !== m.getMonth() ? ' is-out' : '') + (key === today ? ' is-today' : '') + (key === state.calSel ? ' is-sel' : '') + '" data-day="' + key + '"><span class="cal__n">' + cur.getDate() + '</span>' + chips + '</div>';
         cur.setDate(cur.getDate() + 1);
@@ -1117,16 +1352,25 @@
       var sel = state.calSel;
       var list = ev[sel] || [];
       var d = new Date(sel + 'T12:00:00');
+      var meets = list.filter(function (x) { return x.type === 'meet'; });
       var calls = list.filter(function (x) { return x.type === 'call'; });
       var news = list.filter(function (x) { return x.type === 'new'; });
       var hm = function (iso) { var t = new Date(iso); return pad(t.getHours()) + ':' + pad(t.getMinutes()); };
+      var meetItem = function (x) {
+        var l = x.lead, m = x.meet;
+        return '<button type="button" class="item' + (l.przypisany ? ' own' : '') + '"' + ownAttr(l) + ' data-open="' + l.id + '"><b>' + hm(m.at) + ' · ' + esc(m.tytul) + '</b><div class="sub" style="margin:.2rem 0">' + esc(fullName(l)) + '</div><div class="sub">' + esc(m.rodzaj) + ' · ' + m.czas + ' min · prowadzi ' + esc(m.kto) + '</div></button>';
+      };
       var overdue = scoped().filter(isOverdue).sort(function (a, b) { return a.nastepnyKontakt.localeCompare(b.nastepnyKontakt); });
       $('calSide').innerHTML = '<h3>' + d.toLocaleDateString('pl-PL', { weekday: 'long', day: 'numeric', month: 'long' }) + '</h3>' +
+        '<div class="side-actions"><button type="button" class="b b--gold" data-new-meet>+ Spotkanie</button><button type="button" class="b" data-new-lead>+ Nowy lead</button></div>' +
+        '<h4>Spotkania</h4>' + (meets.length ? meets.map(meetItem).join('') : '<p class="muted">Brak.</p>') +
         '<h4>Zaplanowane kontakty</h4>' + (calls.length ? calls.map(function (x) { return item(x.lead, hm(x.at)); }).join('') : '<p class="muted">Brak. Termin ustawisz w karcie leada.</p>') +
         '<h4>Nowe zgłoszenia</h4>' + (news.length ? news.map(function (x) { return item(x.lead, hm(x.at)); }).join('') : '<p class="muted">Brak.</p>') +
         (overdue.length ? '<h4 class="overdue">Zaległe kontakty (' + overdue.length + ')</h4>' + overdue.slice(0, 10).map(function (l) { return item(l, fmtRel(l.nastepnyKontakt)); }).join('') : '');
     }
     $('view-cal').addEventListener('click', function (e) {
+      if (e.target.closest('[data-new-meet]')) return openForm('meet', { day: state.calSel });
+      if (e.target.closest('[data-new-lead]')) return openForm('lead', { day: state.calSel });
       var o = e.target.closest('[data-open]');
       if (o) return openLead(o.getAttribute('data-open'));
       var day = e.target.closest('[data-day]');

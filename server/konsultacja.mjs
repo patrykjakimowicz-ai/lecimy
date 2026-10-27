@@ -123,7 +123,7 @@ export function konsultacjaRouter({ clientIp, limiter, siteUrl }) {
   });
 
   router.post('/api/konsultacja', bookLimiter, async (req, res) => {
-    const { termin, kontakt, pytanie, zgoda } = req.body || {};
+    const { termin, kontakt, pytanie, problem, zgoda } = req.body || {};
     const k = kontakt && typeof kontakt === 'object' ? kontakt : {};
     const imie = typeof k.imie === 'string' ? k.imie.trim() : '';
     const email = typeof k.email === 'string' ? k.email.trim().toLowerCase() : '';
@@ -136,7 +136,10 @@ export function konsultacjaRouter({ clientIp, limiter, siteUrl }) {
     const at = typeof termin === 'string' ? Date.parse(termin) : NaN;
     if (Number.isNaN(at)) return res.status(400).json({ error: 'Wybierz termin rozmowy.' });
     const start = new Date(at).toISOString();
-    const notatka = typeof pytanie === 'string' && pytanie.trim() ? pytanie.trim().slice(0, PYTANIE_MAX) : null;
+    const notatka = typeof pytanie === 'string' ? pytanie.trim().slice(0, PYTANIE_MAX) : '';
+    const problemTxt = typeof problem === 'string' ? problem.trim().slice(0, PYTANIE_MAX) : '';
+    if (problemTxt.length < 5) return res.status(400).json({ error: 'Napisz, co jest dziś Twoim największym problemem.' });
+    if (notatka.length < 5) return res.status(400).json({ error: 'Napisz, co Cię wstrzymuje przed dołączeniem.' });
 
     try {
       const result = await withBookingLock(async () => {
@@ -162,7 +165,7 @@ export function konsultacjaRouter({ clientIp, limiter, siteUrl }) {
           nastepnyKontakt: start,
           historia,
           kontakt: { imie, nazwisko: '', email, telefon, nick: null },
-          konsultacja: { termin: start, koniec: blok.koniec, pytanie: notatka, umowionoAt: now, rezerwacje: ((cur && cur.konsultacja && cur.konsultacja.rezerwacje) || 0) + 1 },
+          konsultacja: { termin: start, koniec: blok.koniec, pytanie: notatka, problem: problemTxt, umowionoAt: now, rezerwacje: ((cur && cur.konsultacja && cur.konsultacja.rezerwacje) || 0) + 1 },
           zgoda: { tresc: CONSENT_TEXT, at: now, ip: clientIp(req), userAgent: String(req.headers['user-agent'] || '').slice(0, 300) },
         });
         return { lead, przesuniecie, blok };

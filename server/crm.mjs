@@ -8,8 +8,8 @@
 // Sesja to podpisany HMAC token (klucz PRO_OFFER_SECRET), bez dodatkowych tabel i zmiennych.
 
 import express from 'express';
-import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
-import { sellerForPassword } from './proOffer.mjs';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { sellerForPassword, createGiftOffer, readGiftOffer } from './proOffer.mjs';
 import { getLead, saveLead, listLeads, deleteLead } from './leadStore.mjs';
 import { sendLeadNotification } from './mailer.mjs';
 
@@ -30,6 +30,37 @@ export const SURVEY = {
   start: ['od zaraz', 'w ciągu miesiąca', 'dopiero się rozglądam'],
 };
 const TEXT_MIN = 20;
+
+// Spotkania w kalendarzu CRM (lead.spotkania). Rodzaj = sposób kontaktu, czas w minutach.
+export const MEETING_TYPES = ['Telefon', 'Wideo (Zoom / Meet)', 'Na żywo'];
+// Skąd jest lead dodany ręcznie w panelu.
+export const MANUAL_SOURCES = ['Telefon', 'Instagram', 'TikTok', 'Facebook', 'Polecenie', 'Wydarzenie', 'Inne'];
+const MEETING_MINUTES = [15, 30, 45, 60, 90];
+
+/** Sprawdza i normalizuje spotkanie z panelu. Zwraca { spotkanie } albo { error }. */
+function cleanMeeting(m, seller) {
+  if (!m || typeof m !== 'object') return { error: 'Brak danych spotkania.' };
+  const at = new Date(m.at);
+  if (Number.isNaN(at.getTime())) return { error: 'Podaj datę i godzinę spotkania.' };
+  const czas = MEETING_MINUTES.includes(Number(m.czas)) ? Number(m.czas) : 30;
+  const rodzaj = MEETING_TYPES.includes(m.rodzaj) ? m.rodzaj : MEETING_TYPES[0];
+  const str = (v, max) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : null);
+  return {
+    spotkanie: {
+      id: randomBytes(6).toString('hex'),
+      at: at.toISOString(),
+      czas,
+      rodzaj,
+      tytul: str(m.tytul, 120) || 'Rozmowa',
+      miejsce: str(m.miejsce, 300),
+      opis: str(m.opis, 1000),
+      kto: str(m.kto, 60) || seller,
+      dodal: seller,
+      dodano: new Date().toISOString(),
+    },
+  };
+}
+const meetingLabel = (s) => `${s.tytul} (${s.rodzaj}, ${s.czas} min) ${s.at}`;
 const TEXT_MAX = 2000;
 
 // Etapy lejka sprzedaży (kolejność = kolejność w panelu).
@@ -269,7 +300,7 @@ export function crmRouter({ clientIp, limiter, siteUrl }) {
         .split(',')
         .map((e) => e.slice(0, e.indexOf(':')).trim())
         .filter(Boolean);
-      res.json({ leads: await listLeads(), statuses: STATUSES, survey: SURVEY, sellers });
+      res.json({ leads: await listLeads(), statuses: STATUSES, survey: SURVEY, sellers, meetingTypes: MEETING_TYPES, sources: MANUAL_SOURCES });
     } catch (err) {
       console.error('[crm-leads]', err.message);
       res.status(503).json({ error: 'Baza niedostępna - spróbuj za chwilę.' });
@@ -282,7 +313,7 @@ export function crmRouter({ clientIp, limiter, siteUrl }) {
     try {
       const lead = await getLead(req.params.id);
       if (!lead) return res.status(404).json({ error: 'Nie ma takiego leada.' });
-      const { status, przypisany, nastepnyKontakt, notatka, tylkoJesliWolny } = req.body || {};
+      const { status, przypisany, nastepnyKontakt, notatka, tylkoJesliWolny, spotkanie, usunSpotkanie } = req.body || {};
       const now = new Date().toISOString();
       const zmiany = [];
 
@@ -308,11 +339,92 @@ export function crmRouter({ clientIp, limiter, siteUrl }) {
       if (typeof notatka === 'string' && notatka.trim()) {
         lead.notatki = [...(lead.notatki || []), { at: now, autor: req.seller, tekst: notatka.trim().slice(0, 4000) }];
       }
+      if (spotkanie !== undefined) {
+        const m = cleanMeeting(spotkanie, req.seller);
+        if (m.error) return res.status(400).json({ error: m.error });
+        lead.spotkania = [...(lead.spotkania || []), m.spotkanie].slice(-100);
+        zmiany.push(`spotkanie: ${meetingLabel(m.spotkanie)}`);
+      }
+      if (typeof usunSpotkanie === 'string') {
+        const s = (lead.spotkania || []).find((x) => x.id === usunSpotkanie);
+        if (s) { lead.spotkania = lead.spotkania.filter((x) => x.id !== usunSpotkanie); zmiany.push(`usunięto spotkanie: ${meetingLabel(s)}`); }
+      }
       if (zmiany.length) lead.historia = [...(lead.historia || []), ...zmiany.map((z) => ({ at: now, autor: req.seller, zmiana: z }))];
       res.json({ lead: await saveLead(lead) });
     } catch (err) {
       console.error('[crm-update]', err.message);
       res.status(500).json({ error: 'Nie udało się zapisać zmian.' });
+    }
+  });
+
+  // ── Panel: ręczne dodanie leada (telefon, DM, polecenie, wydarzenie) ──
+  // Rodzaj „pro" dostaje skrypty settera i closera (bez ankiety - pytania na głos), „ks" - skrypt rozmowy KS.
+  router.post('/api/crm/nowy-lead', crmLimiter, requireSeller, async (req, res) => {
+    const b = req.body || {};
+    const str = (v, max) => (typeof v === 'string' && v.trim() ? v.trim().slice(0, max) : '');
+    const imie = str(b.imie, 60);
+    const nazwisko = str(b.nazwisko, 80);
+    const email = str(b.email, 254).toLowerCase();
+    let telefon = str(b.telefon, 30).replace(/[\s()-]/g, '');
+    if (/^\d{9}$/.test(telefon)) telefon = '+48' + telefon;
+    if (imie.length < 2) return res.status(400).json({ error: 'Podaj imię.' });
+    if (!email && !telefon) return res.status(400).json({ error: 'Podaj telefon albo e-mail.' });
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Nieprawidłowy e-mail.' });
+    if (telefon && !/^\+\d{8,15}$/.test(telefon)) return res.status(400).json({ error: 'Nieprawidłowy numer telefonu (np. 600 100 200 albo +48600100200).' });
+    const rodzaj = b.rodzaj === 'ks' ? 'ks' : 'pro';
+    const status = STATUSES.includes(b.status) ? b.status : 'Nowy lead';
+    const zrodlo = MANUAL_SOURCES.includes(b.zrodlo) ? b.zrodlo : 'Inne';
+    const przypisany = b.przypisany === null || b.przypisany === '' ? null : str(b.przypisany, 60) || req.seller;
+    const meeting = b.spotkanie ? cleanMeeting(b.spotkanie, req.seller) : null;
+    if (meeting && meeting.error) return res.status(400).json({ error: meeting.error });
+    const now = new Date().toISOString();
+    const notatka = str(b.notatka, 4000);
+    try {
+      const lead = await saveLead({
+        id: randomBytes(16).toString('hex'),
+        reczny: { autor: req.seller, at: now },
+        ukonczona: true,
+        createdAt: now,
+        wyslanoAt: now,
+        status,
+        ...(rodzaj === 'ks' ? { typ: 'konsultacja', pakiet: 'Kompletny System', konsultacja: { pytanie: null } } : {}),
+        kontakt: { imie, nazwisko, email, telefon, nick: str(b.nick, 60) || null },
+        odpowiedzi: {},
+        segment: null,
+        budzet: null,
+        zrodlo: { kanal: zrodlo, dodane: 'ręcznie w CRM' },
+        przypisany,
+        nastepnyKontakt: meeting ? meeting.spotkanie.at : null,
+        spotkania: meeting ? [meeting.spotkanie] : [],
+        notatki: notatka ? [{ at: now, autor: req.seller, tekst: notatka }] : [],
+        historia: [{ at: now, autor: req.seller, zmiana: `dodano ręcznie (${zrodlo}, ${rodzaj === 'ks' ? 'Kompletny System' : 'PRO'})` }]
+          .concat(meeting ? [{ at: now, autor: req.seller, zmiana: `spotkanie: ${meetingLabel(meeting.spotkanie)}` }] : []),
+      });
+      console.log(`[crm] ${req.seller} dodał lead ręcznie ${lead.id} (${zrodlo})`);
+      res.json({ lead });
+    } catch (err) {
+      console.error('[crm-new]', err.message);
+      res.status(500).json({ error: 'Nie udało się dodać leada.' });
+    }
+  });
+
+  // ── Panel: osobisty link „Kompletny System + Masterclass gratis" (24 h) dla leada z konsultacji KS ──
+  // Link przypisany do e-maila leada i sprzedawcy z sesji; generowanie zapisuje się w historii leada.
+  router.post('/api/crm/leads/:id/link-gratis', crmLimiter, requireSeller, async (req, res) => {
+    if (!/^[0-9a-f]{32}$/.test(req.params.id)) return res.status(404).json({ error: 'not found' });
+    try {
+      const lead = await getLead(req.params.id);
+      if (!lead) return res.status(404).json({ error: 'Nie ma takiego leada.' });
+      const k = lead.kontakt || {};
+      const token = createGiftOffer({ pakiet: 'Kompletny System', email: k.email || '', imie: k.imie || '', nazwisko: k.nazwisko || '', sprzedawca: req.seller });
+      const offer = readGiftOffer(token);
+      lead.historia = [...(lead.historia || []), { at: new Date().toISOString(), autor: req.seller, zmiana: `link: Kompletny System + Masterclass gratis, ważny do ${offer.expiresAt}` }];
+      await saveLead(lead);
+      console.log(`[crm] ${req.seller} -> ${offer.email}, Kompletny System + Masterclass gratis, ważna do ${offer.expiresAt}`);
+      res.set('Cache-Control', 'no-store').json({ url: `${siteUrl}/zamowienie.html?pakiet=${encodeURIComponent(offer.pakiet)}&prezent=${token}`, expiresAt: offer.expiresAt });
+    } catch (err) {
+      console.error('[crm-link-gratis]', err.message);
+      res.status(400).json({ error: err.message });
     }
   });
 

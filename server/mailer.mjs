@@ -286,6 +286,7 @@ export async function sendConsultationEmails({ lead, crmUrl, przesuniecie }) {
         <h3>${przesuniecie ? 'Przesunięta' : 'Nowa'} konsultacja (${escapeHtml(lead.pakiet)}): ${escapeHtml(k.imie)}</h3>
         <p><strong>Termin:</strong> ${escapeHtml(kiedy)}</p>
         <p>Telefon: ${escapeHtml(k.telefon)}<br/>E-mail: ${escapeHtml(k.email)}</p>
+        ${lead.konsultacja.problem ? `<p><strong>Największy problem:</strong><br/>${escapeHtml(lead.konsultacja.problem)}</p>` : ''}
         ${lead.konsultacja.pytanie ? `<p><strong>Co go wstrzymuje:</strong><br/>${escapeHtml(lead.konsultacja.pytanie)}</p>` : ''}
         <p><a href="${escapeHtml(crmUrl)}">Otwórz w CRM</a></p>
       </div>

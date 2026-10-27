@@ -185,7 +185,8 @@
   }
 
   // ── Bezpłatna konsultacja przed zakupem Kompletnego Systemu (lead z konsultacja.html) ──
-  // Klient sam umówił 10-15 minut, bo chce dołączyć, ale coś go wstrzymuje. Cel: rozwiać wątpliwość i domknąć KS na rozmowie.
+  // Klient sam umówił 10-15 minut, ale nie wypełniał ankiety - wszystko, co wiemy, wybadujesz pytaniami na rozmowie.
+  // Przebieg jak u settera (sytuacja → ból → cel → gotowość → decyzja), tylko na końcu domykasz KS od razu, bez closera.
   function buildKs(lead, ctx, h) {
     var esc = h.esc, say = h.say, ask = h.ask, tip = h.tip, step = h.step, check = h.check;
     var k = lead.kontakt || {};
@@ -194,66 +195,87 @@
     var przedPodwyzka = ed.priceRiseISO && Date.now() < Date.parse(ed.priceRiseISO);
     var podwyzkaLabel = ed.priceRiseISO ? new Date(ed.priceRiseISO).toLocaleDateString('pl-PL', { timeZone: 'Europe/Warsaw', day: 'numeric', month: 'long' }) : '';
     var zamkniecie = ed.salesCloseLabel || h.start;
-    var link = location.origin + '/zamowienie.html?pakiet=Kompletny%20System';
     var filary = Object.keys(BLOKADA_FILAR).map(function (b) { return '<li><b>' + esc(b) + '</b> → ' + esc(BLOKADA_FILAR[b][0]) + ': ' + esc(BLOKADA_FILAR[b][1]) + '</li>'; }).join('');
 
-    return '<p class="sc-intro">Cel rozmowy: <b>rozwiać wątpliwość i domknąć Kompletny System</b> na tej rozmowie. 10-15 minut. Klient sam się zapisał, więc chce wejść - Twoja rola to usunąć to, co go wstrzymuje.</p>' +
+    return '<p class="sc-intro">Cel rozmowy: <b>wybadać sytuację i domknąć Kompletny System</b> na tej rozmowie. 10-20 minut. Klient sam się umówił, ale nic o nim nie wiemy - najpierw pytasz i słuchasz (70% rozmowy), dopiero potem oferta.</p>' +
       (ctx.lastNote ? '<div class="sc-box"><h4>Notatka z poprzedniej rozmowy (' + esc(ctx.lastNote.autor) + ')</h4><p class="sc-note">' + esc(ctx.lastNote.tekst) + '</p></div>' : '') +
       step(1, 'Otwarcie', 'Krótko i ciepło. Odwołaj się do tego, że sam(a) się umówił(a).',
-        say('„Cześć ' + h.imie + ', tu ' + h.ja + ' z Lecimy po swoje. Umówiłeś/aś się z nami na krótką rozmowę o programie - masz teraz 10 minut?”') +
-        tip('Nie może teraz? Ustal konkretną godzinę w tym samym bloku albo jutro i wpisz ją w „Następny kontakt”.')) +
-      step(2, 'Ramka', 'Klient ma wiedzieć, jak to się skończy - to zdejmuje presję.',
-        say('„Plan jest prosty: powiesz mi, co Cię jeszcze wstrzymuje, odpowiem na każde pytanie i razem ustalimy, czy i od którego pakietu zacząć. Jeśli program nie będzie dla Ciebie, powiem Ci to wprost. Pasuje?”')) +
-      step(3, 'Co go wstrzymuje', 'Najważniejszy punkt rozmowy. Dopytuj, aż dojdziesz do prawdziwego powodu.',
-        h.fromSurvey('Napisał(a) przy zapisie', c.pytanie ? '„' + h.clip(c.pytanie) + '”' : '') +
+        say('„Cześć ' + h.imie + ', tu ' + h.ja + ' z Lecimy po swoje. Umówiłeś/aś się z nami na krótką rozmowę o programie - masz teraz kilkanaście minut?”') +
+        tip('Nie może teraz? Ustal konkretną godzinę (dziś albo jutro) i wpisz ją w „Następny kontakt”.')) +
+      step(2, 'Ramka rozmowy', 'Klient ma wiedzieć, czego się spodziewać - to zdejmuje presję.',
+        say('„Zanim cokolwiek opowiem o programie, chcę zrozumieć Twoją sytuację - zadam kilka pytań. Potem powiem szczerze, czy i jak możemy Ci pomóc. Jeśli to nie będzie dla Ciebie, usłyszysz to wprost. Może tak być?”')) +
+      step(3, 'Skąd się wziął', 'Dowiedz się, co go/ją przyprowadziło.',
+        h.fromSurvey('Największy problem (z zapisu)', c.problem ? '„' + h.clip(c.problem) + '”' : '') +
+        h.fromSurvey('Co go wstrzymuje (z zapisu)', c.pytanie ? '„' + h.clip(c.pytanie) + '”' : '') +
         (c.pytanie
           ? say('„Przy zapisie napisałeś/aś: „' + h.clip(c.pytanie) + '”. Opowiedz mi o tym więcej.”')
-          : say('„Co sprawia, że jeszcze się nie zapisałeś/aś? Co Cię wstrzymuje?”')) +
-        ask('„Czy to jedyna rzecz, czy jest coś jeszcze?”') +
-        tip('Zwykle to jedno z pięciu: cena, czas, „czy to zadziała u mnie”, wybór pakietu, decyzja z partnerem. Gotowe odpowiedzi są w kroku 6.')) +
-      step(4, 'Szybka diagnoza', 'Dwa-trzy pytania, żeby dopasować program do jego/jej sytuacji. Nie przesłuchuj.',
-        ask('„Co najbardziej chcesz zmienić w ciągu tych 90 dni?”') +
-        ask('„Co już próbowałeś/aś i dlaczego nie zadziałało?”') +
-        ask('„Co się stanie, jeśli za 3 miesiące będzie dokładnie tak jak dziś?”') +
+          : ask('„Co sprawiło, że umówiłeś/aś się na tę rozmowę? Skąd w ogóle o nas wiesz?”')) +
+        ask('„Co Cię najbardziej zaciekawiło w programie?”')) +
+      step(4, 'Sytuacja i blokady', 'Niech opowie własnymi słowami. Ty dopytujesz, nie oceniasz.',
+        ask('„Czym się obecnie zajmujesz? Jak wygląda Twój typowy dzień?”') +
+        (c.problem
+          ? say('„Przy zapisie napisałeś/aś, że Twoim największym problemem jest: „' + h.clip(c.problem) + '”. Opowiedz mi o tym więcej.”')
+          : ask('„Co najbardziej blokuje Cię dziś w życiu? Dyscyplina, energia, pieniądze, lęki w głowie, otoczenie, brak kierunku?”')) +
+        ask('„Jak to wygląda w praktyce? Daj mi przykład z ostatnich dni.”') +
+        ask('„Jak długo to już trwa? I jak wpływa na resztę - pracę, relacje, pieniądze?”') +
         '<ul class="sc-list">' + filary + '</ul>' +
-        tip('Powiąż to, co mówi, z filarem z listy - użyjesz tego w kroku 5.')) +
-      step(5, 'Kompletny System dopasowany do niego/niej', 'Mów o tym, co rozwiązuje JEGO/JEJ problem. Nie czytaj całej listy.',
-        say('„W Kompletnym Systemie przechodzisz przez wszystkie 4 filary: Dyscyplinę, Szczęście, Finanse i Duchowość. U Ciebie najważniejszy będzie [filar z kroku 4], bo [jego/jej słowa].”') +
+        tip('Zapamiętaj 1-2 blokady i dopasuj do nich filar z listy - użyjesz tego w prezentacji (krok 8).')) +
+      step(5, 'Co już próbował(a)', 'Szukaj wzorca, który rozwiązuje program.',
+        ask('„Co już próbowałeś/aś, żeby to zmienić? Książki, kursy, aplikacje, postanowienia?”') +
+        ask('„Dlaczego Twoim zdaniem to nie zadziałało na dłużej?”') +
+        tip('Typowe odpowiedzi: „zaczynałem i odpuszczałem”, „robiłem sam”, „nikt mnie nie rozliczał”, „za dużo teorii”. To dokładnie to, co daje program: system na 90 dni, grupa, wyzwania i spotkania na żywo.')) +
+      step(6, 'Cel i koszt braku zmiany', 'Zbuduj różnicę między tym, gdzie jest, a gdzie chce być.',
+        ask('„Gdzie chcesz być za 3 miesiące, po programie? Opisz konkretnie.”') +
+        ask('„Co się zmieni w Twoim życiu, kiedy to osiągniesz?”') +
+        ask('„A co, jeśli za 3 miesiące będzie dokładnie tak jak dziś?”') +
+        tip('Pozwól mu/jej odpowiedzieć i nie przerywaj ciszy. Zapisz jego/jej słowa - wrócisz do nich przy zamknięciu.')) +
+      step(7, 'Gotowość i decyzja', 'Sprawdź, czy chce zacząć teraz i czy decyduje sam(a).',
+        ask('„W skali 1-10: na ile jesteś gotów/gotowa na zmianę teraz, nie „kiedyś”?”') +
+        tip('8-10 → zapytaj „dlaczego właśnie teraz?” i przejdź dalej. Poniżej 8 → „Co musiałoby się stać, żeby to była dziesiątka?” - to będzie główna obiekcja.') +
+        ask('„Masz 15 minut dziennie, żeby dać to sobie przez 90 dni?”') +
+        ask('„Decyzję o dołączeniu podejmujesz sam/a, czy jeszcze z kimś?”') +
+        tip('Decyduje z kimś → zaproponuj krótki telefon we trójkę (jutro / pojutrze) zamiast „odezwę się”.')) +
+      step(8, 'Kompletny System dopasowany do niego/niej', 'Mów tylko o tym, co rozwiązuje JEGO/JEJ problem. Nie czytaj całej listy.',
+        say('„Z tego, co mówisz, najbardziej przeszkadza Ci [blokada z kroku 4], a chcesz [cel z kroku 6]. W Kompletnym Systemie przechodzisz przez wszystkie 4 filary - u Ciebie kluczowy będzie [filar], bo [jego/jej słowa].”') +
         '<ul class="sc-list"><li><b>90 dni prowadzenia</b> od ' + esc(h.start) + ' do ' + esc(h.koniec) + ' - zawsze wiesz, co robić dalej</li>' +
         '<li><b>22 lekcje wideo</b> w czterech etapach + karty pracy</li>' +
         '<li><b>Wyzwania w grupie</b> - ok. 15 minut dziennie</li>' +
         '<li><b>Społeczność „Lecimy”</b> i <b>comiesięczne spotkania na żywo z Bartem</b></li>' +
         '<li><b>Gotowy Zestaw Narzędzi Wdrożeniowych</b> i <b>praca z podświadomością</b>: hipnozy, medytacje prowadzone, afirmacje</li></ul>' +
         ask('„Jak to brzmi w kontekście tego, co mi powiedziałeś/aś?”')) +
-      step(6, 'Cena, gwarancja i obiekcje', 'Powiedz cenę spokojnie i zamilknij.',
+      step(9, 'Cena i gwarancja', 'Powiedz cenę spokojnie i zamilknij. Pierwszy, kto się odezwie, przegrywa.',
         say('„Kompletny System to 1 597 zł brutto. Możesz zapłacić od razu albo rozłożyć na 3 raty 0% przez Klarnę - wychodzi ok. 532 zł miesięcznie. Jest też opcja „zapłać za 30 dni”.”') +
-        say('„I jeszcze jedno: Kompletny System ma gwarancję zwrotu. Jeśli przejdziesz cały program i uznasz, że nic Ci nie dał, oddajemy całe pieniądze.”') +
+        say('„I ważne: Kompletny System ma gwarancję zwrotu. Przechodzisz cały program i jeśli po nim uznasz, że Ci nie pomógł, oddajemy całe pieniądze. Ryzyko jest po naszej stronie.”') +
         tip('Warunki gwarancji (regulamin pkt 6a): obejrzane wszystkie lekcje i ukończone wszystkie wyzwania w grupie, zgłoszenie mailem do 14 dni po końcu edycji. Gwarancja jest tylko na Kompletny System, nie na Fundament.') +
-        (przedPodwyzka ? tip('Do ' + esc(podwyzkaLabel) + ' obowiązuje obecna cena, potem rośnie. Zapisy zamykamy ' + esc(zamkniecie) + '. Mów o tym jako o fakcie, nie jako o presji.') : tip('Zapisy do tej edycji zamykamy ' + esc(zamkniecie) + '.')) +
+        (przedPodwyzka ? tip('Do ' + esc(podwyzkaLabel) + ' obowiązuje obecna cena, potem rośnie. Zapisy zamykamy ' + esc(zamkniecie) + '. Mów o tym jako o fakcie, nie jako o presji.') : tip('Zapisy do tej edycji zamykamy ' + esc(zamkniecie) + '.'))) +
+      step(10, 'Obiekcje', 'Najpierw dopytaj, potem odpowiadaj: „Rozumiem. Co dokładnie masz na myśli?”',
         '<dl class="sc-obj">' +
-        '<dt>„To za drogo”</dt><dd>„Rozumiem. Za drogo w porównaniu z czym?” Potem raty: „To ok. 532 zł miesięcznie przez 3 miesiące, bez odsetek, a jeśli przejdziesz program i nic Ci nie da - oddajemy pieniądze.” Jeśli naprawdę nie da rady - Fundament (krok 7).</dd>' +
+        '<dt>„To za drogo”</dt><dd>„Rozumiem. Za drogo w porównaniu z czym?” Potem: „Ile kosztuje Cię to, że [blokada] trwa dalej?” i raty: „To ok. 532 zł miesięcznie przez 3 miesiące, bez odsetek, a jeśli przejdziesz program i nie pomoże - oddajemy pieniądze.”</dd>' +
+        '<dt>„Muszę się zastanowić”</dt><dd>„Jasne. Nad czym dokładnie - cena, czas, czy to, czy to zadziała u Ciebie?” Rozbij na jeden konkret i odpowiedz na niego. Potem oferta z Masterclassem gratis (krok 11).</dd>' +
         '<dt>„Nie wiem, czy znajdę czas”</dt><dd>„Wyzwania to ok. 15 minut dziennie, lekcje oglądasz, kiedy Ci pasuje. Ile czasu dziennie tracisz dziś na [to, co go blokuje]?”</dd>' +
         '<dt>„Czy to zadziała u mnie?”</dt><dd>„Zadziała, jeśli zrobisz swoją część - 15 minut dziennie. A żeby ryzyko było po naszej stronie, masz gwarancję zwrotu.”</dd>' +
-        '<dt>„Muszę się zastanowić”</dt><dd>„Jasne. Nad czym dokładnie - cena, czas, czy to, czy to dla Ciebie?” Rozbij na jeden konkret i odpowiedz na niego.</dd>' +
+        '<dt>„Próbowałem/am już kursów i nie działało”</dt><dd>Wróć do tego, co powiedział(a) w kroku 5. „Dlatego to nie jest kolejny kurs do obejrzenia. Masz 90 dni prowadzenia, grupę, wyzwania i spotkania na żywo - nie zostajesz z tym sam/a.”</dd>' +
         '<dt>„Muszę zapytać partnera”</dt><dd>„Super, że decydujecie razem. Co Twoim zdaniem powie? Mogę zadzwonić jutro, kiedy będziecie razem - o której?”</dd>' +
-        '<dt>„Fundament czy Kompletny System?”</dt><dd>„Fundament to tylko Dyscyplina, bez społeczności i spotkań z Bartem, i bez gwarancji. Jeśli chcesz zmienić coś więcej niż nawyki, Kompletny System - różnica to ok. 200 zł miesięcznie w ratach.”</dd>' +
+        '<dt>„Fundament czy Kompletny System?”</dt><dd>„Fundament to tylko Dyscyplina, bez społeczności, spotkań z Bartem i bez gwarancji. Jeśli chcesz zmienić coś więcej niż nawyki - Kompletny System. Różnica to ok. 200 zł miesięcznie w ratach.”</dd>' +
         '</dl>') +
-      step(7, 'Zamknięcie', 'Zapytaj o decyzję wprost i zostań na linii do płatności.',
+      step(11, 'Zamknięcie z ofertą na 24 h', 'Zapytaj o decyzję wprost. Masterclass gratis to powód, żeby zdecydować dziś - nie dorzucaj go od razu, tylko gdy klient się waha albo na sam koniec.',
         say('„Z tego, co mówisz, Kompletny System jest dla Ciebie. Wchodzimy w to?”') +
-        tip('TAK → wyślij link SMS-em albo mailem na <b>' + esc(k.email || '') + '</b> i zostań na linii, aż przejdzie do płatności: <button type="button" class="b" data-copy="' + esc(link) + '" style="margin-top:.35rem">Kopiuj link do zamówienia</button>') +
+        say('„Mam dla Ciebie jeszcze coś: jeśli dołączysz w ciągu 24 godzin, dostajesz <b>Masterclass Wdrożeniowy za darmo</b> - normalnie kosztuje 157 zł. Wyślę Ci osobisty link, licznik startuje od teraz.”') +
+        '<div class="sc-gift"><span class="sc-gift__title">🎁 Osobisty link: Kompletny System + Masterclass gratis, ważny 24 h' + (k.email ? ' - przypisany do ' + esc(k.email) : '') + '</span>' +
+          '<button type="button" class="b" data-gift-link>Kopiuj link do zamówienia</button><div class="sc-gift-out" hidden></div></div>' +
+        tip('Wyślij link SMS-em albo mailem i zostań na linii, aż klient przejdzie do płatności. E-mail w zamówieniu jest zablokowany na ' + (k.email ? '<b>' + esc(k.email) + '</b>' : 'adres leada') + '.') +
         tip('Po opłaceniu: status <b>„Sprzedane Kompletny System”</b>.') +
-        tip('Cena jest dla niego/niej barierą nawet w ratach → Fundament 997 zł (Klarna 3×0% ok. 332 zł/mies.), status „Downsell”.') +
-        tip('Chce, ale się waha → daj mu powód, żeby zdecydować dziś: <b>Masterclass Wdrożeniowy gratis</b> (zamiast 157 zł), ważne 24 h. <a href="generator-gratis.html?imie=' + encodeURIComponent(k.imie || '') + '&email=' + encodeURIComponent(k.email || '') + '" target="_blank" rel="noopener">Wygeneruj link z gratisem →</a>') +
-        tip('Zastanawia się → konkretny termin (24-48 h) w „Następny kontakt”, status „Follow-up”. Nie pasuje → powiedz to wprost, status „Odrzucone”.')) +
+        tip('Cena jest barierą nawet w ratach → Fundament 997 zł (Klarna 3×0% ok. 332 zł/mies.), status „Downsell”.') +
+        tip('Zastanawia się → link i tak wyślij, a follow-up ustaw przed końcem 24 h (np. za 20 godzin), status „Follow-up”. Nie pasuje → powiedz to wprost, status „Odrzucone”.')) +
       '<div class="sc-box"><h4>Zaznacz w trakcie</h4>' +
-        check('Wiem, co go/ją wstrzymywało') + check('Odpowiedziałem/am na to wprost') + check('Powiązałem/am program z jego/jej problemem') +
-        check('Padła cena i raty') + check('Padła gwarancja zwrotu') + check('Zapytałem/am o decyzję') +
-        '<p class="sc-goal" style="margin-top:.5rem">Po rozmowie: status, następny kontakt i notatka (co wstrzymywało, co przekonało, ustalenia).</p></div>';
+        check('Wiem, co go/ją przyprowadziło i co blokuje') + check('Znam cel i koszt braku zmiany') + check('Gotowość 7/10 lub więcej') +
+        check('Sam(a) decyduje albo umówiony telefon z decydentem') + check('Padła cena, raty i gwarancja') + check('Zapytałem/am o decyzję') +
+        '<p class="sc-goal" style="margin-top:.5rem">Po rozmowie: status, następny kontakt i notatka (sytuacja, blokada, cel, co przekonało, ustalenia).</p></div>';
   }
 
   // Szablon notatki po rozmowie (przycisk „Wstaw szablon notatki").
   var NOTE_TEMPLATE = 'Sytuacja klienta:\nObiekcje:\nNajważniejszy filar (dyscyplina / szczęście / finanse / duchowość):\nBudżet / raty (kwota miesięczna):\nKto decyduje:\nPoziom entuzjazmu (1-10):\nUstalenia / następny krok:';
-  var NOTE_TEMPLATE_KS = 'Co go/ją wstrzymywało:\nCo przekonało / co nie:\nNajważniejszy filar:\nPłatność (jednorazowo / Klarna raty / za 30 dni):\nKto decyduje:\nUstalenia / następny krok:';
+  var NOTE_TEMPLATE_KS = 'Sytuacja (czym się zajmuje):\nNajwiększa blokada:\nCo już próbował(a):\nCel za 3 miesiące:\nGotowość (1-10):\nKto decyduje:\nObiekcje / co przekonało:\nPłatność (jednorazowo / Klarna raty / za 30 dni):\nLink z Masterclassem gratis wysłany (tak / nie):\nUstalenia / następny krok:';
 
   window.CRM_SKRYPTY = { build: build, noteTemplate: NOTE_TEMPLATE, noteTemplateKs: NOTE_TEMPLATE_KS };
 })();
