@@ -2,8 +2,8 @@
 // Ceny w PLN (złotych), przeliczane na grosze przy komunikacji z Przelewy24.
 
 export const PACKAGES = {
-  'Fundament': 997,
-  'Kompletny System': 1597,
+  'Fundament': 1097,
+  'Kompletny System': 1697,
 };
 
 // Pakiet PRO: oferta indywidualna po kwalifikacji, bez ceny w PACKAGES - cenę niesie podpisany link (server/proOffer.mjs).

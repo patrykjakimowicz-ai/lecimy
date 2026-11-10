@@ -4,8 +4,8 @@ window.LECIMY_EDITION = {
   name: 'Edycja 1',
   salesCloseISO: '2026-11-20T00:00:00+01:00',
   salesCloseLabel: '20 listopada 2026',
-  // Do tej chwili obowiązuje obecna cena; pasek na górze odlicza do podwyżki, potem do zamknięcia sprzedaży.
-  priceRiseISO: '2026-11-08T23:59:59+01:00',
+  // Pasek na górze odlicza do zamknięcia sprzedaży (salesCloseISO). Tryb "do podwyżki" wyłączony (priceRiseISO: null).
+  priceRiseISO: null,
   startISO: '2026-11-20T00:00:00+01:00',
   endISO: '2027-02-19T23:59:59+01:00',
   startLabel: '20 listopada 2026',
@@ -49,7 +49,9 @@ else window.LECIMY_applySalesState();
   var ed = window.LECIMY_EDITION;
   var timer = null;
   var units = {};
-  var PRICE_LABEL = 'Podwyżka ceny za';
+  var PRICE_LABEL = 'OSTATNIA SZANSA NA LECIMY PRZED PODWYŻKĄ';
+  var PRICE_LABEL_MOBILE = 'PODWYŻKA LECIMY ZA';
+  function isPhone() { return window.matchMedia && window.matchMedia('(max-width: 640px)').matches; }
   var CLOSE_LABEL = 'Zapisy zamykamy za';
 
   function priceRiseLeft() { return ed.priceRiseISO ? Date.parse(ed.priceRiseISO) - Date.now() : 0; }
@@ -76,10 +78,10 @@ else window.LECIMY_applySalesState();
   }
 
   function render(bar) {
-    var priceMode = priceRiseLeft() > 0;
+    var priceMode = priceRiseLeft() > 0 && Date.now() < Date.parse(ed.salesCloseISO);
     var left = priceMode ? priceRiseLeft() : Date.parse(ed.salesCloseISO) - Date.now();
     var labelEl = bar.querySelector('.cd-label__text');
-    var labelText = priceMode ? PRICE_LABEL : CLOSE_LABEL;
+    var labelText = priceMode ? (isPhone() ? PRICE_LABEL_MOBILE : PRICE_LABEL) : CLOSE_LABEL;
     if (labelEl.textContent !== labelText) labelEl.textContent = labelText;
     bar.classList.toggle('is-price', priceMode);
     if (left <= 0) {
@@ -124,7 +126,7 @@ else window.LECIMY_applySalesState();
       '<div class="countdown-bar__inner">' +
         '<span class="cd-label"><span class="cd-dot" aria-hidden="true"></span><span class="cd-label__text"></span></span>' +
         '<div class="cd-units">' + unitHtml('d') + unitHtml('h') + unitHtml('m') + unitHtml('s') + '</div>' +
-        '<a class="cd-cta" href="' + (document.getElementById('pricing') ? '' : 'index.html') + '#pricing">Kupuję przed podwyżką</a>' +
+        '<a class="cd-cta" href="' + (document.getElementById('pricing') ? '' : 'index.html') + '#pricing">Dołączam przed zamknięciem</a>' +
       '</div>';
     document.body.insertBefore(bar, document.body.firstChild);
 

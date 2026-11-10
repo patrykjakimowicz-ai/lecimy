@@ -70,9 +70,9 @@
       'tak, w ratach': say('„Zaznaczyłeś/aś, że wolisz raty. Jaka miesięczna kwota byłaby dla Ciebie komfortowa?”') +
         tip('Zapisz kwotę w notatce - closer dobierze do niej sposób płatności.'),
       'wolę tańszą opcję samodzielną': say('„Napisałeś/aś, że wolisz tańszą, samodzielną opcję. Co jest dla Ciebie ważniejsze - niższa cena, czy to, żeby ktoś Cię przez to przeprowadził i rozliczał?”') +
-        tip('Jeśli liczy się cena - zaproponuj <b>Kompletny System (1 597 zł, Klarna 3 raty 0% ok. 532 zł/mies.)</b> i ustaw status „Downsell”. Jeśli prowadzenie - kwalifikuj dalej do PRO.'),
+        tip('Jeśli liczy się cena - zaproponuj <b>Kompletny System (1 697 zł, Klarna 3 raty 0% ok. 566 zł/mies.)</b> i ustaw status „Downsell”. Jeśli prowadzenie - kwalifikuj dalej do PRO.'),
       'nie stać mnie teraz': say('„Dziękuję za szczerość. PRO to inwestycja rzędu 10 tysięcy - jeśli to dziś za dużo, mamy wersje, od których możesz zacząć sam/a.”') +
-        tip('Nie dociskaj PRO. Zaproponuj <b>Fundament (997 zł)</b> albo <b>Kompletny System (1 597 zł)</b> - oba z Klarną 3×0%. Status „Downsell” albo „Odrzucone”.')
+        tip('Nie dociskaj PRO. Zaproponuj <b>Fundament (1097 zł)</b> albo <b>Kompletny System (1 697 zł)</b> - oba z Klarną 3×0%. Status „Downsell” albo „Odrzucone”.')
     };
     var budzetAsk = ask('„PRO to inwestycja rzędu 10 tysięcy złotych, z możliwością rat. Jeśli okaże się, że możemy Ci pomóc, czy jesteś w stanie zainwestować taką kwotę w siebie?”');
 
@@ -121,7 +121,7 @@
         tip('Pozwól mu/jej odpowiedzieć i nie przerywaj ciszy.')) +
       step(ankieta ? 6 : 5, 'Gotowość', '', fromSurvey('Gotowość', got ? got + '/10' : '') + gotowoscBlock) +
       step(ankieta ? 7 : 6, 'Budżet', 'Kwalifikacja finansowa - zadaj wprost, bez przepraszania.',
-        fromSurvey('Budżet', esc(o.budzet)) + (budzetSetter[o.budzet] || budzetAsk + tip('Tak/raty → dalej. Tańsza opcja albo brak budżetu → Kompletny System 1 597 zł / Fundament 997 zł, status „Downsell”.'))) +
+        fromSurvey('Budżet', esc(o.budzet)) + (budzetSetter[o.budzet] || budzetAsk + tip('Tak/raty → dalej. Tańsza opcja albo brak budżetu → Kompletny System 1 697 zł / Fundament 1097 zł, status „Downsell”.'))) +
       step(ankieta ? 8 : 7, 'Start i decyzja', '',
         fromSurvey('Start', esc(o.start)) + startBlock +
         ask('„Decyzję o takiej inwestycji podejmujesz sam/a, czy jeszcze z kimś - np. z partnerem?”') +
@@ -169,7 +169,7 @@
       step(6, 'Obiekcje', 'Najpierw dopytaj, potem odpowiadaj. „Rozumiem. Co dokładnie masz na myśli?”',
         '<dl class="sc-obj">' +
         '<dt>„Muszę się zastanowić”</dt><dd>„Jasne. Nad czym dokładnie? Cena, czas, czy to, czy to zadziała u Ciebie?” - rozbij na konkret i odpowiedz na ten jeden punkt.</dd>' +
-        '<dt>„To za drogo / nie mam teraz”</dt><dd>„Ile kosztuje Cię to, że ' + pierwszaBlokada + ' trwa dalej?” Potem raty. Jeśli naprawdę nie da rady - Kompletny System 1 597 zł (Klarna 3×0% ok. 532 zł/mies.), status „Downsell”.</dd>' +
+        '<dt>„To za drogo / nie mam teraz”</dt><dd>„Ile kosztuje Cię to, że ' + pierwszaBlokada + ' trwa dalej?” Potem raty. Jeśli naprawdę nie da rady - Kompletny System 1 697 zł (Klarna 3×0% ok. 566 zł/mies.), status „Downsell”.</dd>' +
         '<dt>„Muszę zapytać partnera”</dt><dd>„Super, że to razem decydujecie. Co Twoim zdaniem powie? Umówmy krótką rozmowę we trójkę - jutro czy pojutrze?”</dd>' +
         '<dt>„Próbowałem/am już kursów i nie działało”</dt><dd>' + (ankieta && o.probowal ? 'Wróć do tego, co napisał(a): „' + clip(o.probowal) + '”. ' : '') + '„Dlatego PRO to nie kurs. Kurs daje wiedzę, a Ty potrzebujesz systemu i kogoś, kto Cię rozlicza - tu masz Barta osobiście.”</dd>' +
         '<dt>„Nie mam czasu”</dt><dd>„Ile czasu dziennie tracisz teraz na ' + pierwszaBlokada + '? Program jest ułożony tak, żeby zmieścić go w normalnym tygodniu.”</dd>' +
@@ -244,13 +244,13 @@
         '<li><b>Gotowy Zestaw Narzędzi Wdrożeniowych</b> i <b>praca z podświadomością</b>: hipnozy, medytacje prowadzone, afirmacje</li></ul>' +
         ask('„Jak to brzmi w kontekście tego, co mi powiedziałeś/aś?”')) +
       step(9, 'Cena i gwarancja', 'Powiedz cenę spokojnie i zamilknij. Pierwszy, kto się odezwie, przegrywa.',
-        say('„Kompletny System to 1 597 zł brutto. Możesz zapłacić od razu albo rozłożyć na 3 raty 0% przez Klarnę - wychodzi ok. 532 zł miesięcznie. Jest też opcja „zapłać za 30 dni”.”') +
+        say('„Kompletny System to 1 697 zł brutto. Możesz zapłacić od razu albo rozłożyć na 3 raty 0% przez Klarnę - wychodzi ok. 566 zł miesięcznie. Jest też opcja „zapłać za 30 dni”.”') +
         say('„I ważne: Kompletny System ma gwarancję zwrotu. Przechodzisz cały program i jeśli po nim uznasz, że Ci nie pomógł, oddajemy całe pieniądze. Ryzyko jest po naszej stronie.”') +
         tip('Warunki gwarancji (regulamin pkt 6a): obejrzane wszystkie lekcje i ukończone wszystkie wyzwania w grupie, zgłoszenie mailem do 14 dni po końcu edycji. Gwarancja jest tylko na Kompletny System, nie na Fundament.') +
         (przedPodwyzka ? tip('Do ' + esc(podwyzkaLabel) + ' obowiązuje obecna cena, potem rośnie. Zapisy zamykamy ' + esc(zamkniecie) + '. Mów o tym jako o fakcie, nie jako o presji.') : tip('Zapisy do tej edycji zamykamy ' + esc(zamkniecie) + '.'))) +
       step(10, 'Obiekcje', 'Najpierw dopytaj, potem odpowiadaj: „Rozumiem. Co dokładnie masz na myśli?”',
         '<dl class="sc-obj">' +
-        '<dt>„To za drogo”</dt><dd>„Rozumiem. Za drogo w porównaniu z czym?” Potem: „Ile kosztuje Cię to, że [blokada] trwa dalej?” i raty: „To ok. 532 zł miesięcznie przez 3 miesiące, bez odsetek, a jeśli przejdziesz program i nie pomoże - oddajemy pieniądze.”</dd>' +
+        '<dt>„To za drogo”</dt><dd>„Rozumiem. Za drogo w porównaniu z czym?” Potem: „Ile kosztuje Cię to, że [blokada] trwa dalej?” i raty: „To ok. 566 zł miesięcznie przez 3 miesiące, bez odsetek, a jeśli przejdziesz program i nie pomoże - oddajemy pieniądze.”</dd>' +
         '<dt>„Muszę się zastanowić”</dt><dd>„Jasne. Nad czym dokładnie - cena, czas, czy to, czy to zadziała u Ciebie?” Rozbij na jeden konkret i odpowiedz na niego. Potem oferta z Masterclassem gratis (krok 11).</dd>' +
         '<dt>„Nie wiem, czy znajdę czas”</dt><dd>„Wyzwania to ok. 15 minut dziennie, lekcje oglądasz, kiedy Ci pasuje. Ile czasu dziennie tracisz dziś na [to, co go blokuje]?”</dd>' +
         '<dt>„Czy to zadziała u mnie?”</dt><dd>„Zadziała, jeśli zrobisz swoją część - 15 minut dziennie. A żeby ryzyko było po naszej stronie, masz gwarancję zwrotu.”</dd>' +
@@ -265,7 +265,7 @@
           '<button type="button" class="b" data-gift-link>Kopiuj link do zamówienia</button><div class="sc-gift-out" hidden></div></div>' +
         tip('Wyślij link SMS-em albo mailem i zostań na linii, aż klient przejdzie do płatności. E-mail w zamówieniu jest zablokowany na ' + (k.email ? '<b>' + esc(k.email) + '</b>' : 'adres leada') + '.') +
         tip('Po opłaceniu: status <b>„Sprzedane Kompletny System”</b>.') +
-        tip('Cena jest barierą nawet w ratach → Fundament 997 zł (Klarna 3×0% ok. 332 zł/mies.), status „Downsell”.') +
+        tip('Cena jest barierą nawet w ratach → Fundament 1097 zł (Klarna 3×0% ok. 366 zł/mies.), status „Downsell”.') +
         tip('Zastanawia się → link i tak wyślij, a follow-up ustaw przed końcem 24 h (np. za 20 godzin), status „Follow-up”. Nie pasuje → powiedz to wprost, status „Odrzucone”.')) +
       '<div class="sc-box"><h4>Zaznacz w trakcie</h4>' +
         check('Wiem, co go/ją przyprowadziło i co blokuje') + check('Znam cel i koszt braku zmiany') + check('Gotowość 7/10 lub więcej') +

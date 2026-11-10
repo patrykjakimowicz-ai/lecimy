@@ -17,7 +17,7 @@ Teksty niżej są gotowe do wysłania.
 Pola formularza: Imię i nazwisko: Bartłomiej Weska · E-mail: kontakt@peewee.ai · Telefon: +48 571 507 237 · Firma: PEEWEE Sp. z o.o. · NIP: 9452314380 · Plik: odpis KRS (PDF).
 
 > Dzień dobry, prosimy o dodanie do naszego konta (ID 353826) sklepu https://lecimyposwoje.pl i jego weryfikację.
-> Sprzedajemy program rozwoju osobistego online (treści cyfrowe, edycja 3-mies.), ceny 997–9997 zł. Pakiet PRO (regulamin pkt 3) sprzedajemy po rozmowie kwalifikacyjnej przez osobisty link do zamówienia; klient płaci sam na stronie, nie przez telefon. Przykład: https://lecimyposwoje.pl/zamowienie.html?oferta=eyJwIjoiTGVjaW15IHBvIHN3b2plIFBSTyIsImMiOjk5OTcsImUiOiJrb250YWt0QHBlZXdlZS5haSIsInMiOiJQYXRyeWsiLCJ4IjoxNzk1MTk2NDE4MTM4fQ.qAxAM7FMjNwQ-Nxk9fl84FnnGgRitnja5do9TLGJtBc
+> Sprzedajemy program rozwoju osobistego online (treści cyfrowe, edycja 3-mies.), ceny 1097–9997 zł. Pakiet PRO (regulamin pkt 3) sprzedajemy po rozmowie kwalifikacyjnej przez osobisty link do zamówienia; klient płaci sam na stronie, nie przez telefon. Przykład: https://lecimyposwoje.pl/zamowienie.html?oferta=eyJwIjoiTGVjaW15IHBvIHN3b2plIFBSTyIsImMiOjk5OTcsImUiOiJrb250YWt0QHBlZXdlZS5haSIsInMiOiJQYXRyeWsiLCJ4IjoxNzk1MTk2NDE4MTM4fQ.qAxAM7FMjNwQ-Nxk9fl84FnnGgRitnja5do9TLGJtBc
 > Prosimy o: BLIK, przelewy, karty, Apple Pay/Google Pay i Przelewy24 Raty.
 > Adres siedziby (Złota 7/28, Warszawa) zmieniliśmy w panelu wg KRS (odpis w załączniku).
 > Regulamin: https://lecimyposwoje.pl/regulamin
@@ -38,8 +38,8 @@ Przykładowy link PRO jest przypisany do kontakt@peewee.ai i ważny do 20.11.202
 > spółka PEEWEE Sp. z o.o. (ul. Złota 7/28, 00-019 Warszawa, NIP 9452314380, KRS 0001184787) korzysta już z Przelewy24 na koncie o ID 353826. Prosimy o dodanie do tego konta kolejnego sklepu dla strony **https://lecimyposwoje.pl** i przeprowadzenie jej weryfikacji.
 >
 > **Co sprzedajemy.** „Lecimy po swoje” to program rozwoju osobistego online (treści cyfrowe bez nośnika: wideo, audio, PDF, panel uczestnika, spotkania na żywo). Program działa w edycjach: Edycja 1 trwa od 20.11.2026 do 19.02.2027, a sprzedaż zamykamy w dniu startu. Dostęp do materiałów otwiera się w dniu startu edycji. Oferta:
-> - Fundament: 997 zł brutto,
-> - Kompletny System: 1 597 zł brutto,
+> - Fundament: 1097 zł brutto,
+> - Kompletny System: 1 697 zł brutto,
 > - dodatek Masterclass Wdrożeniowy: 157 zł,
 > - Lecimy po swoje PRO: oferta indywidualna (limit 25 miejsc). Klient wypełnia zgłoszenie, przechodzi bezpłatną rozmowę kwalifikacyjną i dostaje e-mailem ofertę z ceną 9 997 zł brutto oraz osobisty link do formularza zamówienia na lecimyposwoje.pl. Umowę zawiera i płaci wyłącznie przez ten formularz, po akceptacji regulaminu. Zasady opisuje pkt 3 regulaminu. Dlatego PRO nie ma publicznej ceny na stronie.
 >
@@ -73,7 +73,7 @@ Formularz „Jak uruchomić karty?” w Centrum pomocy P24 pyta o:
 - **Waluta:** PLN.
 - **ID konta w P24:** 353826 (albo ID nowego sklepu, jeśli P24 je nada).
 - **Oferowane produkty/usługi:** program rozwoju osobistego online (treści cyfrowe), dostęp na czas edycji (3 miesiące).
-- **Cena najtańszego / najdroższego produktu:** 997 zł / 9 997 zł (PRO).
+- **Cena najtańszego / najdroższego produktu:** 1097 zł / 9 997 zł (PRO).
 - **Region sprzedaży:** kraj (Polska).
 - **Dowód realizacji:** potwierdzenie zamówienia e-mailem, konto w panelu uczestnika, log akceptacji regulaminu (wersja i SHA-256 dokumentu, IP, czas).
 - **Dni od transakcji do dostawy:** dostęp do konta w ciągu 15 minut, materiały w dniu startu edycji, czyli do ok. 30 dni po zakupie (sprzedaż kończy się w dniu startu).

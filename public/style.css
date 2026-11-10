@@ -3205,6 +3205,12 @@ body.has-countdown .nav { top: var(--bar-h); transition: top .7s cubic-bezier(.2
     width: 100%;
     padding-top: calc(var(--hero-w) * 0.6);
   }
+  /* Bez gradientu na zdjęciu */
+  .hero__gradient { display: none; }
+  .hero__card { box-shadow: none; }
+  /* Cień pod tekstem, żeby był czytelny na jasnym szlafroku */
+  .hero__card .hero__headline { text-shadow: 0 2px 6px rgba(0,0,0,0.9), 0 4px 24px rgba(0,0,0,1), 0 6px 48px rgba(0,0,0,0.9); }
+  .hero__card .hero__sub { text-shadow: 0 1px 4px rgba(0,0,0,1), 0 2px 12px rgba(0,0,0,1), 0 4px 28px rgba(0,0,0,0.95), 0 6px 52px rgba(0,0,0,0.9); }
 }
 
 /* ── PRO: tytuł w animowanej ramce ── */
@@ -3559,3 +3565,10 @@ body.has-countdown { --bar-h: 66px; }
   .gift-countdown__title { font-size: var(--fs-base); }
 }
 @media (prefers-reduced-motion: reduce) { .gift-countdown.is-urgent { animation: none; } .gift-countdown__bar span { transition: none; } }
+
+/* Tryb "ostatnia szansa": dłuższy, mocniejszy napis */
+.countdown-bar.is-price .cd-label { font-size: 0.9rem; font-weight: 800; letter-spacing: 0.08em; }
+@media (max-width: 920px) {
+  .countdown-bar.is-price .cd-label { font-size: 0.64rem; letter-spacing: 0.02em; font-weight: 800; }
+  .countdown-bar.is-price .cd-label__text { max-width: 9.5rem; white-space: normal; line-height: 1.15; }
+}
