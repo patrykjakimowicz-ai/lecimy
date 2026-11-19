@@ -59,55 +59,11 @@
       var client = window.supabaseClient;
       if (!client) return;
 
-      // ── Treść programu ─────────────────────────────────────────────
-      // Podmień videoId / video na własne (YouTube: sam identyfikator wideo;
-      // Bunny Stream: pełny adres iframe, np. https://iframe.mediadelivery.net/embed/{library}/{videoId}).
-      // Podmień materials na prawdziwe linki do plików / notatek.
-      var COURSE = [
-        {
-          id: 'dyscyplina',
-          title: 'Filar 1: Dyscyplina',
-          lessons: [
-            {
-              id: 'd1',
-              title: 'Wprowadzenie do filaru Dyscyplina',
-              description: 'Dlaczego motywacja zawodzi i jak zbudować system, który dowozi wyniki nawet w najgorsze dni.',
-              video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME',
-              materials: [
-                { label: 'Karta pracy - Fundament dyscypliny (PDF)', url: '#' },
-              ],
-            },
-            { id: 'd2', title: 'System nawyków krok po kroku', description: 'Budowa nawyków, które utrzymują się same - bez polegania na sile woli.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
-            { id: 'd3', title: 'Radzenie sobie z oporem', description: 'Co robić w dni, kiedy nic się nie chce - konkretny protokół awaryjny.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
-          ],
-        },
-        {
-          id: 'szczescie',
-          title: 'Filar 2: Szczęście',
-          lessons: [
-            { id: 's1', title: 'Czym naprawdę jest szczęście', description: 'Odkryj, co realnie daje Ci energię i radość - bez pogoni za iluzją.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
-            { id: 's2', title: 'Praca z emocjami na co dzień', description: 'Proste narzędzia do regulacji emocji w codziennym życiu.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
-          ],
-        },
-        {
-          id: 'finanse',
-          title: 'Filar 3: Finanse',
-          lessons: [
-            { id: 'f1', title: 'Psychologia pieniądza', description: 'Jak Twoje przekonania o pieniądzach kształtują Twoje decyzje finansowe.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
-            { id: 'f2', title: 'Budowanie systemu finansowego', description: 'Konkretne kroki do uporządkowania budżetu i budowania zysku.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
-          ],
-        },
-        {
-          id: 'duchowosc',
-          title: 'Filar 4: Duchowość',
-          lessons: [
-            { id: 'du1', title: 'Wejście w głąb siebie', description: 'Wprowadzenie do pracy z podświadomością, medytacji i wizualizacji.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
-            { id: 'du2', title: 'Medytacja prowadzona', description: 'Sesja medytacji prowadzonej do samodzielnej praktyki.', video: 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME', materials: [] },
-          ],
-        },
-      ];
-
-      var ALL_LESSONS = COURSE.reduce(function (acc, mod) { return acc.concat(mod.lessons); }, []);
+      // Treść programu NIE jest w tej stronie - serwer wysyła ją po zalogowaniu i tylko dla odblokowanych modułów.
+      var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://lecimy-xlxt.onrender.com';
+      var COURSE = [];
+      var ALL_LESSONS = [];
+      var isAdmin = false;
 
       var els = {
         root: document.getElementById('lmsRoot'),
@@ -124,7 +80,7 @@
       var currentUserId = null;
       var progressKey = null;
       var completed = {};
-      var activeLessonId = ALL_LESSONS.length ? ALL_LESSONS[0].id : null;
+      var activeLessonId = null;
 
       function loadProgress() {
         try {
@@ -160,6 +116,16 @@
 
       function renderSidebar() {
         els.sidebarModules.innerHTML = COURSE.map(function (mod, modIndex) {
+          if (mod.locked) {
+            return (
+              '<div class="lms__module lms__module--locked" style="opacity:.6;">' +
+                '<div class="lms__module-summary" style="cursor:default;">' +
+                  '<span>\uD83D\uDD12 ' + escapeHtml(mod.title) + '</span>' +
+                  '<span class="lms__module-count">od ' + escapeHtml(mod.unlockLabel) + '</span>' +
+                '</div>' +
+              '</div>'
+            );
+          }
           var lessonsHtml = mod.lessons.map(function (lesson, i) {
             var isActive = lesson.id === activeLessonId;
             var isDone = !!completed[lesson.id];
@@ -174,7 +140,7 @@
           }).join('');
 
           var doneInModule = mod.lessons.filter(function (l) { return completed[l.id]; }).length;
-          var isOpen = mod.lessons.some(function (l) { return l.id === activeLessonId; }) || modIndex === 0;
+          var isOpen = mod.lessons.some(function (l) { return l.id === activeLessonId; }) || (!activeLessonId && modIndex === 0);
 
           return (
             '<details class="lms__module"' + (isOpen ? ' open' : '') + '>' +
@@ -287,39 +253,32 @@
         });
       });
 
-      function initCourse() {
+      function initCourse(data) {
+        COURSE = data.modules || [];
+        isAdmin = !!data.admin;
+        ALL_LESSONS = COURSE.reduce(function (acc, mod) { return acc.concat(mod.lessons || []); }, []);
+        activeLessonId = ALL_LESSONS.length ? ALL_LESSONS[0].id : null;
         loadProgress();
         renderSidebar();
         renderLesson();
         updateProgressBar();
+        if (isAdmin) {
+          var badge = document.createElement('span');
+          badge.textContent = 'ADMIN \u2013 widzisz wszystkie moduły';
+          badge.style.cssText = 'font-size:12px;font-weight:600;color:var(--clr-gold);margin-inline-end:12px;';
+          els.logoutBtn.parentNode.insertBefore(badge, els.logoutBtn);
+        }
         els.root.style.display = '';
       }
 
-      // ── Okno dostępu edycji (daty w edition.js) ──
-      function editionState(email) {
-        var ed = window.LECIMY_EDITION;
-        if (!ed) return 'active';
-        var preview = (ed.previewEmails || []).map(function (e) { return String(e).toLowerCase(); });
-        if (email && preview.indexOf(String(email).toLowerCase()) !== -1) return 'active'; // testy właściciela
-        var now = Date.now();
-        if (now < Date.parse(ed.startISO)) return 'before';
-        if (now > Date.parse(ed.endISO)) return 'after';
-        return 'active';
-      }
-
-      function showEditionGate(state) {
-        var ed = window.LECIMY_EDITION;
-        var title = state === 'before' ? ed.name + ' rusza ' + ed.startLabel : 'Edycja zakończona';
-        var text = state === 'before'
-          ? 'Twoje konto jest gotowe i płatność została zaksięgowana. Materiały programu będą dostępne tutaj od ' + ed.startLabel + ' do ' + ed.endLabel + '. Wróć w dniu startu - czekamy na Ciebie!'
-          : 'Dostęp do programu w ramach tej edycji trwał do ' + ed.endLabel + '. Dziękujemy za wspólną pracę! Jeśli chcesz dołączyć do kolejnej edycji, zobacz ofertę.';
+      function showGate(title, text, showOffer) {
         var box = document.createElement('div');
         box.style.cssText = 'min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;';
         box.innerHTML =
           '<div style="max-width:520px;">' +
             '<h1 style="margin-bottom:12px;">' + escapeHtml(title) + '</h1>' +
             '<p style="color:var(--clr-text-muted);line-height:1.6;margin-bottom:24px;">' + escapeHtml(text) + '</p>' +
-            (state === 'after' ? '<p><a class="btn btn--primary" href="index.html#pricing">Zobacz ofertę</a></p>' : '') +
+            (showOffer ? '<p><a class="btn btn--primary" href="index.html#pricing">Zobacz ofertę</a></p>' : '') +
             '<p style="margin-top:16px;"><button type="button" id="gateLogout" class="btn btn--outline">Wyloguj się</button></p>' +
           '</div>';
         document.body.appendChild(box);
@@ -328,7 +287,7 @@
         });
       }
 
-      // ── Zabezpieczenie strony: sprawdź sesję zanim cokolwiek pokażemy ──
+      // ── Zabezpieczenie: sesja + zgoda serwera (blokada platformy, admin, moduły) ──
       client.auth.getSession().then(function (result) {
         var session = result.data && result.data.session;
         if (!session) {
@@ -338,15 +297,22 @@
         currentUserId = session.user.id;
         progressKey = 'lecimy_progress_' + currentUserId;
 
-        // Okno dostępu edycji: przed startem i po zakończeniu pokazujemy komunikat zamiast kursu.
-        var state = editionState(session.user.email);
-        if (state !== 'active') {
-          showEditionGate(state);
-          return;
-        }
-        initCourse();
+        return fetch(API_BASE + '/api/panel/course', { headers: { Authorization: 'Bearer ' + session.access_token } })
+          .then(function (res) {
+            if (res.status === 401) { showGate('Sesja nie została rozpoznana', 'Wyloguj się i zaloguj ponownie. Jeśli problem wraca, napisz do nas: lecimyposwoje2020@gmail.com.', false); return null; }
+            return res.json().then(function (body) { return { status: res.status, body: body }; });
+          })
+          .then(function (r) {
+            if (!r) return;
+            if (r.status === 403) {
+              showGate(r.body.state === 'after' ? 'Edycja zakończona' : 'Platforma otwiera się wkrótce', r.body.message || '', r.body.state === 'after');
+              return;
+            }
+            if (r.status !== 200) throw new Error('panel ' + r.status);
+            initCourse(r.body);
+          });
       }).catch(function () {
-        window.location.replace('logowanie.html');
+        showGate('Nie udało się wczytać panelu', 'Odśwież stronę za chwilę. Jeśli problem wraca, napisz do nas: lecimyposwoje2020@gmail.com.', false);
       });
 
       // Jeśli sesja wygaśnie / użytkownik wyloguje się w innej karcie - wyrzuć z panelu

@@ -23,6 +23,7 @@ import { LEGAL_VERSIONS } from './legalVersions.mjs';
 import { legalFingerprint } from './legalDocs.mjs';
 import { crmRouter } from './crm.mjs';
 import { konsultacjaRouter } from './konsultacja.mjs';
+import { panelRouter } from './panelAccess.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // Publicznie serwujemy WYŁĄCZNIE folder public/ - nigdy katalog główny projektu (server/, dane, .env itd.).
@@ -181,6 +182,11 @@ app.use(konsultacjaRouter({
   clientIp,
   limiter: (opts) => rateLimit({ keyGenerator: (req) => ipKeyGenerator(clientIp(req)), standardHeaders: true, legacyHeaders: false, ...opts }),
   siteUrl: SITE_URL,
+}));
+
+// ── Panel kursu: blokada logowania dla klientów, konto admina, treść kursu z modułami ──
+app.use(panelRouter({
+  limiter: (opts) => rateLimit({ keyGenerator: (req) => ipKeyGenerator(clientIp(req)), standardHeaders: true, legacyHeaders: false, ...opts }),
 }));
 
 // ── STATIC SITE ──────────────────────────────────────────────
