@@ -2,7 +2,7 @@
 // Daty muszą zgadzać się z server/edition.mjs oraz z tekstami w index.html, regulamin.html i zamowienie.html.
 window.LECIMY_EDITION = {
   name: 'Edycja 1',
-  salesCloseISO: '2026-11-20T00:00:00+01:00',
+  salesCloseISO: '2026-11-20T23:59:59+01:00',
   salesCloseLabel: '20 listopada 2026',
   // Pasek na górze odlicza do zamknięcia sprzedaży (salesCloseISO). Tryb "do podwyżki" wyłączony (priceRiseISO: null).
   priceRiseISO: null,
