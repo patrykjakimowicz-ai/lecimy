@@ -37,3 +37,13 @@ create table if not exists public.ustawienia (
   updated_at timestamptz not null default now()
 );
 alter table public.ustawienia enable row level security;
+
+-- Postęp oglądania lekcji (panel kursu) - dowód do Gwarancji zwrotu. Uruchom ten fragment w Supabase → SQL Editor.
+create table if not exists public.lesson_progress (
+  user_id    text not null,
+  lesson_id  text not null,
+  data       jsonb not null,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, lesson_id)
+);
+alter table public.lesson_progress enable row level security;

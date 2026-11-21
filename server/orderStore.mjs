@@ -98,3 +98,18 @@ export async function countOrders() {
   await readAll();
   return true;
 }
+
+// Zamówienia danego klienta (po e-mailu, bez rozróżniania wielkości liter) - do uprawnień w panelu kursu.
+export async function listOrdersByEmail(email) {
+  const e = String(email || '').trim().toLowerCase();
+  if (!e) return [];
+  let orders;
+  if (supabaseEnabled) {
+    const pattern = e.replace(/[\\%_*]/g, (c) => '\\' + c);
+    const rows = await rest('GET', `orders?select=data&data->>email=ilike.${encodeURIComponent(pattern)}`);
+    orders = (rows || []).map((r) => r.data);
+  } else {
+    orders = Object.values(await readAll());
+  }
+  return orders.filter((o) => String(o.email || '').trim().toLowerCase() === e);
+}

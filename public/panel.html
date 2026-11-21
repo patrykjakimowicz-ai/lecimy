@@ -52,6 +52,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js" integrity="sha384-WgXwGL6fUsYJWNaKJgVbrJKGRQwc1vieh2oy4kw9nXqpNDz3tdSsqEYUgeHD/NuF" crossorigin="anonymous"></script>
+  <script src="https://assets.mediadelivery.net/playerjs/player-0.1.0.min.js"></script>
   <script src="supabase-client.js"></script>
   <script src="edition.js"></script>
   <script>
@@ -82,19 +83,24 @@
       var completed = {};
       var activeLessonId = null;
 
-      function loadProgress() {
-        try {
-          var raw = window.localStorage.getItem(progressKey);
-          completed = raw ? JSON.parse(raw) : {};
-        } catch (e) {
-          completed = {};
-        }
+      var progress = {};   // lessonId → { watched, duration, done } (zapisane na serwerze)
+
+      function authHeaders() {
+        return client.auth.getSession().then(function (r) {
+          var sess = r.data && r.data.session;
+          return { 'Content-Type': 'application/json', Authorization: 'Bearer ' + (sess ? sess.access_token : '') };
+        });
       }
 
-      function saveProgress() {
-        try {
-          window.localStorage.setItem(progressKey, JSON.stringify(completed));
-        } catch (e) { /* localStorage niedostępny - postęp nie zostanie zapamiętany */ }
+      function loadProgress() {
+        return authHeaders().then(function (h) {
+          return fetch(API_BASE + '/api/panel/progress', { headers: h });
+        }).then(function (res) { return res.ok ? res.json() : { lessons: {} }; })
+          .then(function (body) {
+            progress = body.lessons || {};
+            completed = {};
+            Object.keys(progress).forEach(function (id) { if (progress[id] && progress[id].done) completed[id] = true; });
+          }).catch(function () { progress = {}; completed = {}; });
       }
 
       function updateProgressBar() {
@@ -119,35 +125,43 @@
           if (mod.locked) {
             return (
               '<div class="lms__module lms__module--locked" style="opacity:.6;">' +
-                '<div class="lms__module-summary" style="cursor:default;">' +
+                '<div class="lms__module-summary js-locked" style="cursor:pointer;" data-title="' + escapeHtml(mod.title) + '" data-note="' + escapeHtml(mod.lockNote || '') + '">' +
                   '<span>\uD83D\uDD12 ' + escapeHtml(mod.title) + '</span>' +
-                  '<span class="lms__module-count">od ' + escapeHtml(mod.unlockLabel) + '</span>' +
+                  '<span class="lms__module-count">' + escapeHtml(mod.lockNote || '') + '</span>' +
                 '</div>' +
               '</div>'
             );
           }
           var lessonsHtml = mod.lessons.map(function (lesson, i) {
+            if (lesson.locked) {
+              return (
+                '<div class="lms__lesson js-locked" style="opacity:.6;cursor:pointer;" data-title="' + escapeHtml(lesson.title) + '" data-note="' + escapeHtml(lesson.lockNote || '') + '">' +
+                  '<span class="lms__lesson-title" style="padding-inline-start:8px;">\uD83D\uDD12 ' + escapeHtml(lesson.title) + ' <small>(' + escapeHtml(lesson.lockNote || '') + ')</small></span>' +
+                '</div>'
+              );
+            }
             var isActive = lesson.id === activeLessonId;
             var isDone = !!completed[lesson.id];
             return (
               '<div class="lms__lesson' + (isActive ? ' is-active' : '') + (isDone ? ' is-done' : '') + '" data-lesson-id="' + lesson.id + '">' +
-                '<input type="checkbox" class="lms__lesson-check" data-lesson-id="' + lesson.id + '"' + (isDone ? ' checked' : '') + ' aria-label="Oznacz jako ukończone" />' +
+                '<input type="checkbox" class="lms__lesson-check" disabled data-lesson-id="' + lesson.id + '"' + (isDone ? ' checked' : '') + ' aria-label="Lekcja zaliczona po obejrzeniu" title="Lekcja zalicza się automatycznie po obejrzeniu" />' +
                 '<button type="button" class="lms__lesson-btn" data-lesson-id="' + lesson.id + '">' +
-                  '<span class="lms__lesson-title">' + (i + 1) + '. ' + escapeHtml(lesson.title) + '</span>' +
+                  '<span class="lms__lesson-title">' + (lesson.num && lesson.num !== 'M' ? escapeHtml(lesson.num) + ' ' : '') + escapeHtml(lesson.title) + '</span>' +
                 '</button>' +
               '</div>'
             );
           }).join('');
 
-          var doneInModule = mod.lessons.filter(function (l) { return completed[l.id]; }).length;
-          var isOpen = mod.lessons.some(function (l) { return l.id === activeLessonId; }) || (!activeLessonId && modIndex === 0);
+          var unlockedLessons = mod.lessons.filter(function (l) { return !l.locked; });
+          var doneInModule = unlockedLessons.filter(function (l) { return completed[l.id]; }).length;
+          var isOpen = unlockedLessons.some(function (l) { return l.id === activeLessonId; }) || (!activeLessonId && modIndex === 0);
 
           return (
             '<details class="lms__module"' + (isOpen ? ' open' : '') + '>' +
               '<summary class="lms__module-summary">' +
                 '<span>' + escapeHtml(mod.title) + '</span>' +
                 '<span style="display:flex; align-items:center; gap:8px;">' +
-                  '<span class="lms__module-count">' + doneInModule + '/' + mod.lessons.length + '</span>' +
+                  '<span class="lms__module-count">' + doneInModule + '/' + unlockedLessons.length + '</span>' +
                   '<svg class="lms__module-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="6 9 12 15 18 9"/></svg>' +
                 '</span>' +
               '</summary>' +
@@ -156,19 +170,25 @@
           );
         }).join('');
 
+        // Zablokowany moduł / lekcja: ekran z powodem blokady (bez treści)
+        els.sidebarModules.querySelectorAll('.js-locked').forEach(function (el) {
+          el.addEventListener('click', function () {
+            stopTracker();
+            els.lessonMain.innerHTML =
+              '<div style="text-align:center;padding:64px 16px;">' +
+                '<div style="font-size:48px;">\uD83D\uDD12</div>' +
+                '<h2 class="lms__lesson-title-main">' + escapeHtml(el.dataset.title) + '</h2>' +
+                '<p class="lms__lesson-desc">' + escapeHtml(el.dataset.note) + '</p>' +
+              '</div>';
+            closeSidebarOnMobile();
+          });
+        });
+
         // Kliknięcie w tytuł lekcji → otwórz ją
         els.sidebarModules.querySelectorAll('.lms__lesson-btn').forEach(function (btn) {
           btn.addEventListener('click', function () {
             selectLesson(btn.dataset.lessonId);
             closeSidebarOnMobile();
-          });
-        });
-
-        // Checkbox → oznacz jako ukończone/nieukończone, bez otwierania lekcji
-        els.sidebarModules.querySelectorAll('.lms__lesson-check').forEach(function (checkbox) {
-          checkbox.addEventListener('click', function (e) { e.stopPropagation(); });
-          checkbox.addEventListener('change', function () {
-            toggleCompleted(checkbox.dataset.lessonId, checkbox.checked);
           });
         });
       }
@@ -180,7 +200,7 @@
           return;
         }
 
-        var isDone = !!completed[lesson.id];
+        stopTracker();
         var materialsHtml = lesson.materials && lesson.materials.length
           ? '<div class="lms__material-list">' + lesson.materials.map(function (m) {
               return (
@@ -193,24 +213,17 @@
           : '<p class="lms__materials-empty">Brak materiałów do pobrania dla tej lekcji.</p>';
 
         els.lessonMain.innerHTML =
-          '<div class="lms__video-wrap"><iframe src="' + lesson.video + '" title="' + escapeHtml(lesson.title) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>' +
+          '<div class="lms__video-wrap"><iframe id="lessonPlayer" src="' + lesson.video + '" title="' + escapeHtml(lesson.title) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>' +
           '<h2 class="lms__lesson-title-main">' + escapeHtml(lesson.title) + '</h2>' +
           '<p class="lms__lesson-desc">' + escapeHtml(lesson.description) + '</p>' +
-          '<label class="btn btn--outline lms__mark-done">' +
-            '<input type="checkbox" id="mainDoneCheckbox" style="accent-color: var(--clr-gold); margin-inline-end: 8px;"' + (isDone ? ' checked' : '') + ' />' +
-            '<span>' + (isDone ? 'Lekcja ukończona' : 'Oznacz jako ukończoną') + '</span>' +
-          '</label>' +
+          '<p id="lessonStatus" class="lms__lesson-desc" style="font-weight:600;"></p>' +
           '<div class="lms__materials">' +
             '<h3>Materiały do pobrania</h3>' +
             materialsHtml +
           '</div>';
 
-        var mainDoneCheckbox = document.getElementById('mainDoneCheckbox');
-        if (mainDoneCheckbox) {
-          mainDoneCheckbox.addEventListener('change', function () {
-            toggleCompleted(lesson.id, mainDoneCheckbox.checked);
-          });
-        }
+        updateStatus(lesson);
+        startTracker(lesson);
       }
 
       function selectLesson(lessonId) {
@@ -219,13 +232,98 @@
         renderLesson();
       }
 
-      function toggleCompleted(lessonId, isDone) {
-        if (isDone) completed[lessonId] = true;
-        else delete completed[lessonId];
-        saveProgress();
-        updateProgressBar();
-        renderSidebar();
-        if (lessonId === activeLessonId) renderLesson();
+      // ── Śledzenie oglądania (Bunny Stream + player.js) ──
+      // Liczymy tylko sekundy faktycznie odtworzone w sposób ciągły. Przewinięcie do przodu NIE zalicza fragmentu.
+      var tracker = null;
+      var BUNNY_RE = /^https:\/\/iframe\.mediadelivery\.net\//;
+
+      function updateStatus(lesson) {
+        var el = document.getElementById('lessonStatus');
+        if (!el) return;
+        var p = progress[lesson.id];
+        if (!BUNNY_RE.test(lesson.video)) { el.textContent = isAdmin ? 'Tryb testowy: ten film nie jest śledzony (to nie jest Bunny).' : ''; return; }
+        if (p && p.done) { el.textContent = '✓ Lekcja zaliczona'; el.style.color = 'var(--clr-gold)'; return; }
+        var pct = p && p.duration ? Math.min(100, Math.round(p.watched / p.duration * 100)) : 0;
+        el.style.color = '';
+        el.textContent = 'Obejrzano ' + pct + '%. Lekcja zalicza się automatycznie po obejrzeniu (około 90%) - bez przewijania.';
+      }
+
+      function stopTracker() {
+        if (tracker) { tracker.stop(); tracker = null; }
+      }
+
+      function startTracker(lesson) {
+        var iframe = document.getElementById('lessonPlayer');
+        if (!iframe || !BUNNY_RE.test(lesson.video) || typeof playerjs === 'undefined') return;
+        var player = new playerjs.Player(iframe);
+        var last = null, pending = 0, duration = 0, position = 0, playing = false, stopped = false, lastSent = 0;
+        var saved = progress[lesson.id] || {};
+        var finished = !!saved.done;                 // zaliczona lekcja: swobodne przewijanie (powtórki)
+        var frontier = saved.frontier || 0;          // dokąd realnie obejrzano - dalej nie wolno przewinąć
+        var notice = 0;
+
+        function send(force) {
+          if (stopped || pending < 0.5 || (!force && Date.now() - lastSent < 2500)) return;
+          var delta = pending; pending = 0; lastSent = Date.now();
+          authHeaders().then(function (h) {
+            return fetch(API_BASE + '/api/panel/heartbeat', { method: 'POST', headers: h, keepalive: true,
+              body: JSON.stringify({ lessonId: lesson.id, delta: delta, duration: duration, position: position, frontier: frontier }) });
+          }).then(function (res) { return res.ok ? res.json() : null; }).then(function (r) {
+            if (!r) { pending += delta; return; }
+            var wasDone = !!(progress[lesson.id] && progress[lesson.id].done);
+            progress[lesson.id] = r;
+            if (r.done) finished = true;
+            if (r.frontier > frontier) frontier = r.frontier;
+            if (r.done) completed[lesson.id] = true;
+            if (lesson.id === activeLessonId) updateStatus(lesson);
+            if (r.done && !wasDone) { updateProgressBar(); renderSidebar(); }
+          }).catch(function () { pending += delta; });
+        }
+
+        function showSeekNotice() {
+          var el = document.getElementById('lessonStatus');
+          if (!el || Date.now() - notice < 4000) return;
+          notice = Date.now();
+          var prevText = el.textContent;
+          el.textContent = 'Nie możesz przewinąć dalej niż obejrzany fragment. Wróciliśmy do miejsca, w którym skończyłeś oglądać.';
+          setTimeout(function () { if (lesson.id === activeLessonId) updateStatus(lesson); }, 4000);
+        }
+
+        var wired = false;
+        player.on('ready', function () {
+          if (wired) return;                           // 'ready' potrafi przyjść kilka razy - podpinamy tylko raz
+          wired = true;
+          // Wznowienie: zacznij tam, gdzie skończyłeś (o ile to nie początek).
+          if (!finished && frontier > 5) player.setCurrentTime(frontier);
+          player.on('timeupdate', function (d) {
+            duration = d.duration || duration;
+            position = d.seconds;
+            var step = last === null ? null : d.seconds - last;
+            // Ciągłe odtwarzanie (mały krok do przodu) - zawsze liczymy, niezależnie od zdarzeń play/pause.
+            if (step !== null && step > 0 && step <= 2.5) {
+              pending += step;
+              if (d.seconds > frontier) frontier = d.seconds;
+              last = d.seconds;
+              return;
+            }
+            // Skok (przewinięcie): dalej niż obejrzano -> wracamy do granicy obejrzanego fragmentu.
+            if (!finished && d.seconds > frontier + 3) {
+              last = null;
+              player.setCurrentTime(frontier);
+              showSeekNotice();
+              return;
+            }
+            last = d.seconds;
+          });
+          player.on('play', function () { playing = true; });
+          player.on('pause', function () { playing = false; last = null; setTimeout(function () { send(false); }, 2600); });
+          player.on('ended', function () { playing = false; last = null; setTimeout(function () { send(false); }, 2600); });
+        });
+
+        var timer = setInterval(function () { send(false); }, 10000);
+        var onHide = function () { send(true); };
+        window.addEventListener('pagehide', onHide);
+        tracker = { stop: function () { send(true); stopped = true; clearInterval(timer); window.removeEventListener('pagehide', onHide); } };
       }
 
       function openSidebar() {
@@ -256,17 +354,44 @@
       function initCourse(data) {
         COURSE = data.modules || [];
         isAdmin = !!data.admin;
-        ALL_LESSONS = COURSE.reduce(function (acc, mod) { return acc.concat(mod.lessons || []); }, []);
+        ALL_LESSONS = COURSE.reduce(function (acc, mod) { return acc.concat((mod.lessons || []).filter(function (l) { return !l.locked; })); }, []);
         activeLessonId = ALL_LESSONS.length ? ALL_LESSONS[0].id : null;
-        loadProgress();
-        renderSidebar();
-        renderLesson();
-        updateProgressBar();
+        loadProgress().then(function () {
+          renderSidebar();
+          renderLesson();
+          updateProgressBar();
+        });
         if (isAdmin) {
+          var adminLink = document.createElement('a');
+          adminLink.href = 'postepy.html';
+          adminLink.textContent = 'Postępy uczestników';
+          adminLink.style.cssText = 'font-size:12px;font-weight:600;color:var(--clr-gold);margin-inline-end:12px;';
+          els.logoutBtn.parentNode.insertBefore(adminLink, els.logoutBtn);
           var badge = document.createElement('span');
           badge.textContent = 'ADMIN \u2013 widzisz wszystkie moduły';
           badge.style.cssText = 'font-size:12px;font-weight:600;color:var(--clr-gold);margin-inline-end:12px;';
           els.logoutBtn.parentNode.insertBefore(badge, els.logoutBtn);
+          var q = new URLSearchParams(window.location.search);
+          var bar = document.createElement('div');
+          bar.style.cssText = 'font-size:12px;padding:8px 16px;background:rgba(212,175,55,.12);color:var(--clr-gold);display:flex;gap:10px;flex-wrap:wrap;align-items:center;';
+          bar.innerHTML = '<strong>Podgląd jako uczestnik:</strong>' +
+            '<select id="pvAs"><option value="">ja (admin)</option><option value="fundament">Fundament</option><option value="system">Kompletny System</option></select>' +
+            '<label><input type="checkbox" id="pvMc"> z Masterclassem</label>' +
+            '<select id="pvDate"><option value="">dziś</option><option value="2026-12-21">po 20.12</option><option value="2027-01-21">po 20.01</option></select>';
+          document.body.insertBefore(bar, document.body.firstChild);
+          document.getElementById('pvAs').value = q.get('as') || '';
+          document.getElementById('pvMc').checked = q.get('masterclass') === '1';
+          document.getElementById('pvDate').value = q.get('date') || '';
+          var go = function () {
+            var as = document.getElementById('pvAs').value, p = new URLSearchParams();
+            if (as) {
+              p.set('as', as);
+              if (document.getElementById('pvMc').checked) p.set('masterclass', '1');
+              if (document.getElementById('pvDate').value) p.set('date', document.getElementById('pvDate').value);
+            }
+            window.location.search = p.toString();
+          };
+          ['pvAs', 'pvMc', 'pvDate'].forEach(function (id) { document.getElementById(id).addEventListener('change', go); });
         }
         els.root.style.display = '';
       }
@@ -295,9 +420,9 @@
           return;
         }
         currentUserId = session.user.id;
-        progressKey = 'lecimy_progress_' + currentUserId;
+        
 
-        return fetch(API_BASE + '/api/panel/course', { headers: { Authorization: 'Bearer ' + session.access_token } })
+        return fetch(API_BASE + '/api/panel/course' + window.location.search, { headers: { Authorization: 'Bearer ' + session.access_token } })
           .then(function (res) {
             if (res.status === 401) { showGate('Sesja nie została rozpoznana', 'Wyloguj się i zaloguj ponownie. Jeśli problem wraca, napisz do nas: lecimyposwoje2020@gmail.com.', false); return null; }
             return res.json().then(function (body) { return { status: res.status, body: body }; });

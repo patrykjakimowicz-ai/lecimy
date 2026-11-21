@@ -61,7 +61,9 @@ function clientIp(req) {
 const app = express();
 app.set('trust proxy', 1); // Render stoi za proxy - potrzebne do poprawnego req.ip i rate limitu
 app.disable('x-powered-by');
-app.use(helmet({ contentSecurityPolicy: false })); // CSP wyłączone: strona ma inline'owe skrypty
+// CSP wyłączone: strona ma inline'owe skrypty. Referrer-Policy jak w public/_headers (Cloudflare): domyślne "no-referrer" z helmet
+// psuje osadzone wideo (Bunny/YouTube) w Safari, bo odtwarzacz nie dostaje informacji, na jakiej stronie jest osadzony.
+app.use(helmet({ contentSecurityPolicy: false, referrerPolicy: { policy: 'strict-origin-when-cross-origin' } }));
 
 // ── API: webhook Stripe ──────────────────────────────────────
 // MUSI być przed express.json() - podpis Stripe liczony jest z surowego body.

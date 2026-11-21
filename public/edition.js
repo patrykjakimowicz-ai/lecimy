@@ -2,8 +2,8 @@
 // Daty muszą zgadzać się z server/edition.mjs oraz z tekstami w index.html, regulamin.html i zamowienie.html.
 window.LECIMY_EDITION = {
   name: 'Edycja 1',
-  salesCloseISO: '2026-11-20T23:59:59+01:00',
-  salesCloseLabel: '20 listopada 2026',
+  salesCloseISO: '2026-11-21T23:59:59+01:00',
+  salesCloseLabel: '21 listopada 2026',
   // Pasek na górze odlicza do zamknięcia sprzedaży (salesCloseISO). Tryb "do podwyżki" wyłączony (priceRiseISO: null).
   priceRiseISO: null,
   startISO: '2026-11-20T00:00:00+01:00',
@@ -107,7 +107,7 @@ else window.LECIMY_applySalesState();
 
     // Im bliżej końca, tym mocniejsze podświetlenie
     bar.classList.toggle('is-urgent', left < 24 * 3600 * 1000);
-    bar.classList.toggle('is-critical', left < 3600 * 1000);
+    bar.classList.toggle('is-critical', left < 24 * 3600 * 1000);
   }
 
   function unitHtml(key) {

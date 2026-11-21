@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Postępy uczestników - Lecimy po swoje</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="brand_assets/favicon.png" type="image/png" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body { background: var(--clr-bg); }
+    .pp { max-width: 1100px; margin: 0 auto; padding: 32px 20px 80px; }
+    .pp h1 { margin-bottom: 8px; }
+    .pp__bar { display:flex; gap:12px; align-items:center; margin: 20px 0; flex-wrap:wrap; }
+    .pp input[type=search] { background: transparent; border:1px solid var(--clr-border); color: inherit; border-radius: 10px; padding: 10px 14px; min-width: 260px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { text-align:left; padding: 10px 12px; border-bottom: 1px solid var(--clr-border); font-size: 14px; vertical-align: top; }
+    th { color: var(--clr-text-muted); font-weight: 600; }
+    tr.row { cursor: pointer; }
+    tr.row:hover { background: rgba(255,255,255,.03); }
+    .track { height:6px; border-radius:6px; background: rgba(255,255,255,.1); min-width:120px; overflow:hidden; }
+    .track > i { display:block; height:100%; background: var(--clr-gold); }
+    .ok { color: var(--clr-gold); }
+    .muted { color: var(--clr-text-muted); }
+    .detail td { background: rgba(255,255,255,.02); }
+    .detail ul { margin:0; padding-left: 18px; columns: 2; }
+    @media (max-width: 700px) { .detail ul { columns: 1; } }
+  </style>
+</head>
+<body>
+  <main class="pp" id="root" style="display:none;">
+    <p><a href="panel.html" class="muted">&larr; Wróć do panelu</a></p>
+    <h1>Postępy uczestników</h1>
+    <p class="muted">Lekcja liczy się jako obejrzana po odtworzeniu ok. 90% filmu (bez przewijania). Dane pochodzą z platformy - to one potwierdzają warunek (a) Gwarancji zwrotu.</p>
+    <div class="pp__bar">
+      <input type="search" id="q" placeholder="Szukaj po e-mailu..." />
+      <label class="muted"><input type="checkbox" id="onlyAll" /> tylko ukończyli wszystko</label>
+      <span class="muted" id="count"></span>
+    </div>
+    <table>
+      <thead><tr><th>E-mail</th><th>Ukończone lekcje</th><th></th><th>Ostatnia aktywność</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.min.js" integrity="sha384-WgXwGL6fUsYJWNaKJgVbrJKGRQwc1vieh2oy4kw9nXqpNDz3tdSsqEYUgeHD/NuF" crossorigin="anonymous"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    (function () {
+      var client = window.supabaseClient;
+      var API_BASE = /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname) ? '' : 'https://lecimy-xlxt.onrender.com';
+      var data = null;
+      var open = {};
+      function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+      function fmt(iso) { return iso ? new Date(iso).toLocaleString('pl-PL', { dateStyle: 'short', timeStyle: 'short' }) : '-'; }
+
+      function render() {
+        var q = document.getElementById('q').value.trim().toLowerCase();
+        var onlyAll = document.getElementById('onlyAll').checked;
+        var users = data.users.filter(function (u) {
+          return (!q || (u.email || '').toLowerCase().indexOf(q) !== -1) && (!onlyAll || u.doneCount >= data.totalLessons);
+        });
+        document.getElementById('count').textContent = users.length + ' z ' + data.users.length + ' uczestników, lekcji w kursie: ' + data.totalLessons;
+        document.getElementById('rows').innerHTML = users.map(function (u) {
+          var pct = Math.round(u.doneCount / data.totalLessons * 100);
+          var last = Object.keys(u.lessons).map(function (k) { return u.lessons[k].lastAt; }).filter(Boolean).sort().pop();
+          var row = '<tr class="row" data-id="' + esc(u.userId) + '"><td>' + esc(u.email || u.userId) + '</td><td>' + u.doneCount + ' / ' + data.totalLessons +
+            (u.doneCount >= data.totalLessons ? ' <span class="ok">✓ wszystko</span>' : '') + '</td><td><div class="track"><i style="width:' + pct + '%"></i></div></td><td class="muted">' + fmt(last) + '</td></tr>';
+          if (open[u.userId]) {
+            row += '<tr class="detail"><td colspan="4"><ul>' + data.lessons.map(function (l) {
+              var p = u.lessons[l.id];
+              var st = p && p.done ? '<span class="ok">✓ zaliczona ' + fmt(p.doneAt) + '</span>' : (p ? Math.round(p.watched / (p.duration || 1) * 100) + '%' : '<span class="muted">nie zaczęta</span>');
+              return '<li>' + esc(l.num || '') + ' ' + esc(l.title) + ': ' + st + '</li>';
+            }).join('') + '</ul></td></tr>';
+          }
+          return row;
+        }).join('');
+        document.querySelectorAll('tr.row').forEach(function (tr) {
+          tr.addEventListener('click', function () { open[tr.dataset.id] = !open[tr.dataset.id]; render(); });
+        });
+      }
+
+      client.auth.getSession().then(function (r) {
+        var sess = r.data && r.data.session;
+        if (!sess) { window.location.replace('logowanie.html'); return; }
+        return fetch(API_BASE + '/api/panel/admin/progress', { headers: { Authorization: 'Bearer ' + sess.access_token } }).then(function (res) {
+          if (res.status === 403 || res.status === 401) { window.location.replace('panel.html'); return; }
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json().then(function (d) {
+            data = d;
+            document.getElementById('root').style.display = '';
+            document.getElementById('q').addEventListener('input', render);
+            document.getElementById('onlyAll').addEventListener('change', render);
+            render();
+          });
+        });
+      }).catch(function () { document.body.innerHTML = '<p style="padding:40px;">Nie udało się wczytać postępów. Odśwież stronę.</p>'; });
+    })();
+  </script>
+</body>
+</html>

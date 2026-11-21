@@ -4,60 +4,101 @@
 // Wideo: YouTube = pełny adres embed; Bunny Stream = https://iframe.mediadelivery.net/embed/{library}/{videoId}.
 // Zamień PLACEHOLDER_VIDEO i materials na prawdziwe, kiedy filmy będą wgrane.
 //
-// unlockISO: kiedy moduł się odblokowuje (liczone od startu edycji 20.11.2026).
-const PLACEHOLDER_VIDEO = 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME';
+// unlockISO  - kiedy moduł się odblokowuje (liczone od startu edycji 20.11.2026).
+// requires   - (na module albo na pojedynczej lekcji) 'masterclass': tylko dla kupujących dodatek Masterclass Wdrożeniowy (albo PRO).
+//              'system': tylko pakiety Kompletny System i PRO (Fundament ma wyłącznie Wstęp i Dyscyplinę).
+const V = 'https://www.youtube-nocookie.com/embed/Ib6mamWQEME'; // zaślepka
+const L = (num, title, description = '', video = V) => ({ id: 'l' + num.replace('.', '_'), num, title, description, video, materials: [] });
+const BUNNY = (videoId) => `https://iframe.mediadelivery.net/embed/815715/${videoId}`; // biblioteka Bunny: Lecimy
 
 export const COURSE = [
   {
-    id: 'modul1',
-    title: 'Moduł 1: Dyscyplina',
+    id: 'wstep',
+    title: '1. Wstęp',
     unlockISO: '2026-11-20T00:00:00+01:00',
     unlockLabel: '20 listopada 2026',
     lessons: [
-      { id: 'w1', title: 'Wstęp do programu', description: 'Jak korzystać z platformy i jak przejść program, żeby wyciągnąć z niego maksimum.', video: PLACEHOLDER_VIDEO, materials: [] },
-      { id: 'd1', title: 'Wprowadzenie do filaru Dyscyplina', description: 'Dlaczego motywacja zawodzi i jak zbudować system, który dowozi wyniki nawet w najgorsze dni.', video: PLACEHOLDER_VIDEO, materials: [{ label: 'Karta pracy - Fundament dyscypliny (PDF)', url: '#' }] },
-      { id: 'd2', title: 'System nawyków krok po kroku', description: 'Budowa nawyków, które utrzymują się same - bez polegania na sile woli.', video: PLACEHOLDER_VIDEO, materials: [] },
-      { id: 'd3', title: 'Radzenie sobie z oporem', description: 'Co robić w dni, kiedy nic się nie chce - konkretny protokół awaryjny.', video: PLACEHOLDER_VIDEO, materials: [] },
-      { id: 'mw1', title: 'Masterclass Wdrożeniowy', description: 'Wdrożenie wszystkiego krok po kroku, razem ze mną.', video: PLACEHOLDER_VIDEO, materials: [] },
+      L('1.1', 'Wstęp do programu', 'Jak korzystać z platformy i jak przejść program, żeby wyciągnąć z niego maksimum.', BUNNY('2b1a50c1-14ca-457f-9e53-22541fff176f')),
+      { ...L('M', 'Masterclass Wdrożeniowy', 'Wdrożenie wszystkiego krok po kroku, razem ze mną.'), requires: 'masterclass', requiresLabel: 'Dostępny w dodatku Masterclass Wdrożeniowy' },
+    ],
+  },
+  {
+    id: 'dyscyplina',
+    title: '2. Dyscyplina',
+    unlockISO: '2026-11-20T00:00:00+01:00',
+    unlockLabel: '20 listopada 2026',
+    lessons: [
+      L('2.1', 'Mit motywacji i ekonomia siły woli', '', BUNNY('a11e7a30-2e46-4ff7-80df-08d608ff7cd3')),
+      L('2.2', 'Protokół Startowy', '', BUNNY('81cea5db-8f05-47c1-a4a7-1bc6c1a48b6e')),
+      L('2.3', 'Wieczorna rutyna i Architektura środowiska', '', BUNNY('ac6ec703-3a62-4735-96a2-55aa89fd9a7b')),
+      L('2.4', 'Jak stać się najlepszą wersją siebie?', '', BUNNY('3f847074-81ef-4e2a-bcd2-0f00abc0a796')),
+      L('2.5', '„Dlaczego” to robisz?', '', BUNNY('c50592ea-749b-4213-aa65-c16b8eb52383')),
+      L('2.6', 'Architektura kryzysowa i zarządzanie błędem'),
+      L('2.7', 'Mechanizmy, które decydują, czy odniesiesz sukces'),
     ],
   },
   {
     id: 'szczescie',
-    title: 'Moduł 2: Szczęście',
+    requires: 'system',
+    requiresLabel: 'Dostępny w pakiecie Kompletny System',
+    title: '3. Szczęście',
     unlockISO: '2026-12-20T00:00:00+01:00',
     unlockLabel: '20 grudnia 2026',
     lessons: [
-      { id: 's1', title: 'Czym naprawdę jest szczęście', description: 'Odkryj, co realnie daje Ci energię i radość - bez pogoni za iluzją.', video: PLACEHOLDER_VIDEO, materials: [] },
-      { id: 's2', title: 'Praca z emocjami na co dzień', description: 'Proste narzędzia do regulacji emocji w codziennym życiu.', video: PLACEHOLDER_VIDEO, materials: [] },
+      L('3.1', 'Anatomia Szczęścia – Dlaczego wciąż gonisz horyzont?'),
+      L('3.2', 'Wdzięczność, czyli jak zablokować ewolucyjny błąd oprogramowania'),
+      L('3.3', 'Sztuka odpuszczania: Dlaczego twoja wartość nie zależy od tego, ile zrobisz'),
+      L('3.4', 'Zmiana biegu na „Tu i Teraz”'),
+      L('3.5', 'Szczęście w trakcie burzy. Jak przetrwać kryzys?'),
+      L('3.6', 'Prawdziwe Spełnienie – Zrzucenie maski i siła dawania'),
     ],
   },
   {
     id: 'finanse',
-    title: 'Moduł 3: Finanse',
+    requires: 'system',
+    requiresLabel: 'Dostępny w pakiecie Kompletny System',
+    title: '4. Finanse',
     unlockISO: '2026-12-20T00:00:00+01:00',
     unlockLabel: '20 grudnia 2026',
     lessons: [
-      { id: 'f1', title: 'Psychologia pieniądza', description: 'Jak Twoje przekonania o pieniądzach kształtują Twoje decyzje finansowe.', video: PLACEHOLDER_VIDEO, materials: [] },
-      { id: 'f2', title: 'Budowanie systemu finansowego', description: 'Konkretne kroki do uporządkowania budżetu i budowania zysku.', video: PLACEHOLDER_VIDEO, materials: [] },
+      L('4.1', 'Psychologia Pieniądza, Mindset & Dekonstrukcja Ego'),
+      L('4.2', 'Architektura Przedsiębiorstwa, Zysk & Dźwignia'),
+      L('4.3', 'Inżynieria Ceny & Psychologia Sprzedaży'),
+      L('4.4', 'Sztuka Negocjacji, Obrona Marży & Egzekucja'),
     ],
   },
   {
     id: 'duchowosc',
-    title: 'Moduł 4: Duchowość',
+    requires: 'system',
+    requiresLabel: 'Dostępny w pakiecie Kompletny System',
+    title: '5. Duchowość',
     unlockISO: '2027-01-20T00:00:00+01:00',
     unlockLabel: '20 stycznia 2027',
     lessons: [
-      { id: 'du1', title: 'Wejście w głąb siebie', description: 'Wprowadzenie do pracy z podświadomością, medytacji i wizualizacji.', video: PLACEHOLDER_VIDEO, materials: [] },
-      { id: 'du2', title: 'Medytacja prowadzona', description: 'Sesja medytacji prowadzonej do samodzielnej praktyki.', video: PLACEHOLDER_VIDEO, materials: [] },
+      L('5.1', 'Omówienie działania medytacji, hipnoz, afirmacji etc.'),
+      L('5.2', 'XXX'),
+      L('5.3', 'XXX'),
+      L('5.4', 'Numerologia'),
     ],
   },
 ];
 
-/** Kurs dla panelu: odblokowane moduły w całości, zablokowane tylko z nazwą i datą. Admin widzi wszystko. */
-export function courseFor({ admin, now = Date.now() }) {
+/**
+ * Kurs dla panelu. Zablokowany moduł wychodzi tylko z nazwą i powodem (data albo brak dodatku), bez lekcji i wideo.
+ * Admin widzi wszystko; klient - to, na co pozwala data odblokowania i jego zakupy (entitlements).
+ */
+export function courseFor({ admin, entitlements = {}, now = Date.now() }) {
+  const has = (req) => admin || !req || !!entitlements[req];
   return COURSE.map((m) => {
-    const unlocked = admin || now >= Date.parse(m.unlockISO);
-    if (unlocked) return { id: m.id, title: m.title, locked: false, lessons: m.lessons };
-    return { id: m.id, title: 'Moduł zablokowany', locked: true, unlockLabel: m.unlockLabel, lessons: [] };
+    const open = admin || now >= Date.parse(m.unlockISO);
+    if (!has(m.requires) || !open) {
+      const lockNote = !has(m.requires) ? m.requiresLabel : 'Odblokowanie: ' + m.unlockLabel;
+      return { id: m.id, title: m.title, locked: true, lockNote, lessons: [] };
+    }
+    // Pojedyncza lekcja bez uprawnień: tylko tytuł i kłódka, bez wideo i opisu.
+    const lessons = m.lessons.map((l) =>
+      has(l.requires) ? l : { id: l.id, num: l.num, title: l.title, locked: true, lockNote: l.requiresLabel }
+    );
+    return { id: m.id, title: m.title, locked: false, lessons };
   });
 }
