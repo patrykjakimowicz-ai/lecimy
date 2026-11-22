@@ -496,6 +496,45 @@
           });
       }
 
+      // Zwykły osobisty link do płatności (generator-link.html): ?link=<token>. Pakiet z linku, zwykła cena,
+      // e-mail zablokowany, ważny 24 godziny. Po tym czasie serwer odrzuci zamówienie.
+      var payToken = new URLSearchParams(window.location.search).get('link');
+      var payLink = null;
+      if (payToken && !proToken && !giftToken) {
+        fetch(API_BASE + '/api/link-platnosci?t=' + encodeURIComponent(payToken))
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(function (offer) {
+            payLink = offer;
+            var list = document.getElementById('orderPackages');
+            var keep = list.querySelector('.order-package[data-package="' + offer.pakiet + '"]');
+            if (keep) {
+              list.querySelectorAll('.order-package').forEach(function (el) { if (el !== keep) el.remove(); });
+              keep.querySelector('input').checked = true;
+              packageLabels = list.querySelectorAll('.order-package');
+            }
+            var emailInput = document.getElementById('email');
+            emailInput.value = offer.email;
+            emailInput.readOnly = true;
+            if (offer.imie && !document.getElementById('imie').value) document.getElementById('imie').value = offer.imie;
+            if (offer.nazwisko && !document.getElementById('nazwisko').value) document.getElementById('nazwisko').value = offer.nazwisko;
+            var expires = Date.parse(offer.expiresAt);
+            var note = document.getElementById('proOfferNote');
+            note.textContent = 'Twój osobisty link do zamówienia. Ważny do ' +
+              new Date(expires).toLocaleString('pl-PL', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) + '.';
+            note.hidden = false;
+            refreshSummary();
+            setTimeout(function () {
+              submitBtn.disabled = true;
+              status.textContent = 'Ten link wygasł. Napisz do nas, a wyślemy nowy.';
+              status.classList.add('is-visible', 'is-error');
+            }, Math.max(0, expires - Date.now()));
+          })
+          .catch(function () {
+            payToken = null;
+            showStatus('Link do zamówienia wygasł albo jest nieprawidłowy. Napisz do nas, a wyślemy nowy.', true);
+          });
+      }
+
       if (proToken) {
         fetch(API_BASE + '/api/pro-offer?t=' + encodeURIComponent(proToken))
           .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
@@ -567,6 +606,7 @@
           },
           oferta: proOffer ? proToken : undefined,
           prezent: giftOffer ? giftToken : undefined,
+          link: payLink ? payToken : undefined,
           faktura: fakturaCheckbox.checked ? {
             firma: document.getElementById('fakturaFirma').value.trim(),
             nip: document.getElementById('fakturaNip').value.trim(),

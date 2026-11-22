@@ -6,7 +6,7 @@ export const EDITION = {
   salesCloseISO: '2026-11-21T23:59:59+01:00', // po tej chwili nie przyjmujemy zamówień
   salesCloseLabel: '21 listopada 2026',
   startISO: '2026-11-20T00:00:00+01:00',
-  endISO: '2027-02-19T23:59:59+01:00',
+  endISO: '2027-02-22T23:59:59+01:00',
   startLabel: '20 listopada 2026',
-  endLabel: '19 lutego 2027',
+  endLabel: '22 lutego 2027',
 };

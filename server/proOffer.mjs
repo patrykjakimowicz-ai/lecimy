@@ -116,3 +116,45 @@ export function readGiftOffer(token) {
   if (o.g !== 'masterclass' || !GIFT_PACKAGES.includes(o.p) || typeof o.e !== 'string' || !(o.x > Date.now())) return null;
   return { pakiet: o.p, gratis: 'Masterclass Wdrożeniowy', email: o.e, imie: o.i || '', nazwisko: o.n || '', sprzedawca: o.s || '', expiresAt: new Date(o.x).toISOString() };
 }
+
+// ── Zwykły osobisty link do płatności (strona generator-link.html) ──
+// Dla wskazanej osoby, gdy sprzedaż jest zamknięta dla wszystkich: zwykła cena wybranego pakietu (z cennika),
+// ważny 24 godziny, przypisany do e-maila klienta. Osobny prefiks podpisu - tokeny PRO i gratis nie przejdą jako ten link.
+export const LINK_VALIDITY_HOURS = 24;
+export const LINK_PACKAGES = ['Kompletny System', 'Fundament'];
+
+function signLink(payloadB64) {
+  return b64url(createHmac('sha256', secret()).update(`link:${payloadB64}`).digest());
+}
+
+export function createPayLink({ pakiet, email, imie, nazwisko, sprzedawca }) {
+  if (!LINK_PACKAGES.includes(pakiet)) throw new Error(`Pakiet: ${LINK_PACKAGES.join(' albo ')}.`);
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Podaj poprawny e-mail klienta.');
+  const payload = {
+    l: 1,
+    p: pakiet,
+    e: email.trim().toLowerCase(),
+    i: imie || undefined,
+    n: nazwisko || undefined,
+    s: sprzedawca || undefined,
+    x: Date.now() + LINK_VALIDITY_HOURS * 60 * 60 * 1000,
+  };
+  const body = b64url(JSON.stringify(payload));
+  return `${body}.${signLink(body)}`;
+}
+
+/** Zwraca dane linku albo null (zły podpis, wygasł, brak sekretu). */
+export function readPayLink(token) {
+  if (typeof token !== 'string' || token.length > 1000) return null;
+  const [body, sig] = token.split('.');
+  if (!body || !sig) return null;
+  let expected;
+  try { expected = signLink(body); } catch { return null; }
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+  let o;
+  try { o = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')); } catch { return null; }
+  if (o.l !== 1 || !LINK_PACKAGES.includes(o.p) || typeof o.e !== 'string' || !(o.x > Date.now())) return null;
+  return { pakiet: o.p, email: o.e, imie: o.i || '', nazwisko: o.n || '', sprzedawca: o.s || '', expiresAt: new Date(o.x).toISOString() };
+}

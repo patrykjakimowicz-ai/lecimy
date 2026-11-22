@@ -39,7 +39,7 @@
     var got = Number(o.gotowosc || 0);
     var ed = ctx.edition || {};
     var start = ed.startLabel || '20 listopada 2026';
-    var koniec = ed.endLabel || '19 lutego 2027';
+    var koniec = ed.endLabel || '22 lutego 2027';
     var miejsca = ctx.seatsLeft != null ? ctx.seatsLeft + ' z ' + MIEJSCA : 'tylko ' + MIEJSCA;
     var clip = function (t) { t = String(t || ''); return esc(t.length > 260 ? t.slice(0, 260) + '…' : t); };
 

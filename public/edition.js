@@ -7,9 +7,9 @@ window.LECIMY_EDITION = {
   // Pasek na górze odlicza do zamknięcia sprzedaży (salesCloseISO). Tryb "do podwyżki" wyłączony (priceRiseISO: null).
   priceRiseISO: null,
   startISO: '2026-11-20T00:00:00+01:00',
-  endISO: '2027-02-19T23:59:59+01:00',
+  endISO: '2027-02-22T23:59:59+01:00',
   startLabel: '20 listopada 2026',
-  endLabel: '19 lutego 2027',
+  endLabel: '22 lutego 2027',
   // Adresy e-mail, które widzą panel poza oknem edycji (testy właściciela przed startem), np. ['ty@domena.pl'].
   previewEmails: [],
 };
@@ -18,8 +18,10 @@ window.LECIMY_EDITION = {
 window.LECIMY_applySalesState = function () {
   var ed = window.LECIMY_EDITION;
   var closed = Date.now() >= Date.parse(ed.salesCloseISO);
-  window.LECIMY_SALES_CLOSED = closed;
-  if (!closed) return;
+  // Osobisty link do zamówienia (?link= / ?prezent= / ?oferta=) działa po zamknięciu sprzedaży - ważność sprawdza serwer.
+  var personal = /[?&](link|prezent|oferta)=/.test(window.location.search);
+  window.LECIMY_SALES_CLOSED = closed && !personal;
+  if (!closed || personal) return;
 
   // Strona główna: przyciski w cenniku
   document.querySelectorAll('.btn--pricing').forEach(function (btn) {
@@ -117,7 +119,7 @@ else window.LECIMY_applySalesState();
   function init() {
     if (Date.now() >= Date.parse(ed.salesCloseISO)) return;
     if (!document.getElementById('nav') && !document.getElementById('orderForm')) return; // tylko index i zamówienie
-    if (/[?&](oferta|prezent)=/.test(window.location.search)) return; // oferta PRO i link z gratisem mają własny licznik (zamowienie.html)
+    if (/[?&](oferta|prezent|link)=/.test(window.location.search)) return; // oferta PRO i link z gratisem mają własny licznik (zamowienie.html)
 
     var bar = document.createElement('div');
     bar.className = 'countdown-bar';

@@ -12,7 +12,7 @@ import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 import { PACKAGES, ADDONS, SEAT_LIMITS, MARKETING_CONSENT_DISCOUNT, PRO_PACKAGE, toGrosze } from './products.mjs';
-import { readProOffer, createProOffer, sellerForPassword, PRO_PRICE, createGiftOffer, readGiftOffer } from './proOffer.mjs';
+import { readProOffer, createProOffer, sellerForPassword, PRO_PRICE, createGiftOffer, readGiftOffer, createPayLink, readPayLink } from './proOffer.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
 import { createCheckoutSession, constructWebhookEvent } from './stripe.mjs';
 import { fulfillPaidOrder } from './fulfillment.mjs';
@@ -200,11 +200,20 @@ app.use(express.static(ROOT));
 app.post('/api/create-order', createOrderLimiter, async (req, res) => {
   let stage = 'walidacja';
   try {
-    // Sprzedaż jest zamykana przed startem edycji - po terminie nie przyjmujemy zamówień.
-    if (Date.now() >= Date.parse(EDITION.salesCloseISO)) {
+    const { pakiet, addonMasterclass: addonRaw, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura, zgodyTresc, oferta, prezent, link } = req.body || {};
+    // Sprzedaż jest zamykana dla wszystkich - po terminie przyjmujemy tylko zamówienia z ważnego, osobistego linku
+    // (podpisany, przypisany do e-maila, wygasa po 24 h): link do płatności, oferta PRO albo oferta z Masterclassem gratis.
+    const payLink = readPayLink(link);
+    const personalLink = payLink || readProOffer(oferta) || readGiftOffer(prezent);
+    if (Date.now() >= Date.parse(EDITION.salesCloseISO) && !personalLink) {
       return res.status(400).json({ error: `Sprzedaż tej edycji została zamknięta (${EDITION.salesCloseLabel}).` });
     }
-    const { pakiet, addonMasterclass: addonRaw, imie, nazwisko, email, telefon: telefonRaw, zgodaMarketing, zgodaRegulamin, zgodaCyfrowa, attribution, faktura, zgodyTresc, oferta, prezent } = req.body || {};
+    if (link && !payLink) {
+      return res.status(400).json({ error: 'Link do płatności wygasł albo jest nieprawidłowy. Napisz do nas, a wyślemy nowy.' });
+    }
+    if (payLink && pakiet !== payLink.pakiet) {
+      return res.status(400).json({ error: `Ten link dotyczy pakietu ${payLink.pakiet}.` });
+    }
     const telefon = MARKETING_ENABLED ? telefonRaw : null;
 
     // PRO kupuje się wyłącznie z osobistego linku po kwalifikacji - cena pochodzi z podpisanej oferty.
@@ -240,6 +249,9 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     }
     if (giftOffer && email.trim().toLowerCase() !== giftOffer.email) {
       return res.status(400).json({ error: `Oferta jest przypisana do adresu ${giftOffer.email} - użyj tego adresu e-mail.` });
+    }
+    if (payLink && email.trim().toLowerCase() !== payLink.email) {
+      return res.status(400).json({ error: `Link jest przypisany do adresu ${payLink.email} - użyj tego adresu e-mail.` });
     }
     if (proOffer && email.trim().toLowerCase() !== proOffer.email) {
       return res.status(400).json({ error: `Oferta PRO jest przypisana do adresu ${proOffer.email} - użyj tego adresu e-mail.` });
@@ -482,6 +494,27 @@ app.post('/api/pro-offer', proLinkLimiter, (req, res) => {
     const offer = readProOffer(token);
     console.log(`[pro-offer] ${sprzedawca} -> ${offer.email}, ${offer.cena} zł, ważna do ${offer.expiresAt}`);
     res.set('Cache-Control', 'no-store').json({ url: `${SITE_URL}/zamowienie.html?oferta=${token}`, ...offer });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// ── API: zwykły osobisty link do płatności (24 h) - odczyt na stronie zamówienia i generowanie (generator-link.html) ──
+app.get('/api/link-platnosci', readLimiter, (req, res) => {
+  const offer = readPayLink(req.query.t);
+  if (!offer) return res.status(404).set('Cache-Control', 'no-store').json({ error: 'Link nieprawidłowy albo wygasł.' });
+  res.set('Cache-Control', 'no-store').json(offer);
+});
+app.post('/api/link-platnosci', proLinkLimiter, (req, res) => {
+  const { haslo, pakiet, imie, nazwisko, email } = req.body || {};
+  const sprzedawca = sellerForPassword(haslo);
+  if (!sprzedawca) return res.status(401).json({ error: 'Nieprawidłowe hasło sprzedawcy.' });
+  const clean = (v) => (typeof v === 'string' ? v.trim().slice(0, 80) : '');
+  try {
+    const token = createPayLink({ pakiet, email: clean(email), imie: clean(imie), nazwisko: clean(nazwisko), sprzedawca });
+    const offer = readPayLink(token);
+    console.log(`[link-platnosci] ${sprzedawca} -> ${offer.email}, ${offer.pakiet}, ważny do ${offer.expiresAt}`);
+    res.set('Cache-Control', 'no-store').json({ url: `${SITE_URL}/zamowienie.html?pakiet=${encodeURIComponent(offer.pakiet)}&link=${token}`, ...offer });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
