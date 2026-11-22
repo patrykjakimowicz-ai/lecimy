@@ -5,6 +5,9 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
 
+/narzedzia/*
+  X-Robots-Tag: noindex, nofollow
+
 /generator-pro*
   X-Robots-Tag: noindex, nofollow
   Cache-Control: no-store
