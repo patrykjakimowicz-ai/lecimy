@@ -393,6 +393,13 @@
           };
           ['pvAs', 'pvMc', 'pvDate'].forEach(function (id) { document.getElementById(id).addEventListener('change', go); });
         }
+        // Informacja o starcie liczenia 3 miesięcy: widoczna tylko 22 i 23.11.2026
+        if (Date.now() < Date.parse('2026-11-24T00:00:00+01:00')) {
+          var note = document.createElement('div');
+          note.style.cssText = 'font-size:14px;line-height:1.5;padding:10px 16px;text-align:center;background:rgba(212,175,55,.14);color:var(--clr-gold);border-bottom:1px solid rgba(212,175,55,.3);';
+          note.innerHTML = '<strong>Ważna informacja:</strong> w rekompensacie za opóźnienie startu okres 3 miesięcy dostępu liczymy dopiero od jutra, czyli od 23.11.2026.';
+          document.body.insertBefore(note, document.body.firstChild);
+        }
         els.root.style.display = '';
       }
 
