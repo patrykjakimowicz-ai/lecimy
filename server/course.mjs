@@ -19,7 +19,7 @@ export const COURSE = [
     unlockLabel: '20 listopada 2026',
     lessons: [
       L('1.1', 'Wstęp do programu', 'Jak korzystać z platformy i jak przejść program, żeby wyciągnąć z niego maksimum.', BUNNY('2b1a50c1-14ca-457f-9e53-22541fff176f')),
-      { ...L('M', 'Masterclass Wdrożeniowy', 'Wdrożenie wszystkiego krok po kroku, razem ze mną.'), requires: 'masterclass', requiresLabel: 'Dostępny w dodatku Masterclass Wdrożeniowy' },
+      { ...L('M', 'Masterclass Wdrożeniowy', 'Wdrożenie wszystkiego krok po kroku, razem ze mną.', BUNNY('a2a22653-d031-47b9-8b24-8d3175cbb63b')), requires: 'masterclass', requiresLabel: 'Dostępny w dodatku Masterclass Wdrożeniowy' },
     ],
   },
   {
@@ -32,9 +32,9 @@ export const COURSE = [
       L('2.2', 'Protokół Startowy', '', BUNNY('81cea5db-8f05-47c1-a4a7-1bc6c1a48b6e')),
       L('2.3', 'Wieczorna rutyna i Architektura środowiska', '', BUNNY('ac6ec703-3a62-4735-96a2-55aa89fd9a7b')),
       L('2.4', 'Jak stać się najlepszą wersją siebie?', '', BUNNY('3f847074-81ef-4e2a-bcd2-0f00abc0a796')),
-      L('2.5', '„Dlaczego” to robisz?', '', BUNNY('c50592ea-749b-4213-aa65-c16b8eb52383')),
-      L('2.6', 'Architektura kryzysowa i zarządzanie błędem'),
-      L('2.7', 'Mechanizmy, które decydują, czy odniesiesz sukces'),
+      L('2.5', '„Dlaczego” to robisz?', '', BUNNY('00ff3c0d-fa52-4bc2-87b0-4091be8648b3')),
+      L('2.6', 'Architektura kryzysowa i zarządzanie błędem', '', BUNNY('a5413cb9-1772-42ef-b02b-dc5679ebeb7e')),
+      L('2.7', 'Mechanizmy, które decydują, czy odniesiesz sukces', '', BUNNY('c54b6783-e604-476b-b51d-73f4df7a3d47')),
     ],
   },
   {
