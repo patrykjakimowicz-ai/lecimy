@@ -20,7 +20,7 @@ export const COURSE = [
     unlockLabel: '20 listopada 2026',
     lessons: [
       L('1.1', 'Wstęp do programu', 'Jak korzystać z platformy i jak przejść program, żeby wyciągnąć z niego maksimum.', BUNNY('2b1a50c1-14ca-457f-9e53-22541fff176f')),
-      { ...L('M', 'Masterclass Wdrożeniowy', 'Wdrożenie wszystkiego krok po kroku, razem ze mną.', BUNNY('a2a22653-d031-47b9-8b24-8d3175cbb63b')), requires: 'masterclass', requiresLabel: 'Dostępny w dodatku Masterclass Wdrożeniowy' },
+      { ...L('M', 'Masterclass Wdrożeniowy', 'Wdrożenie wszystkiego krok po kroku, razem ze mną.', BUNNY('a2a22653-d031-47b9-8b24-8d3175cbb63b')), materials: [TOOL('Lecimy_Narzedzie_Protokol_startowy.pdf', 'Narzędzie: Protokół startowy')], requires: 'masterclass', requiresLabel: 'Dostępny w dodatku Masterclass Wdrożeniowy' },
     ],
   },
   {
