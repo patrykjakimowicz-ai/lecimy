@@ -43,16 +43,16 @@
 
       <div class="gen__grid">
         <div class="order-form__row">
-          <label for="imie">Imię klienta *</label>
-          <input type="text" id="imie" required maxlength="80" />
+          <label for="imie">Imię klienta (opcjonalnie)</label>
+          <input type="text" id="imie" maxlength="80" />
         </div>
         <div class="order-form__row">
           <label for="nazwisko">Nazwisko klienta</label>
           <input type="text" id="nazwisko" maxlength="80" />
         </div>
         <div class="order-form__row order-form__row--full">
-          <label for="email">E-mail klienta * (ten sam musi podać przy zamówieniu)</label>
-          <input type="email" id="email" required maxlength="254" />
+          <label for="email">E-mail klienta (opcjonalnie; z adresem link działa tylko z nim, bez adresu klient wpisuje własny)</label>
+          <input type="email" id="email" maxlength="254" />
         </div>
         <div class="order-form__row">
           <label for="pakiet">Pakiet</label>
@@ -115,14 +115,14 @@
       }
 
       function smsText(o) {
-        return 'Cześć ' + (o.imie || '') + ', tu ' + o.sprzedawca + ' z Lecimy po swoje. Twój osobisty link do zamówienia (pakiet ' + o.pakiet +
+        return 'Cześć' + (o.imie ? ' ' + o.imie : '') + ', tu ' + o.sprzedawca + ' z Lecimy po swoje. Twój osobisty link do zamówienia (pakiet ' + o.pakiet +
           ', ważny do ' + fmtDate(o.expiresAt) + '): ' + o.url;
       }
 
       function mailText(o) {
         return 'Temat: Twój osobisty link do zamówienia - Lecimy po swoje\n\n' +
-          'Cześć ' + (o.imie || '') + ',\n\n' +
-          'poniżej Twój osobisty link do zamówienia pakietu ' + o.pakiet + '. Jest ważny do ' + fmtDate(o.expiresAt) + ' i działa z adresem ' + o.email + '.\n\n' +
+          'Cześć' + (o.imie ? ' ' + o.imie : '') + ',\n\n' +
+          'poniżej Twój osobisty link do zamówienia pakietu ' + o.pakiet + '. Jest ważny do ' + fmtDate(o.expiresAt) + (o.email ? ' i działa z adresem ' + o.email : '') + '.\n\n' +
           o.url + '\n\n' +
           'Przed płatnością zapoznaj się z Regulaminem: https://lecimyposwoje.pl/regulamin\n\n' +
           'Pozdrawiam\n' + o.sprzedawca + '\nLecimy po swoje';
@@ -137,7 +137,7 @@
           email: $('email').value.trim(),
           pakiet: $('pakiet').value,
         };
-        if (!body.haslo || !body.imie || !body.email) return show('Uzupełnij hasło, imię i e-mail.', true);
+        if (!body.haslo) return show('Podaj hasło sprzedawcy.', true);
         try {
           if ($('zapamietaj').checked) localStorage.setItem(KEY, body.haslo); else localStorage.removeItem(KEY);
         } catch (e2) {}
@@ -150,7 +150,7 @@
             $('genSms').value = smsText(o);
             $('genMail').value = mailText(o);
             $('genOut').hidden = false;
-            show('Gotowe: ' + o.pakiet + ' dla ' + o.email + ', ważny do ' + fmtDate(o.expiresAt) + '.');
+            show('Gotowe: ' + o.pakiet + (o.email ? ' dla ' + o.email : '') + ', ważny do ' + fmtDate(o.expiresAt) + '.');
             $('genOut').scrollIntoView({ behavior: 'smooth' });
           })
           .catch(function (err) { show(err.message, true); })

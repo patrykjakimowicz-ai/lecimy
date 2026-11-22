@@ -127,13 +127,14 @@ function signLink(payloadB64) {
   return b64url(createHmac('sha256', secret()).update(`link:${payloadB64}`).digest());
 }
 
+// E-mail jest opcjonalny: z adresem link działa tylko z nim, bez adresu klient wpisuje własny (link jest wtedy niezależny od osoby).
 export function createPayLink({ pakiet, email, imie, nazwisko, sprzedawca }) {
   if (!LINK_PACKAGES.includes(pakiet)) throw new Error(`Pakiet: ${LINK_PACKAGES.join(' albo ')}.`);
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Podaj poprawny e-mail klienta.');
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error('Podaj poprawny e-mail klienta albo zostaw pole puste.');
   const payload = {
     l: 1,
     p: pakiet,
-    e: email.trim().toLowerCase(),
+    e: email ? email.trim().toLowerCase() : '',
     i: imie || undefined,
     n: nazwisko || undefined,
     s: sprzedawca || undefined,
@@ -155,6 +156,6 @@ export function readPayLink(token) {
   if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
   let o;
   try { o = JSON.parse(Buffer.from(body, 'base64url').toString('utf8')); } catch { return null; }
-  if (o.l !== 1 || !LINK_PACKAGES.includes(o.p) || typeof o.e !== 'string' || !(o.x > Date.now())) return null;
+  if (o.l !== 1 || !LINK_PACKAGES.includes(o.p) || typeof o.e !== 'string' || !(o.x > Date.now())) return null; // e może być pusty
   return { pakiet: o.p, email: o.e, imie: o.i || '', nazwisko: o.n || '', sprzedawca: o.s || '', expiresAt: new Date(o.x).toISOString() };
 }

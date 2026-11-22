@@ -513,8 +513,7 @@
               packageLabels = list.querySelectorAll('.order-package');
             }
             var emailInput = document.getElementById('email');
-            emailInput.value = offer.email;
-            emailInput.readOnly = true;
+            if (offer.email) { emailInput.value = offer.email; emailInput.readOnly = true; }
             if (offer.imie && !document.getElementById('imie').value) document.getElementById('imie').value = offer.imie;
             if (offer.nazwisko && !document.getElementById('nazwisko').value) document.getElementById('nazwisko').value = offer.nazwisko;
             var expires = Date.parse(offer.expiresAt);

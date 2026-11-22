@@ -250,7 +250,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
     if (giftOffer && email.trim().toLowerCase() !== giftOffer.email) {
       return res.status(400).json({ error: `Oferta jest przypisana do adresu ${giftOffer.email} - użyj tego adresu e-mail.` });
     }
-    if (payLink && email.trim().toLowerCase() !== payLink.email) {
+    if (payLink && payLink.email && email.trim().toLowerCase() !== payLink.email) {
       return res.status(400).json({ error: `Link jest przypisany do adresu ${payLink.email} - użyj tego adresu e-mail.` });
     }
     if (proOffer && email.trim().toLowerCase() !== proOffer.email) {
@@ -513,7 +513,7 @@ app.post('/api/link-platnosci', proLinkLimiter, (req, res) => {
   try {
     const token = createPayLink({ pakiet, email: clean(email), imie: clean(imie), nazwisko: clean(nazwisko), sprzedawca });
     const offer = readPayLink(token);
-    console.log(`[link-platnosci] ${sprzedawca} -> ${offer.email}, ${offer.pakiet}, ważny do ${offer.expiresAt}`);
+    console.log(`[link-platnosci] ${sprzedawca} -> ${offer.email || '(bez e-maila)'}, ${offer.pakiet}, ważny do ${offer.expiresAt}`);
     res.set('Cache-Control', 'no-store').json({ url: `${SITE_URL}/zamowienie.html?pakiet=${encodeURIComponent(offer.pakiet)}&link=${token}`, ...offer });
   } catch (err) {
     res.status(400).json({ error: err.message });
