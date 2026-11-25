@@ -33,7 +33,7 @@ export const COURSE = [
       { ...L('2.2', 'Protokół Startowy', '', BUNNY('81cea5db-8f05-47c1-a4a7-1bc6c1a48b6e')), materials: [TOOL('Lecimy_Narzedzie_2.2_Karta_porannej_sekwencji.pdf', 'Narzędzie: Karta porannej sekwencji')] },
       { ...L('2.3', 'Wieczorna rutyna i Architektura środowiska', '', BUNNY('ac6ec703-3a62-4735-96a2-55aa89fd9a7b')), materials: [TOOL('Lecimy_Narzedzie_2.3_Kolo_ratunkowe_na_overthinking.pdf', 'Narzędzie: Koło ratunkowe na overthinking')] },
       { ...L('2.4', 'Jak stać się najlepszą wersją siebie?', '', BUNNY('3f847074-81ef-4e2a-bcd2-0f00abc0a796')), materials: [TOOL('Lecimy_Narzedzie_2.4_Formularz_odpowiedzialnosci.pdf', 'Narzędzie: Formularz odpowiedzialności')] },
-      { ...L('2.5', '„Dlaczego” to robisz?', '', BUNNY('00ff3c0d-fa52-4bc2-87b0-4091be8648b3')), materials: [TOOL('Lecimy_Narzedzie_2.5_Moje_prawdziwe_dlaczego.pdf', 'Narzędzie: Moje prawdziwe „dlaczego”')] },
+      { ...L('2.5', '„Dlaczego” to robisz?', '', BUNNY('bc91af50-6f11-405e-817c-9496203c3044')), materials: [TOOL('Lecimy_Narzedzie_2.5_Moje_prawdziwe_dlaczego.pdf', 'Narzędzie: Moje prawdziwe „dlaczego”')] },
       { ...L('2.6', 'Architektura kryzysowa i zarządzanie błędem', '', BUNNY('a5413cb9-1772-42ef-b02b-dc5679ebeb7e')), materials: [TOOL('Lecimy_Narzedzie_2.6_Czarna_skrzynka_i_plan_awaryjny.pdf', 'Narzędzie: Czarna skrzynka i plan awaryjny')] },
       { ...L('2.7', 'Mechanizmy, które decydują, czy odniesiesz sukces', '', BUNNY('c54b6783-e604-476b-b51d-73f4df7a3d47')), materials: [TOOL('Lecimy_Narzedzie_2.7_Habit_tracker.pdf', 'Narzędzie: Habit tracker')] },
     ],
