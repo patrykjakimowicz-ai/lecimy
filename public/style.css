@@ -3598,7 +3598,7 @@ body.has-countdown.has-bf { --bar-h: 104px; }
 .bf-price b { font-size: 1.15rem; font-weight: 900; color: #ff3b30; animation: bf-beat 1.4s ease-in-out infinite; display: inline-block; }
 @keyframes bf-beat { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.14); } 30% { transform: scale(1); } }
 .bf-timer { display: flex; flex-direction: column; align-items: center; gap: .2rem; }
-.bf-timer small { font-size: .56rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #ff6b61; }
+.bf-timer > small { font-size: .56rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: #ff6b61; }
 .countdown-bar.is-bf .cd-units { gap: .3rem; }
 .countdown-bar.is-bf .cd-unit { min-width: 46px; padding: .28rem .3rem; border-radius: 6px; background: #141414; border: 1px solid rgba(255,31,31,.65); box-shadow: none; }
 .countdown-bar.is-bf .cd-unit[hidden] { display: none; }
@@ -3610,21 +3610,25 @@ body.has-countdown.has-bf { --bar-h: 104px; }
 @keyframes bf-ring { 0% { box-shadow: 0 0 0 0 rgba(255,31,31,.75); } 100% { box-shadow: 0 0 0 12px rgba(255,31,31,0); } }
 @media (max-width: 920px) {
   .bf-stamp, .countdown-bar.is-bf .cd-cta { display: none; }
-  .countdown-bar.is-bf .countdown-bar__inner { justify-content: space-between; gap: .6rem; padding-inline: .75rem; }
+  .countdown-bar.is-bf .countdown-bar__inner { gap: 1.5rem; padding-inline: .75rem; }
 }
 @media (max-width: 640px) {
-  body.has-countdown.has-bf { --bar-h: 90px; }
+  body.has-countdown.has-bf { --bar-h: 104px; }
   .countdown-bar.is-bf::before { inset: 24px 0 0 0; }
   .bf-tape { height: 24px; }
   .bf-tape__half { font-size: .62rem; }
-  .bf-offer strong { font-size: .86rem; max-width: 10.5rem; }
-  .bf-price { font-size: .72rem; gap: .35rem; }
-  .bf-price em { display: none; }
-  .bf-price b { font-size: .95rem; }
-  .countdown-bar.is-bf .cd-units { gap: .2rem; }
-  .countdown-bar.is-bf .cd-unit { min-width: 33px; padding: .22rem .15rem; }
-  .countdown-bar.is-bf .cd-unit__v { font-size: .98rem; }
-  .countdown-bar.is-bf .cd-unit__l { font-size: .45rem; letter-spacing: .06em; }
+  /* hasło na całą szerokość, pod nim cena i licznik obok siebie, całość wyśrodkowana */
+  .countdown-bar.is-bf .countdown-bar__inner { display: grid; grid-template-columns: auto auto; justify-content: center; align-content: center; align-items: center; gap: .4rem .9rem; padding-inline: .5rem; }
+  .bf-offer { display: contents; }
+  /* max-width: none - starsza reguła .cd-label__text zwęża ten sam element do 5.2rem */
+  .bf-offer strong.cd-label__text { grid-column: 1 / -1; max-width: none; text-align: center; font-size: 1.05rem; letter-spacing: .01em; white-space: nowrap; }
+  .bf-price { flex-direction: column; align-items: flex-end; gap: 0; font-size: .74rem; line-height: 1.15; }
+  .bf-price em, .bf-timer > small { display: none; }
+  .bf-price b { font-size: 1.15rem; transform-origin: right center; }
+  .countdown-bar.is-bf .cd-units { gap: .25rem; }
+  .countdown-bar.is-bf .cd-unit { min-width: 38px; padding: .25rem .2rem; }
+  .countdown-bar.is-bf .cd-unit__v { font-size: 1.05rem; }
+  .countdown-bar.is-bf .cd-unit__l { font-size: .46rem; letter-spacing: .06em; }
 }
 body.has-bf #pricing { scroll-margin-top: calc(var(--nav-h) + 128px); }
 
