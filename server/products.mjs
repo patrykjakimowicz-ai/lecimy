@@ -6,6 +6,17 @@ export const PACKAGES = {
   'Kompletny System': 1697,
 };
 
+// Black Friday: ceny promocyjne do końca listopada, potem automatycznie wracają ceny z PACKAGES.
+// Termin i kwoty muszą zgadzać się z public/edition.js (promoEndISO), index.html i zamowienie.html.
+export const PROMO = {
+  endISO: '2026-11-30T23:59:59+01:00',
+  prices: { 'Fundament': 997, 'Kompletny System': 1297 },
+};
+
+export function packagePrice(pakiet, now = Date.now()) {
+  return now <= Date.parse(PROMO.endISO) && Object.hasOwn(PROMO.prices, pakiet) ? PROMO.prices[pakiet] : PACKAGES[pakiet];
+}
+
 // Pakiet PRO: oferta indywidualna po kwalifikacji, bez ceny w PACKAGES - cenę niesie podpisany link (server/proOffer.mjs).
 export const PRO_PACKAGE = 'Lecimy po swoje PRO';
 

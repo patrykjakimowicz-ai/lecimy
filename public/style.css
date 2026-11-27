@@ -3572,3 +3572,10 @@ body.has-countdown { --bar-h: 66px; }
   .countdown-bar.is-price .cd-label { font-size: 0.64rem; letter-spacing: 0.02em; font-weight: 800; }
   .countdown-bar.is-price .cd-label__text { max-width: 9.5rem; white-space: normal; line-height: 1.15; }
 }
+
+/* Black Friday: przekreślona cena i najniższa cena z 30 dni */
+.pricing-card__promo { position: relative; z-index: 1; display: flex; justify-content: center; align-items: center; gap: .6rem; margin: 0; }
+.pricing-card__promo span { padding: 3px 10px; border-radius: var(--radius-full); background: #000; border: 1px solid rgba(232,120,12,.6); color: #ffb066; font-size: .68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.pricing-card__promo s { color: var(--clr-text-muted); font-size: var(--fs-lg); }
+.pricing-card__lowest { position: relative; z-index: 1; margin: 0 0 .3rem; text-align: center; font-size: .7rem; color: var(--clr-text-muted); }
+.order-package__price s { margin-right: .35rem; opacity: .55; font-weight: 400; }

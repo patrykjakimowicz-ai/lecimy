@@ -2,10 +2,12 @@
 // Daty muszą zgadzać się z server/edition.mjs oraz z tekstami w index.html, regulamin.html i zamowienie.html.
 window.LECIMY_EDITION = {
   name: 'Edycja 1',
-  salesCloseISO: '2026-11-21T23:59:59+01:00',
-  salesCloseLabel: '21 listopada 2026',
+  salesCloseISO: '2026-11-30T23:59:59+01:00',
+  salesCloseLabel: '30 listopada 2026',
   // Pasek na górze odlicza do zamknięcia sprzedaży (salesCloseISO). Tryb "do podwyżki" wyłączony (priceRiseISO: null).
   priceRiseISO: null,
+  // Black Friday: po tej chwili strona sama wraca do cen regularnych (serwer: PROMO w server/products.mjs).
+  promoEndISO: '2026-11-30T23:59:59+01:00',
   startISO: '2026-11-20T00:00:00+01:00',
   endISO: '2027-02-22T23:59:59+01:00',
   startLabel: '20 listopada 2026',
@@ -46,6 +48,18 @@ window.LECIMY_applySalesState = function () {
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.LECIMY_applySalesState);
 else window.LECIMY_applySalesState();
 
+// ── Koniec promocji: elementy [data-promo-only] znikają, a [data-regular] i [data-price-regular] wracają do cen regularnych ──
+window.LECIMY_applyPromoState = function () {
+  if (Date.now() <= Date.parse(window.LECIMY_EDITION.promoEndISO)) return;
+  document.querySelectorAll('[data-promo-only]').forEach(function (el) { el.remove(); });
+  document.querySelectorAll('[data-regular]').forEach(function (el) { el.textContent = el.getAttribute('data-regular'); });
+  document.querySelectorAll('[data-price-regular]').forEach(function (el) { el.setAttribute('data-price', el.getAttribute('data-price-regular')); });
+  var checked = document.querySelector('.order-package input[name="pakiet"]:checked');
+  if (checked) checked.dispatchEvent(new Event('change')); // przelicza podsumowanie zamówienia
+};
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.LECIMY_applyPromoState);
+else window.LECIMY_applyPromoState();
+
 // ── Licznik do podwyżki ceny, a po niej do zamknięcia sprzedaży (pasek na górze strony) ──
 (function () {
   var ed = window.LECIMY_EDITION;
@@ -55,6 +69,12 @@ else window.LECIMY_applySalesState();
   var PRICE_LABEL_MOBILE = 'PODWYŻKA LECIMY ZA';
   function isPhone() { return window.matchMedia && window.matchMedia('(max-width: 640px)').matches; }
   var CLOSE_LABEL = 'Zapisy zamykamy za';
+  var PROMO_LABEL = 'Black Friday · sprzedaż otwarta jeszcze';
+  var PROMO_LABEL_MOBILE = 'Black Friday';
+  function closeLabel() {
+    if (Date.now() > Date.parse(ed.promoEndISO)) return CLOSE_LABEL;
+    return isPhone() ? PROMO_LABEL_MOBILE : PROMO_LABEL;
+  }
 
   function priceRiseLeft() { return ed.priceRiseISO ? Date.parse(ed.priceRiseISO) - Date.now() : 0; }
 
@@ -83,7 +103,7 @@ else window.LECIMY_applySalesState();
     var priceMode = priceRiseLeft() > 0 && Date.now() < Date.parse(ed.salesCloseISO);
     var left = priceMode ? priceRiseLeft() : Date.parse(ed.salesCloseISO) - Date.now();
     var labelEl = bar.querySelector('.cd-label__text');
-    var labelText = priceMode ? (isPhone() ? PRICE_LABEL_MOBILE : PRICE_LABEL) : CLOSE_LABEL;
+    var labelText = priceMode ? (isPhone() ? PRICE_LABEL_MOBILE : PRICE_LABEL) : closeLabel();
     if (labelEl.textContent !== labelText) labelEl.textContent = labelText;
     bar.classList.toggle('is-price', priceMode);
     if (left <= 0) {
@@ -92,6 +112,7 @@ else window.LECIMY_applySalesState();
       setTimeout(function () {
         bar.remove();
         document.body.classList.remove('has-countdown');
+        window.LECIMY_applyPromoState();
         window.LECIMY_applySalesState();
       }, 600);
       return;

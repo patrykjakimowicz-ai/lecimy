@@ -11,7 +11,7 @@ import { randomUUID } from 'node:crypto';
 import helmet from 'helmet';
 import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
-import { PACKAGES, ADDONS, SEAT_LIMITS, MARKETING_CONSENT_DISCOUNT, PRO_PACKAGE, toGrosze } from './products.mjs';
+import { PACKAGES, packagePrice, ADDONS, SEAT_LIMITS, MARKETING_CONSENT_DISCOUNT, PRO_PACKAGE, toGrosze } from './products.mjs';
 import { readProOffer, createProOffer, sellerForPassword, PRO_PRICE, createGiftOffer, readGiftOffer, createPayLink, readPayLink } from './proOffer.mjs';
 import { registerTransaction, verifyTransaction, isWebhookSignatureValid } from './przelewy24.mjs';
 import { createCheckoutSession, constructWebhookEvent } from './stripe.mjs';
@@ -297,7 +297,7 @@ app.post('/api/create-order', createOrderLimiter, async (req, res) => {
       }
     }
 
-    let pricePln = (proOffer ? proOffer.cena : PACKAGES[pakiet]) + (addonMasterclass && !giftOffer ? ADDONS.masterclass.price : 0);
+    let pricePln = (proOffer ? proOffer.cena : packagePrice(pakiet)) + (addonMasterclass && !giftOffer ? ADDONS.masterclass.price : 0);
     if (marketingConsent) pricePln -= MARKETING_CONSENT_DISCOUNT;
     const amountGrosze = toGrosze(pricePln);
     const sessionId = randomUUID();
