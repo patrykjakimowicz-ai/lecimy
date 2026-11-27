@@ -69,13 +69,26 @@ else window.LECIMY_applyPromoState();
   var PRICE_LABEL_MOBILE = 'PODWYŻKA LECIMY ZA';
   function isPhone() { return window.matchMedia && window.matchMedia('(max-width: 640px)').matches; }
   var CLOSE_LABEL = 'Zapisy zamykamy za';
-  var PROMO_LABEL = 'Black Friday · sprzedaż otwarta jeszcze';
-  var PROMO_LABEL_MOBILE = 'Black Friday';
-  function closeLabel() {
-    if (Date.now() > Date.parse(ed.promoEndISO)) return CLOSE_LABEL;
-    return isPhone() ? PROMO_LABEL_MOBILE : PROMO_LABEL;
-  }
+  var PROMO_LABEL = 'Najniższa cena w historii';
+  function promoActive() { return Date.now() <= Date.parse(ed.promoEndISO); }
+  function closeLabel() { return promoActive() ? PROMO_LABEL : CLOSE_LABEL; }
 
+  // Black Friday: biegnąca taśma + nagłówek z ceną. Kwoty muszą się zgadzać z cennikiem (index.html, server/products.mjs).
+  function bfHtml(ctaHref) {
+    var item = '<span>Black Friday</span><i>✦</i><span>Najniższa cena w historii</span><i>✦</i>' +
+      '<span>Kompletny System 1 297 zł</span><i>✦</i><span>Fundament 997 zł</span><i>✦</i>';
+    var half = '<div class="bf-tape__half">' + item + item + item + '</div>';
+    return '<div class="bf-tape" aria-hidden="true"><div class="bf-tape__track">' + half + half + '</div></div>' +
+      '<div class="countdown-bar__inner">' +
+        '<span class="bf-stamp" aria-hidden="true">Black<br>Friday</span>' +
+        '<div class="bf-offer">' +
+          '<strong class="cd-label__text"></strong>' +
+          '<span class="bf-price"><em>Kompletny System</em> <s>1 697 zł</s> <b>1 297 zł</b></span>' +
+        '</div>' +
+        '<div class="bf-timer"><small>Koniec za</small><div class="cd-units">' + unitHtml('d') + unitHtml('h') + unitHtml('m') + unitHtml('s') + '</div></div>' +
+        (ctaHref ? '<a class="cd-cta" href="' + ctaHref + '">Łapię obniżkę</a>' : '') +
+      '</div>';
+  }
   function priceRiseLeft() { return ed.priceRiseISO ? Date.parse(ed.priceRiseISO) - Date.now() : 0; }
 
   function pad(n) { return n < 10 ? '0' + n : String(n); }
@@ -111,7 +124,7 @@ else window.LECIMY_applyPromoState();
       bar.classList.add('is-leaving');
       setTimeout(function () {
         bar.remove();
-        document.body.classList.remove('has-countdown');
+        document.body.classList.remove('has-countdown', 'has-bf');
         window.LECIMY_applyPromoState();
         window.LECIMY_applySalesState();
       }, 600);
@@ -151,6 +164,11 @@ else window.LECIMY_applyPromoState();
         '<div class="cd-units">' + unitHtml('d') + unitHtml('h') + unitHtml('m') + unitHtml('s') + '</div>' +
         '<a class="cd-cta" href="' + (document.getElementById('pricing') ? '' : 'index.html') + '#pricing">Dołączam przed zamknięciem</a>' +
       '</div>';
+    if (promoActive()) {
+      bar.classList.add('is-bf');
+      bar.innerHTML = bfHtml(document.getElementById('pricing') ? '#pricing' : ''); // na stronie zamówienia bez przycisku
+      document.body.classList.add('has-bf');
+    }
     document.body.insertBefore(bar, document.body.firstChild);
 
     ['d', 'h', 'm', 's'].forEach(function (k) {
